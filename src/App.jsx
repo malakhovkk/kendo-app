@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import './App.css';
 import { HashRouter, BrowserRouter, Routes, Route } from 'react-router-dom';
 import SignIn from './pages/SignIn/SignIn';
+import Users from './pages/Users/Users.jsx';
 import Home from './pages/Home/Home';
 import DrawerRouterContainer from "./components/DrawerRouterContainer";
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
         <DrawerRouterContainer>
           <Routes>
             <Route exact={true} path="/" element={<SignIn/>}/>
+            <Route exact={true} path="/users" element={<Users/>}/>
           </Routes>
         </DrawerRouterContainer>
       </HashRouter>
