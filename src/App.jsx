@@ -4,20 +4,22 @@ import './App.css';
 import { HashRouter, BrowserRouter, Routes, Route } from 'react-router-dom';
 import SignIn from './pages/SignIn/SignIn';
 import Users from './pages/Users/Users.jsx';
+import Group from './pages/Group/Group.jsx';
+import Rights from './pages/Rights/Rights.jsx';
 import Home from './pages/Home/Home';
 import DrawerRouterContainer from "./components/DrawerRouterContainer";
 const App = () => {
   return (
-    <React.Fragment>
       <HashRouter>
-        <DrawerRouterContainer>
           <Routes>
-            <Route exact={true} path="/" element={<SignIn/>}/>
-            <Route exact={true} path="/users" element={<Users/>}/>
+            <Route path="/" element={<SignIn/>}/>
+            <Route path="/home" element={<Home/>}>
+              <Route path="/home/users" element={<Users/>}/>
+              <Route path="/home/group" element={<Group/>}/>
+              <Route path="/home/rights" element={<Rights/>}/>
+            </Route>
           </Routes>
-        </DrawerRouterContainer>
       </HashRouter>
-  </React.Fragment>
   );
   // return (
   //   <BrowserRouter>

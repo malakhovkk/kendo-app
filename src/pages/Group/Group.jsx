@@ -5,10 +5,6 @@ import users from "./Users.json";
 import './Users.css';
 import { Button } from "@progress/kendo-react-buttons";
 import { Window } from "@progress/kendo-react-dialogs";
-import { uid } from 'uid';
-import { formatCodeBlockIcon } from "@progress/kendo-svg-icons";
-import { useSelector, useDispatch } from "react-redux";
-import { addUser, removeUser, editUser } from "../../features/slice";
 // const CustomCell = (props) => {
 //   return (
 //     <td
@@ -25,9 +21,8 @@ import { addUser, removeUser, editUser } from "../../features/slice";
 // const MyCustomCell = (props) => <CustomCell {...props} color={"red"} />;
 
 
-const Users = () => {
-  const dispatch = useDispatch();
-  const EditCell = (props) => {
+const Group = () => {
+  const CommandCell = (props) => {
     //console.log(props)
     return (
       <td>
@@ -35,41 +30,21 @@ const Users = () => {
       </td>
     );
   };
-
-  const DeleteCell = (props) => {
-    //console.log(props)
-    return (
-      <td>
-        <Button themeColor="error" onClick={() => deleteUser(props.dataItem.id)}>Удалить</Button>
-      </td>
-    );
-  };
-
-  
   
   const [visible, setVisible] = React.useState(false);
   const [id, setId] = React.useState(null);
-  // const [info, setInfo] = React.useState(users);
-  const info = useSelector((state) => state.info.users);
+  const [info, setInfo] = React.useState(users);
   const [formData, setFormData] = React.useState({});
   const openDialog = id => {
     console.log("Active");
-    setVisible(1);
-    setFormData({});
+    setVisible(true);
     setId(id);
     setFormData({id, code: getCodeById(id), surname: getSurnameById(id)});
   };
 
-  const deleteUser = (id) => {
-    //const arr = info.filter(el => el.id !== id);
-    dispatch(removeUser(id));
-    //setInfo(arr);
-  }
-
   const closeDialog = () => {
-    setVisible(0);
+    setVisible(false);
     setId(null);
-    setFormData({surname: '', code:''});
   }
 
   const getCodeById = id => {
@@ -82,37 +57,15 @@ const Users = () => {
     return element.surname;
   };
   const save = () => {
-    // const arr = info.map(el =>{
-    //    if(el.id != id) return el;
-    //    else return formData;
-    // });
-    dispatch(editUser({id, formData}));
-    //setInfo(arr);
+    const arr = info.map(el =>{
+       if(el.id != id) return el;
+       else return formData;
+    });
+    setInfo(arr);
     closeDialog();
   }
-  React.useEffect(() => {
-    console.log(formData)
-  },[formData])
-  const addUser1 = () => {
-    setVisible(2);
-    setFormData({surname: '', code:''});
-  }
-  const add = () => {
-    if(formData.code && formData.surname)
-    {
-      formData.id = uid();
-      //setInfo([...info, formData]);
-      dispatch(addUser(formData));
-      setFormData({surname: '', code:''});
-      setVisible(0);
-    }
-  }
-
   return (
     <div>
-      <div className="add_user">
-        <Button onClick={() => addUser1()}>Добавить</Button>
-      </div>
     <Grid
       data={info}
       className="grid"
@@ -122,14 +75,13 @@ const Users = () => {
     >
       <GridColumn field="code" title="Code"  />
       <GridColumn field="surname" title="Surname" />
-      <GridColumn cell={EditCell}  width="200px" />
-      <GridColumn cell={DeleteCell}  width="200px" />
+      <GridColumn cell={CommandCell}  width="200px" />
     </Grid>
-     {!!visible && (
+     {visible && (
       <Window title={"User"} onClose={closeDialog} initialHeight={350}>
         <form className="k-form">
           <fieldset>
-            {visible === 1 ? <legend>User Details</legend> : <legend>Add User</legend>  }
+            <legend>User Details</legend>
 
             <label className="k-form-field">
               <span>Code</span>
@@ -149,30 +101,13 @@ const Users = () => {
             >
               Cancel
             </button>
-            {/* <button
-              type="button"
-              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-               onClick={save}
-            >
-              Submit
-            </button> */}
-
-            {
-              visible === 1 ? <button
-              type="button"
-              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-               onClick={save}
-            >
-              Submit
-            </button>:
             <button
-            type="button"
-            className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-             onClick={add}
-          >
-            Submit
-          </button>
-            }
+              type="button"
+              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+              onClick={save}
+            >
+              Submit
+            </button>
           </div>
         </form>
       </Window>
@@ -180,4 +115,4 @@ const Users = () => {
     </div>
   );
 };
-export default Users;
+export default Group;
