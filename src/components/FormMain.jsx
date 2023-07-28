@@ -24,7 +24,7 @@ const FormMain = () => {
         <FormElement
           style={{
             maxWidth: 350,
-            border: "1px solid #e3e0e0",
+            // border: "1px solid #e3e0e0",
             padding: 10,
             borderRadius: '5px'
           }}
@@ -33,25 +33,26 @@ const FormMain = () => {
             {/* <legend className={"k-form-legend"}>
               Please fill in the fields:
             </legend> */}
-            <div>
+            {/* <div>
               <Field
                 name={"firstName"}
                 component={Input}
                 label={"First name"}
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Field name={"lastName"} component={Input} label={"Last name"} />
-            </div>
+            </div> */}
 
             <div>
               <Field
-                name={"email"}
-                type={"email"}
-                component={EmailInput}
-                label={"Email"}
-                validator={emailValidator}
+                name={"login"}
+                // type={"email"}
+                // component={EmailInput}
+                component={Input}
+                label={"Login"}
+                // validator={emailValidator}
               />
             </div>
 
@@ -65,8 +66,8 @@ const FormMain = () => {
                 }}
                 label="Password"
                 required={true}
-                minLength={6}
-                maxLength={18}
+                // minLength={6}
+                // maxLength={18}
               />
             </div>
           </fieldset>
@@ -74,9 +75,9 @@ const FormMain = () => {
             <button
               type={"submit"}
               className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
-              disabled={!formRenderProps.allowSubmit}
+              // disabled={!formRenderProps.allowSubmit}
             >
-              Зарегистрироваться
+              Войти
             </button>
           </div>
         </FormElement>

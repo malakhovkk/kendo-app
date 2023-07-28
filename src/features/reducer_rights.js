@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import data from "../pages/Users/Users.json";
 const initialState = {
-  users: data.users
+    users: data.rights
 };
-
+console.log(initialState);
 const slice = createSlice({
-  name: "users",
+  name: "rights",
   initialState,
   reducers: {
     addUser: (state, action) => {

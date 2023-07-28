@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import data from "../pages/Users/Users.json";
 const initialState = {
-  users: data.users
+    users: data.user_group
 };
-
+console.log(initialState);
 const slice = createSlice({
-  name: "users",
+  name: "user_group",
   initialState,
   reducers: {
     addUser: (state, action) => {

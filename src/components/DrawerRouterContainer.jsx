@@ -12,15 +12,16 @@ const items = [
   // {
   //   separator: true,
   // },
-  {
-    text: "Группа пользователей",
-     icon: "k-i-bell",
-    route: "/home/group",
-  },
+  
   {
     text: "Пользователи",
      icon: "k-i-calendar",
     route: "/home/users",
+  },
+  {
+    text: "Группа пользователей",
+     icon: "k-i-bell",
+    route: "/home/group",
   },
   {
     text: "Права пользователей",

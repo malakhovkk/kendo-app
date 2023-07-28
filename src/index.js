@@ -4,7 +4,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.scss';
 import '@progress/kendo-theme-default/dist/all.css';
-import store from "./store.js";
+import { store } from "./store";
 import { Provider } from "react-redux";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
