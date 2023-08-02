@@ -6,9 +6,15 @@ import './Rights.css';
 import { Button } from "@progress/kendo-react-buttons";
 import { Window } from "@progress/kendo-react-dialogs";
 import { uid } from 'uid';
+import { useNavigate } from "react-router-dom";
 import { formatCodeBlockIcon } from "@progress/kendo-svg-icons";
 import { useSelector, useDispatch } from "react-redux";
-import { addUser, removeUser, editUser } from "../../features/reducer_rights";
+import { useGetAllRightsQuery, useEditRightMutation, useCreateRightMutation, useDeleteRightMutation } from "../../features/apiSlice";
+import {
+  Notification,
+  NotificationGroup,
+} from "@progress/kendo-react-notification";
+import { Fade } from "@progress/kendo-react-animation";
 // const CustomCell = (props) => {
 //   return (
 //     <td
@@ -26,6 +32,18 @@ import { addUser, removeUser, editUser } from "../../features/reducer_rights";
 
 
 const Rights = () => {
+  const { data, error: err,  isLoading, refetch } = useGetAllRightsQuery();
+  const [edit] = useEditRightMutation();
+  const [_addRight] = useCreateRightMutation();
+  const [_deleteRight] = useDeleteRightMutation();
+  const [visible, setVisible] = React.useState(false);
+  const [id, setId] = React.useState(null);
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState(false);
+
+  const navigate = useNavigate();
+  if(err?.status === 401) navigate('/');
+
   const dispatch = useDispatch();
   const EditCell = (props) => {
     //console.log(props)
@@ -40,102 +58,139 @@ const Rights = () => {
     //console.log(props)
     return (
       <td>
-        <Button themeColor="error" onClick={() => deleteUser(props.dataItem.id)}>Удалить</Button>
+        <Button themeColor="error" onClick={() => deleteRight(props.dataItem.id)}>Удалить</Button>
       </td>
     );
   };
 
   
   
-  const [visible, setVisible] = React.useState(false);
-  const [id, setId] = React.useState(null);
+
   // const [info, setInfo] = React.useState(users);
-  const info = useSelector((state) => state.rights.users);
+  // const info = useSelector((state) => state.user_group.users);
   const [formData, setFormData] = React.useState({});
+  const getById = id => {
+    const element = data.find(el => el.id === id);
+    return element;
+  }
+
   const openDialog = id => {
     console.log("Active");
     setVisible(1);
     setFormData({});
     setId(id);
-    setFormData({id, code: getCodeById(id), surname: getSurnameById(id)});
+    setFormData(getById(id));
   };
 
-  const deleteUser = (id) => {
+  const deleteRight = (id) => {
     //const arr = info.filter(el => el.id !== id);
-    if(window.confirm('Удалить пользователя?'))
-    dispatch(removeUser(id));
+    if(window.confirm('Удалить право?'))
+    _deleteRight(getById(id));
+    // dispatch(removeUser(id));
     //setInfo(arr);
   }
 
   const closeDialog = () => {
     setVisible(0);
     setId(null);
-    setFormData({surname: '', code:''});
+    setFormData({id:'', name:'', code:''});
   }
 
-  const getCodeById = id => {
-    console.log(info, id);
-    const element = info.find(el => el.id === id);
-    return element.code;
-  };
-  const getSurnameById = id => {
-    const element = info.find(el => el.id === id);
-    return element.surname;
-  };
+  // const getCodeById = id => {
+  //   const element = data.find(el => el.id === id);
+  //   return element.code;
+  // };
+  // const getSurnameById = id => {
+  //   const element = data.find(el => el.id === id);
+  //   return element.surname;
+  // };
   const save = () => {
     // const arr = info.map(el =>{
     //    if(el.id != id) return el;
     //    else return formData;
     // });
-    dispatch(editUser({id, formData}));
+    //dispatch(editUser({id, formData}));
+    edit(formData)
+    .unwrap()
+    .then((payload) => { 
+      if(payload.message === "Server error"){
+        setError(true);
+        setTimeout(() =>{
+          setError(false);
+        },2000)
+      }
+      if(payload.message === "success"){
+        setSuccess(true);
+        setTimeout(() =>{
+          setSuccess(false);
+        },2000)
+      }        
+    })
+    .catch((error) => console.error('rejected', error))
     //setInfo(arr);
     closeDialog();
   }
-  const addUser1 = () => {
+  const addRight1 = () => {
     setVisible(2);
-    setFormData({surname: '', code:''});
+    setFormData({id:'', name:'', code:''});
   }
   const add = () => {
-    if(formData.code && formData.surname)
+    if(formData.name)
     {
-      formData.id = uid();
+      //formData.id = uid();
       //setInfo([...info, formData]);
-      dispatch(addUser(formData));
-      setFormData({surname: '', code:''});
+      // dispatch(addUser(formData));
+      _addRight(formData)
+      .unwrap()
+      .then((payload) => { 
+        if(payload.message === "Server error"){
+          setError(true);
+          setTimeout(() =>{
+            setError(false);
+          },2000)
+        }
+        if(payload.message === "success"){
+          setSuccess(true);
+          setTimeout(() =>{
+            setSuccess(false);
+          },2000)
+        }        
+      })
+      .catch((error) => console.error('rejected', error))
+      setFormData({name:'', login:'', email:'', password:''});
       setVisible(0);
     }
   }
-
   return (
     <div>
       <div className="add_user">
-        <Button onClick={() => addUser1()}>Добавить</Button>
+        <Button onClick={() => addRight1()}>Добавить</Button>
       </div>
     <Grid
-      data={info}
+      data={data}
       className="grid"
       style={{
         height: "400px",
       }}
     >
-      <GridColumn field="code" title="Code"  />
-      <GridColumn field="surname" title="Surname" />
+      <GridColumn field="name" title="Name" />
+      <GridColumn field="code" title="Code" />
       <GridColumn cell={EditCell}  width="200px" />
       <GridColumn cell={DeleteCell}  width="200px" />
     </Grid>
      {!!visible && (
-      <Window title={"User"} onClose={closeDialog} initialHeight={350}>
+      <Window title={"Group"} onClose={closeDialog} initialHeight={350}>
         <form className="k-form">
           <fieldset>
-            {visible === 1 ? <legend>User Details</legend> : <legend>Add User</legend>  }
+            {visible === 1 ? <legend>Group Details</legend> : <legend>Add Group</legend>  }
 
+            <label className="k-form-field">
+              <span>Name</span>
+              <input className="k-input" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Code" />
+            </label>
             <label className="k-form-field">
               <span>Code</span>
               <input className="k-input" value={formData.code} onChange={(e) => setFormData({...formData, code: e.target.value})} placeholder="Code" />
-            </label>
-            <label className="k-form-field">
-              <span>Surname</span>
-              <input className="k-input" value={formData.surname} onChange={(e) => setFormData({...formData, surname: e.target.value})} placeholder="Surname" />
             </label>
           </fieldset>
 
@@ -175,6 +230,44 @@ const Rights = () => {
         </form>
       </Window>
       )}
+      <NotificationGroup
+        style={{
+          right: 0,
+          bottom: 0,
+          alignItems: "flex-start",
+          flexWrap: "wrap-reverse",
+        }}
+      >
+        <Fade>
+          {success && (
+            <Notification
+              type={{
+                style: "success",
+                icon: true,
+              }}
+              closable={true}
+              
+            >
+              <span>Your data has been saved.</span>
+            </Notification>
+          )}
+        </Fade>
+        <Fade>
+          {error && (
+            <Notification
+              type={{
+                style: "error",
+                icon: true,
+              }}
+              closable={true}
+            >
+              <span>Oops! Something went wrong ...</span>
+            </Notification>
+          )}
+        </Fade>
+       
+      
+      </NotificationGroup>
     </div>
   );
 };

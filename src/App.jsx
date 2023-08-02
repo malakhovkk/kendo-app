@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import './App.css';
 import { HashRouter, BrowserRouter, Routes, Route } from 'react-router-dom';
-import SignIn from './pages/SignIn/SignIn';
+import LogIn from './pages/LogIn/LogIn';
 import Users from './pages/Users/Users.jsx';
 import UserGroup from './pages/UserGroup/UserGroup.jsx';
 import Rights from './pages/Rights/Rights.jsx';
@@ -12,7 +12,7 @@ const App = () => {
   return (
       <HashRouter>
           <Routes>
-            <Route path="/" element={<SignIn/>}/>
+            <Route path="/" element={<LogIn/>}/>
             <Route path="/home" element={<Home/>}>
               <Route path="/home/users" element={<Users/>}/>
               <Route path="/home/group" element={<UserGroup/>}/>

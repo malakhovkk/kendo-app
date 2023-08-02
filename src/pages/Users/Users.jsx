@@ -3,13 +3,19 @@ import * as ReactDOM from "react-dom";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 import users from "./Users.json";
 import './Users.css';
-import { useGetAllUsersQuery, useEditUserMutation, useCreateUserMutation } from "../../features/apiSlice";
+import { useNavigate } from "react-router-dom";
+import { useGetAllUsersQuery, useEditUserMutation, useCreateUserMutation, useDeleteUserMutation,  } from "../../features/apiSlice";
 import { Button } from "@progress/kendo-react-buttons";
 import { Window } from "@progress/kendo-react-dialogs";
 import { uid } from 'uid';
 import { formatCodeBlockIcon } from "@progress/kendo-svg-icons";
 import { useSelector, useDispatch } from "react-redux";
 import { addUser, removeUser, editUser } from "../../features/slice";
+import {
+  Notification,
+  NotificationGroup,
+} from "@progress/kendo-react-notification";
+import { Fade } from "@progress/kendo-react-animation";
 // const CustomCell = (props) => {
 //   return (
 //     <td
@@ -47,20 +53,25 @@ const Users = () => {
   };
 
   
-  const { data, error, isLoading, refetch } = useGetAllUsersQuery();
+  const { data, error: err, isLoading, refetch } = useGetAllUsersQuery();
   const [edit] = useEditUserMutation();
   const [_addUser] = useCreateUserMutation();
+  const [_deleteUser] = useDeleteUserMutation();
   const [visible, setVisible] = React.useState(false);
   const [id, setId] = React.useState(null);
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState(false);
   // const [info, setInfo] = React.useState(users);
   // const info = useSelector((state) => state.info.users);
   // React.useEffect(() =>{
   //   console.log(info)
   // },[info])
 
+  const navigate = useNavigate();
   React.useEffect(() =>{
-    console.log("data ", data)
-  },[data])
+    if(err?.status === 401) navigate('/');
+  },[err])
+  
 
   const [formData, setFormData] = React.useState({});
 
@@ -80,14 +91,15 @@ const Users = () => {
   const deleteUser = (id) => {
     //const arr = info.filter(el => el.id !== id);
     if(window.confirm('Удалить пользователя?'))
-    dispatch(removeUser(id));
+    _deleteUser(getById(id));
+    // dispatch(removeUser(id));
     //setInfo(arr);
   }
 
   const closeDialog = () => {
     setVisible(0);
     setId(null);
-    setFormData({surname: '', code:'', password:''});
+    setFormData({id:'', name:'', login:'', email:'', password:''});
   }
 
   // const getCodeById = id => {
@@ -104,13 +116,29 @@ const Users = () => {
     //    else return formData;
     // });
     //dispatch(editUser({id, formData}));
-    edit(formData);
+    edit(formData)
+    .unwrap()
+    .then((payload) => { 
+      if(payload.message === "Server error"){
+        setError(true);
+        setTimeout(() =>{
+          setError(false);
+        },2000)
+      }
+      if(payload.message === "success"){
+        setSuccess(true);
+        setTimeout(() =>{
+          setSuccess(false);
+        },2000)
+      }        
+    })
+    .catch((error) => console.error('rejected', error))
     //setInfo(arr);
     closeDialog();
   }
   const addUser1 = () => {
     setVisible(2);
-    setFormData({name:'', login:'', email:'', password:''});
+    setFormData({id:'', name:'', login:'', email:'', password:''});
   }
   const add = () => {
     if(formData.name && formData.email && formData.login && formData.password)
@@ -119,11 +147,27 @@ const Users = () => {
       //setInfo([...info, formData]);
       // dispatch(addUser(formData));
       _addUser(formData)
+      .unwrap()
+      .then((payload) => { 
+        if(payload.message === "Server error"){
+          setError(true);
+          setTimeout(() =>{
+            setError(false);
+          },2000)
+        }
+        if(payload.message === "success"){
+          setSuccess(true);
+          setTimeout(() =>{
+            setSuccess(false);
+          },2000)
+        }        
+      })
+      .catch((error) => console.error('rejected', error))
       setFormData({name:'', login:'', email:'', password:''});
       setVisible(0);
     }
   }
-
+  console.log(success, error);
   return (
     <div>
       <div className="add_user">
@@ -207,6 +251,44 @@ const Users = () => {
         </form>
       </Window>
       )}
+      <NotificationGroup
+        style={{
+          right: 0,
+          bottom: 0,
+          alignItems: "flex-start",
+          flexWrap: "wrap-reverse",
+        }}
+      >
+        <Fade>
+          {success && (
+            <Notification
+              type={{
+                style: "success",
+                icon: true,
+              }}
+              closable={true}
+              
+            >
+              <span>Your data has been saved.</span>
+            </Notification>
+          )}
+        </Fade>
+        <Fade>
+          {error && (
+            <Notification
+              type={{
+                style: "error",
+                icon: true,
+              }}
+              closable={true}
+            >
+              <span>Oops! Something went wrong ...</span>
+            </Notification>
+          )}
+        </Fade>
+       
+      
+      </NotificationGroup>
     </div>
   );
 };

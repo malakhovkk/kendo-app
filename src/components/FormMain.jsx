@@ -3,6 +3,9 @@ import * as ReactDOM from "react-dom";
 import { Form, Field, FormElement } from "@progress/kendo-react-form";
 import { Error } from "@progress/kendo-react-labels";
 import { Input } from "@progress/kendo-react-inputs";
+import { useLogonMutation } from "../features/apiSlice";
+import { useNavigate } from "react-router-dom";
+
 const emailRegex = new RegExp(/\S+@\S+\.\S+/);
 const emailValidator = (value) =>
   emailRegex.test(value) ? "" : "Please enter a valid email.";
@@ -16,7 +19,38 @@ const EmailInput = (fieldRenderProps) => {
   );
 };
 const FormMain = () => {
-  const handleSubmit = (dataItem) => alert(JSON.stringify(dataItem, null, 2));
+  const [logon, { error }] = useLogonMutation();
+  const navigate = useNavigate();
+  //console.log(error);
+  //if(error) navigate('/');
+  const handleSubmit = (dataItem) => {
+    logon(dataItem)
+    .unwrap()
+    .then((payload) => { 
+      console.log(payload)
+      if(payload.message === "Server error"){
+        // setError(true);
+        // setTimeout(() =>{
+        //   setError(false);
+        // },2000)
+        console.log("err")
+      }
+      if(payload.message === "success"){
+        // setSuccess(true);
+        // setTimeout(() =>{
+        //   setSuccess(false);
+        // },2000)
+        localStorage.setItem("token", payload.result);
+        localStorage.setItem("login", dataItem.login);
+        navigate('/home/users');
+        console.log("suc")
+      }        
+    })
+    .catch((error) =>{
+       console.log('rejected', error)
+       if(error?.status === 400) alert("Неверный пароль")
+  })
+  }
   return (
     <Form
       onSubmit={handleSubmit}

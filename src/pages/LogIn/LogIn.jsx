@@ -1,5 +1,5 @@
 import React from 'react';
-import './SignIn.css';
+import './LogIn.css';
 import FormMain from "../../components/FormMain";
 
 export default function SignIn() {
