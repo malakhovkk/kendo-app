@@ -1,0 +1,33 @@
+#name
+{
+    width: 170px;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.name_field
+{
+    width: 120px;
+    display: inline-block;
+}
+.select
+{
+    width: 170px;
+}
+.content 
+{
+    margin-left: 30px;
+    margin-top: 50px;
+}
+.value 
+{
+    display: inline-block;
+}
+.add
+{
+    margin-bottom: 20px;
+}
+.list
+{
+    margin-top: 20px;
+}

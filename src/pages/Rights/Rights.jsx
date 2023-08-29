@@ -2,14 +2,19 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 // import users from "./UserGroup.json";
-import './Rights.css';
+import "./Rights.css";
 import { Button } from "@progress/kendo-react-buttons";
 import { Window } from "@progress/kendo-react-dialogs";
-import { uid } from 'uid';
+import { uid } from "uid";
 import { useNavigate } from "react-router-dom";
 import { formatCodeBlockIcon } from "@progress/kendo-svg-icons";
 import { useSelector, useDispatch } from "react-redux";
-import { useGetAllRightsQuery, useEditRightMutation, useCreateRightMutation, useDeleteRightMutation } from "../../features/apiSlice";
+import {
+  useGetAllRightsQuery,
+  useEditRightMutation,
+  useCreateRightMutation,
+  useDeleteRightMutation,
+} from "../../features/apiSlice";
 import {
   Notification,
   NotificationGroup,
@@ -30,9 +35,8 @@ import { Fade } from "@progress/kendo-react-animation";
 // };
 // const MyCustomCell = (props) => <CustomCell {...props} color={"red"} />;
 
-
 const Rights = () => {
-  const { data, error: err,  isLoading, refetch } = useGetAllRightsQuery();
+  const { data, error: err, isLoading, refetch } = useGetAllRightsQuery();
   const [edit] = useEditRightMutation();
   const [_addRight] = useCreateRightMutation();
   const [_deleteRight] = useDeleteRightMutation();
@@ -42,14 +46,19 @@ const Rights = () => {
   const [error, setError] = React.useState(false);
 
   const navigate = useNavigate();
-  if(err?.status === 401) navigate('/');
+  if (err?.status === 401) navigate("/");
 
   const dispatch = useDispatch();
   const EditCell = (props) => {
     //console.log(props)
     return (
       <td>
-        <Button onClick={() => openDialog(props.dataItem.id)}>Изменить</Button>
+        <img
+          onClick={() => openDialog(props.dataItem.id)}
+          src={require("../../assets/edit.png")}
+          alt="Изменить"
+        />
+        {/* <Button onClick={() => openDialog(props.dataItem.id)}>Изменить</Button> */}
       </td>
     );
   };
@@ -58,23 +67,25 @@ const Rights = () => {
     //console.log(props)
     return (
       <td>
-        <Button themeColor="error" onClick={() => deleteRight(props.dataItem.id)}>Удалить</Button>
+        <img
+          onClick={() => deleteRight(props.dataItem.id)}
+          src={require("../../assets/remove.png")}
+          alt="Удалить"
+        />
+        {/* <Button themeColor="error" onClick={() => deleteRight(props.dataItem.id)}>Удалить</Button> */}
       </td>
     );
   };
 
-  
-  
-
   // const [info, setInfo] = React.useState(users);
   // const info = useSelector((state) => state.user_group.users);
   const [formData, setFormData] = React.useState({});
-  const getById = id => {
-    const element = data.find(el => el.id === id);
+  const getById = (id) => {
+    const element = data.find((el) => el.id === id);
     return element;
-  }
+  };
 
-  const openDialog = id => {
+  const openDialog = (id) => {
     console.log("Active");
     setVisible(1);
     setFormData({});
@@ -84,17 +95,16 @@ const Rights = () => {
 
   const deleteRight = (id) => {
     //const arr = info.filter(el => el.id !== id);
-    if(window.confirm('Удалить право?'))
-    _deleteRight(getById(id));
+    if (window.confirm("Удалить право?")) _deleteRight(getById(id));
     // dispatch(removeUser(id));
     //setInfo(arr);
-  }
+  };
 
   const closeDialog = () => {
     setVisible(0);
     setId(null);
-    setFormData({id:'', name:'', code:''});
-  }
+    setFormData({ id: "", name: "", code: "" });
+  };
 
   // const getCodeById = id => {
   //   const element = data.find(el => el.id === id);
@@ -111,98 +121,115 @@ const Rights = () => {
     // });
     //dispatch(editUser({id, formData}));
     edit(formData)
-    .unwrap()
-    .then((payload) => { 
-      if(payload.message === "Server error"){
-        setError(true);
-        setTimeout(() =>{
-          setError(false);
-        },2000)
-      }
-      if(payload.message === "success"){
-        setSuccess(true);
-        setTimeout(() =>{
-          setSuccess(false);
-        },2000)
-      }        
-    })
-    .catch((error) => console.error('rejected', error))
+      .unwrap()
+      .then((payload) => {
+        if (payload.message === "Server error") {
+          setError(true);
+          setTimeout(() => {
+            setError(false);
+          }, 2000);
+        }
+        if (payload.message === "success") {
+          setSuccess(true);
+          setTimeout(() => {
+            setSuccess(false);
+          }, 2000);
+        }
+      })
+      .catch((error) => console.error("rejected", error));
     //setInfo(arr);
     closeDialog();
-  }
+  };
   const addRight1 = () => {
     setVisible(2);
-    setFormData({id:'', name:'', code:''});
-  }
+    setFormData({ id: "", name: "", code: "" });
+  };
   const add = () => {
-    if(formData.name)
-    {
+    if (formData.name) {
       //formData.id = uid();
       //setInfo([...info, formData]);
       // dispatch(addUser(formData));
       _addRight(formData)
-      .unwrap()
-      .then((payload) => { 
-        if(payload.message === "Server error"){
-          setError(true);
-          setTimeout(() =>{
-            setError(false);
-          },2000)
-        }
-        if(payload.message === "success"){
-          setSuccess(true);
-          setTimeout(() =>{
-            setSuccess(false);
-          },2000)
-        }        
-      })
-      .catch((error) => console.error('rejected', error))
-      setFormData({name:'', login:'', email:'', password:''});
+        .unwrap()
+        .then((payload) => {
+          if (payload.message === "Server error") {
+            setError(true);
+            setTimeout(() => {
+              setError(false);
+            }, 2000);
+          }
+          if (payload.message === "success") {
+            setSuccess(true);
+            setTimeout(() => {
+              setSuccess(false);
+            }, 2000);
+          }
+        })
+        .catch((error) => console.error("rejected", error));
+      setFormData({ name: "", login: "", email: "", password: "" });
       setVisible(0);
     }
-  }
+  };
   return (
     <div>
       <div className="add_user">
         <Button onClick={() => addRight1()}>Добавить</Button>
       </div>
-    <Grid
-      data={data}
-      className="grid"
-      style={{
-        height: "400px",
-      }}
-    >
-      <GridColumn field="name" title="Name" />
-      <GridColumn field="code" title="Code" />
-      <GridColumn cell={EditCell}  width="200px" />
-      <GridColumn cell={DeleteCell}  width="200px" />
-    </Grid>
-     {!!visible && (
-      <Window title={"Group"} onClose={closeDialog} initialHeight={350}>
-        <form className="k-form">
-          <fieldset>
-            {visible === 1 ? <legend>Group Details</legend> : <legend>Add Group</legend>  }
+      <Grid
+        data={data}
+        className="grid"
+        style={{
+          height: "400px",
+        }}
+      >
+        <GridColumn field="name" title="Name" />
+        <GridColumn field="code" title="Code" />
+        <GridColumn cell={EditCell} width="50px" />
+        <GridColumn cell={DeleteCell} width="50px" />
+      </Grid>
+      {!!visible && (
+        <Window title={"Group"} onClose={closeDialog} initialHeight={350}>
+          <form className="k-form">
+            <fieldset>
+              {visible === 1 ? (
+                <legend>Group Details</legend>
+              ) : (
+                <legend>Add Group</legend>
+              )}
 
-            <label className="k-form-field">
-              <span>Name</span>
-              <input className="k-input" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Code" />
-            </label>
-            <label className="k-form-field">
-              <span>Code</span>
-              <input className="k-input" value={formData.code} onChange={(e) => setFormData({...formData, code: e.target.value})} placeholder="Code" />
-            </label>
-          </fieldset>
+              <label className="k-form-field">
+                <span>Name</span>
+                <input
+                  className="k-input"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="Code"
+                />
+              </label>
+              <label className="k-form-field">
+                <span>Code</span>
+                <input
+                  className="k-input"
+                  value={formData.code}
+                  onChange={(e) =>
+                    setFormData({ ...formData, code: e.target.value })
+                  }
+                  placeholder="Code"
+                />
+              </label>
+            </fieldset>
 
-          <div className="text-right">
-            <button
-              type="button"
-              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
-              onClick={closeDialog}
-            >
-              Cancel
-            </button>
-            {/* <button
+            <div className="text-right">
+              <button
+                type="button"
+                className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
+                onClick={closeDialog}
+              >
+                Cancel
+              </button>
+              {/* <button
               type="button"
               className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
                onClick={save}
@@ -210,25 +237,26 @@ const Rights = () => {
               Submit
             </button> */}
 
-            {
-              visible === 1 ? <button
-              type="button"
-              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-               onClick={save}
-            >
-              Submit
-            </button>:
-            <button
-            type="button"
-            className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-             onClick={add}
-          >
-            Submit
-          </button>
-            }
-          </div>
-        </form>
-      </Window>
+              {visible === 1 ? (
+                <button
+                  type="button"
+                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                  onClick={save}
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                  onClick={add}
+                >
+                  Submit
+                </button>
+              )}
+            </div>
+          </form>
+        </Window>
       )}
       <NotificationGroup
         style={{
@@ -246,7 +274,6 @@ const Rights = () => {
                 icon: true,
               }}
               closable={true}
-              
             >
               <span>Your data has been saved.</span>
             </Notification>
@@ -265,8 +292,6 @@ const Rights = () => {
             </Notification>
           )}
         </Fade>
-       
-      
       </NotificationGroup>
     </div>
   );

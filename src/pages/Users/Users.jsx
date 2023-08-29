@@ -2,12 +2,17 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 import users from "./Users.json";
-import './Users.css';
+import "./Users.css";
 import { useNavigate } from "react-router-dom";
-import { useGetAllUsersQuery, useEditUserMutation, useCreateUserMutation, useDeleteUserMutation,  } from "../../features/apiSlice";
+import {
+  useGetAllUsersQuery,
+  useEditUserMutation,
+  useCreateUserMutation,
+  useDeleteUserMutation,
+} from "../../features/apiSlice";
 import { Button } from "@progress/kendo-react-buttons";
 import { Window } from "@progress/kendo-react-dialogs";
-import { uid } from 'uid';
+import { uid } from "uid";
 import { formatCodeBlockIcon } from "@progress/kendo-svg-icons";
 import { useSelector, useDispatch } from "react-redux";
 import { addUser, removeUser, editUser } from "../../features/slice";
@@ -31,14 +36,18 @@ import { Fade } from "@progress/kendo-react-animation";
 // };
 // const MyCustomCell = (props) => <CustomCell {...props} color={"red"} />;
 
-
 const Users = () => {
   const dispatch = useDispatch();
   const EditCell = (props) => {
     //console.log(props)
     return (
       <td>
-        <Button onClick={() => openDialog(props.dataItem.id)}>Изменить</Button>
+        <img
+          onClick={() => openDialog(props.dataItem.id)}
+          src={require("../../assets/edit.png")}
+          alt="Изменить"
+        />
+        {/* <Button onClick={() => openDialog(props.dataItem.id)}>Изменить</Button> */}
       </td>
     );
   };
@@ -47,12 +56,16 @@ const Users = () => {
     //console.log(props)
     return (
       <td>
-        <Button themeColor="error" onClick={() => deleteUser(props.dataItem.id)}>Удалить</Button>
+        <img
+          onClick={() => deleteUser(props.dataItem.id)}
+          src={require("../../assets/remove.png")}
+          alt="Удалить"
+        />
+        {/* <Button themeColor="error" onClick={() => deleteUser(props.dataItem.id)}>Удалить</Button> */}
       </td>
     );
   };
 
-  
   const { data, error: err, isLoading, refetch } = useGetAllUsersQuery();
   const [edit] = useEditUserMutation();
   const [_addUser] = useCreateUserMutation();
@@ -67,20 +80,19 @@ const Users = () => {
   //   console.log(info)
   // },[info])
 
-  const navigate = useNavigate();
-  React.useEffect(() =>{
-    if(err?.status === 401) navigate('/');
-  },[err])
-  
+  // const navigate = useNavigate();
+  // React.useEffect(() => {
+  //   if (err?.status === 401) navigate("/");
+  // }, [err]);
 
   const [formData, setFormData] = React.useState({});
 
-  const getById = id => {
-    const element = data.find(el => el.id === id);
+  const getById = (id) => {
+    const element = data.find((el) => el.id === id);
     return element;
-  }
+  };
 
-  const openDialog = id => {
+  const openDialog = (id) => {
     console.log("Active");
     setVisible(1);
     setFormData({});
@@ -90,17 +102,16 @@ const Users = () => {
 
   const deleteUser = (id) => {
     //const arr = info.filter(el => el.id !== id);
-    if(window.confirm('Удалить пользователя?'))
-    _deleteUser(getById(id));
+    if (window.confirm("Удалить пользователя?")) _deleteUser(getById(id));
     // dispatch(removeUser(id));
     //setInfo(arr);
-  }
+  };
 
   const closeDialog = () => {
     setVisible(0);
     setId(null);
-    setFormData({id:'', name:'', login:'', email:'', password:''});
-  }
+    setFormData({ id: "", name: "", login: "", email: "", password: "" });
+  };
 
   // const getCodeById = id => {
   //   const element = data.find(el => el.id === id);
@@ -117,113 +128,151 @@ const Users = () => {
     // });
     //dispatch(editUser({id, formData}));
     edit(formData)
-    .unwrap()
-    .then((payload) => { 
-      if(payload.message === "Server error"){
-        setError(true);
-        setTimeout(() =>{
-          setError(false);
-        },2000)
-      }
-      if(payload.message === "success"){
-        setSuccess(true);
-        setTimeout(() =>{
-          setSuccess(false);
-        },2000)
-      }        
-    })
-    .catch((error) => console.error('rejected', error))
+      .unwrap()
+      .then((payload) => {
+        if (payload.message === "Server error") {
+          setError(true);
+          setTimeout(() => {
+            setError(false);
+          }, 2000);
+        }
+        if (payload.message === "success") {
+          setSuccess(true);
+          setTimeout(() => {
+            setSuccess(false);
+          }, 2000);
+        }
+      })
+      .catch((error) => console.error("rejected", error));
     //setInfo(arr);
     closeDialog();
-  }
+  };
   const addUser1 = () => {
     setVisible(2);
-    setFormData({id:'', name:'', login:'', email:'', password:''});
-  }
+    setFormData({ id: "", name: "", login: "", email: "", password: "" });
+  };
   const add = () => {
-    if(formData.name && formData.email && formData.login && formData.password)
-    {
+    if (
+      formData.name &&
+      formData.email &&
+      formData.login &&
+      formData.password
+    ) {
       //formData.id = uid();
       //setInfo([...info, formData]);
       // dispatch(addUser(formData));
       _addUser(formData)
-      .unwrap()
-      .then((payload) => { 
-        if(payload.message === "Server error"){
-          setError(true);
-          setTimeout(() =>{
-            setError(false);
-          },2000)
-        }
-        if(payload.message === "success"){
-          setSuccess(true);
-          setTimeout(() =>{
-            setSuccess(false);
-          },2000)
-        }        
-      })
-      .catch((error) => console.error('rejected', error))
-      setFormData({name:'', login:'', email:'', password:''});
+        .unwrap()
+        .then((payload) => {
+          if (payload.message === "Server error") {
+            setError(true);
+            setTimeout(() => {
+              setError(false);
+            }, 2000);
+          }
+          if (payload.message === "success") {
+            setSuccess(true);
+            setTimeout(() => {
+              setSuccess(false);
+            }, 2000);
+          }
+        })
+        .catch((error) => console.error("rejected", error));
+      setFormData({ name: "", login: "", email: "", password: "" });
       setVisible(0);
     }
-  }
+  };
   console.log(success, error);
   return (
     <div>
       <div className="add_user">
         <Button onClick={() => addUser1()}>Добавить</Button>
       </div>
-    <Grid
-      data={data}
-      className="grid"
-      style={{
-        height: "400px",
-      }}
-    >
-      <GridColumn field="name" title="Name"  />
-      <GridColumn field="email" title="Email"  />
-      <GridColumn field="login" title="Login"  />
-      {/* <GridColumn field="code" title="Code"  />
+      <Grid
+        data={data}
+        className="grid"
+        style={{
+          height: "400px",
+        }}
+      >
+        <GridColumn field="name" title="Name" />
+        <GridColumn field="email" title="Email" />
+        <GridColumn field="login" title="Login" />
+        {/* <GridColumn field="code" title="Code"  />
       <GridColumn field="surname" title="Surname" /> */}
-      <GridColumn cell={EditCell}  width="200px" />
-      <GridColumn cell={DeleteCell}  width="200px" />
-    </Grid>
-     {!!visible && (
-      <Window title={"User"} onClose={closeDialog} initialHeight={350}>
-        <form className="k-form">
-          <fieldset>
-            {visible === 1 ? <legend>User Details</legend> : <legend>Add User</legend>  }
+        <GridColumn cell={EditCell} width="50px" />
+        <GridColumn cell={DeleteCell} width="50px" />
+      </Grid>
+      {!!visible && (
+        <Window title={"User"} onClose={closeDialog} initialHeight={350}>
+          <form className="k-form">
+            <fieldset>
+              {visible === 1 ? (
+                <legend>User Details</legend>
+              ) : (
+                <legend>Add User</legend>
+              )}
 
-            <label className="k-form-field">
-              <span>Name</span>
-              <input className="k-input" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Name" />
-            </label>
-            <label className="k-form-field">
-              <span>Email</span>
-              <input className="k-input" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Email" />
-            </label>
-            <label className="k-form-field">
-              <span>Login</span>
-              <input className="k-input" value={formData.login} onChange={(e) => setFormData({...formData, login: e.target.value})} placeholder="Login" />
-            </label>
-            {
-              visible === 2 ? 
-            <label className="k-form-field">
-              <span>Password</span>
-              <input className="k-input" value={formData.password} type="password" onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="Password" />
-            </label>: <></>
-            }
-          </fieldset>
+              <label className="k-form-field">
+                <span>Name</span>
+                <input
+                  className="k-input"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="Name"
+                />
+              </label>
+              <label className="k-form-field">
+                <span>Email</span>
+                <input
+                  className="k-input"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  placeholder="Email"
+                />
+              </label>
+              <label className="k-form-field">
+                <span>Login</span>
+                <input
+                  className="k-input"
+                  value={formData.login}
+                  onChange={(e) =>
+                    setFormData({ ...formData, login: e.target.value })
+                  }
+                  placeholder="Login"
+                />
+              </label>
+              {visible === 2 ? (
+                <label className="k-form-field">
+                  <span>Password</span>
+                  <input
+                    className="k-input"
+                    value={formData.password}
+                    type="password"
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    placeholder="Password"
+                  />
+                </label>
+              ) : (
+                <></>
+              )}
+            </fieldset>
 
-          <div className="text-right">
-            <button
-              type="button"
-              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
-              onClick={closeDialog}
-            >
-              Cancel
-            </button>
-            {/* <button
+            <div className="text-right">
+              <button
+                type="button"
+                className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
+                onClick={closeDialog}
+              >
+                Cancel
+              </button>
+              {/* <button
               type="button"
               className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
                onClick={save}
@@ -231,25 +280,26 @@ const Users = () => {
               Submit
             </button> */}
 
-            {
-              visible === 1 ? <button
-              type="button"
-              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-               onClick={save}
-            >
-              Submit
-            </button>:
-            <button
-            type="button"
-            className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-             onClick={add}
-          >
-            Submit
-          </button>
-            }
-          </div>
-        </form>
-      </Window>
+              {visible === 1 ? (
+                <button
+                  type="button"
+                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                  onClick={save}
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                  onClick={add}
+                >
+                  Submit
+                </button>
+              )}
+            </div>
+          </form>
+        </Window>
       )}
       <NotificationGroup
         style={{
@@ -267,7 +317,6 @@ const Users = () => {
                 icon: true,
               }}
               closable={true}
-              
             >
               <span>Your data has been saved.</span>
             </Notification>
@@ -286,8 +335,6 @@ const Users = () => {
             </Notification>
           )}
         </Fade>
-       
-      
       </NotificationGroup>
     </div>
   );

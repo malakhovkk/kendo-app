@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 // import users from "./UserGroup.json";
-import "./UserGroup.css";
+import "./Vendor.css";
 import { Button } from "@progress/kendo-react-buttons";
 import { Window } from "@progress/kendo-react-dialogs";
 import { uid } from "uid";
@@ -15,24 +15,17 @@ import {
   editUser,
 } from "../../features/reducer_user_group";
 import {
-  useGetUsersByGroupMutation,
-  useGetAllUsersQuery,
-  useGetAllGroupsQuery,
-  useEditGroupMutation,
-  useCreateGroupMutation,
-  useDeleteGroupMutation,
-  useAddUserToGroupMutation,
-  useRemoveUserFromGroupMutation,
-  useRemoveRightFromGroupMutation,
-  useGetRightsByGroupMutation,
-  useAddRightToGroupMutation,
-  useGetAllRightsQuery,
+  useCreateVendorMutation,
+  useDeleteVendorMutation,
+  useEditVendorMutation,
+  useGetVendorsQuery,
 } from "../../features/apiSlice";
 import {
   Notification,
   NotificationGroup,
 } from "@progress/kendo-react-notification";
 import { Fade } from "@progress/kendo-react-animation";
+import { useEffect } from "react";
 // const CustomCell = (props) => {
 //   return (
 //     <td
@@ -49,26 +42,20 @@ import { Fade } from "@progress/kendo-react-animation";
 // const MyCustomCell = (props) => <CustomCell {...props} color={"red"} />;
 
 const UserGroup = () => {
-  const { data, error: err, isLoading, refetch } = useGetAllGroupsQuery();
-  const [edit] = useEditGroupMutation();
-  const [_addGroup] = useCreateGroupMutation();
-  const [_deleteGroup] = useDeleteGroupMutation();
-  const [addUserToGroup] = useAddUserToGroupMutation();
-  const [getUsersByGroup] = useGetUsersByGroupMutation();
-  const [removeUserFromGroup] = useRemoveUserFromGroupMutation();
-  const [_addRightToGroup] = useAddRightToGroupMutation();
-  const [getRightsByGroup] = useGetRightsByGroupMutation();
-  const [_removeRightFromGroup] = useRemoveRightFromGroupMutation();
+  const { data, error: err, isLoading, refetch } = useGetVendorsQuery();
+
   const [visible, setVisible] = React.useState(false);
   const [id, setId] = React.useState(null);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [usersByGroup, setUsersByGroup] = React.useState([]);
   const [rightsByGroup, setRightsByGroup] = React.useState([]);
+  const [editVendor] = useEditVendorMutation();
+  const [createVendor] = useCreateVendorMutation();
+  const [_deleteVendor] = useDeleteVendorMutation();
   console.log("error: ", err);
-
   const navigate = useNavigate();
-  // if(err?.status === 401) navigate('/');
+  if (err?.status === 401) navigate("/");
   const dispatch = useDispatch();
   const EditCell = (props) => {
     //console.log(props)
@@ -89,105 +76,84 @@ const UserGroup = () => {
     return (
       <td>
         <img
-          onClick={() => deleteUser(props.dataItem.id)}
+          onClick={() => deleteVendor(props.dataItem.id)}
           src={require("../../assets/remove.png")}
           alt="Удалить"
         />
-        {/* <Button themeColor="error" onClick={() => deleteUser(props.dataItem.id)}>Удалить</Button> */}
+        {/* <Button themeColor="error" onClick={() => deleteVendor(props.dataItem.id)}>Удалить</Button> */}
       </td>
     );
   };
 
   const removeFromGroup = async (id) => {
-    await removeUserFromGroup({ GroupId: idGroup, UserId: id });
-    getUsersByGroup({ id: idGroup })
-      .unwrap()
-      .then((payload) => {
-        setUsersByGroup(payload);
-        console.log(payload);
-      })
-      .catch((err) => console.log(err));
+    // await removeUserFromGroup({GroupId: idGroup, UserId: id})
+    // getUsersByGroup({id:idGroup})
+    // .unwrap()
+    // .then(payload =>{
+    //   setUsersByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
   };
   const removeRightFromGroup = async (id) => {
-    await _removeRightFromGroup({ GroupId: idGroup, RightId: id });
-    getRightsByGroup({ id: idGroup })
-      .unwrap()
-      .then((payload) => {
-        setRightsByGroup(payload);
-        console.log(payload);
-      })
-      .catch((err) => console.log(err));
+    // await _removeRightFromGroup({GroupId: idGroup, RightId: id})
+    // getRightsByGroup({id:idGroup})
+    // .unwrap()
+    // .then(payload =>{
+    //   setRightsByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
   };
 
-  const AddToGroupCell = (props) => {
-    const users_id = usersByGroup.map((el) => el.id);
-    //console.log(props)
-    return (
-      <td>
-        {users_id?.includes(props.dataItem.id) ? (
-          <Button
-            themeColor="error"
-            onClick={() => removeFromGroup(props.dataItem.id)}
-          >
-            Удалить из группы
-          </Button>
-        ) : (
-          <Button onClick={() => addToGroup(props.dataItem.id)}>
-            Добавить в группу
-          </Button>
-        )}
-      </td>
-    );
-  };
+  //   const AddToGroupCell = (props) => {
+  //     const users_id = usersByGroup.map(el => el.id)
+  //     //console.log(props)
+  //     return (
+  //       <td>
+  //         {users_id?.includes(props.dataItem.id) ?<Button themeColor="error" onClick={() => removeFromGroup(props.dataItem.id)}>Удалить из группы</Button> :<Button onClick={() => addToGroup(props.dataItem.id)}>Добавить в группу</Button>}
+  //       </td>
+  //     );
+  //   };
 
-  const AddRightToGroupCell = (props) => {
-    const rights_id = rightsByGroup.map((el) => el.id);
-    //console.log(props)
-    return (
-      <td>
-        {rights_id?.includes(props.dataItem.id) ? (
-          <Button
-            themeColor="error"
-            onClick={() => removeRightFromGroup(props.dataItem.id)}
-          >
-            Удалить из группы
-          </Button>
-        ) : (
-          <Button onClick={() => addRightToGroup(props.dataItem.id)}>
-            Добавить в группу
-          </Button>
-        )}
-      </td>
-    );
-  };
+  //   const AddRightToGroupCell = (props) => {
+  //     const rights_id = rightsByGroup.map(el => el.id)
+  //     //console.log(props)
+  //     return (
+  //       <td>
+  //         {rights_id?.includes(props.dataItem.id) ?<Button themeColor="error" onClick={() => removeRightFromGroup(props.dataItem.id)}>Удалить из группы</Button> :<Button onClick={() => addRightToGroup(props.dataItem.id)}>Добавить в группу</Button>}
+  //       </td>
+  //     );
+  //   };
 
   // const [info, setInfo] = React.useState(users);
   // const info = useSelector((state) => state.user_group.users);
+  //   const {}
   const [formData, setFormData] = React.useState({});
   const [idGroup, setIdGroup] = React.useState(null);
-  const { data: users } = useGetAllUsersQuery();
-  const { data: rights } = useGetAllRightsQuery();
+  //   const { data: users } = useGetAllUsersQuery();
+  //   const { data: rights } = useGetAllRightsQuery();
 
   const addToGroup = async (id) => {
-    await addUserToGroup({ GroupId: idGroup, UserId: id });
-    getUsersByGroup({ id: idGroup })
-      .unwrap()
-      .then((payload) => {
-        setUsersByGroup(payload);
-        console.log(payload);
-      })
-      .catch((err) => console.log(err));
+    // await addUserToGroup({GroupId: idGroup, UserId: id});
+    // getUsersByGroup({id:idGroup})
+    // .unwrap()
+    // .then(payload =>{
+    //   setUsersByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
   };
 
   const addRightToGroup = async (id) => {
-    await _addRightToGroup({ GroupId: idGroup, RightId: id });
-    getRightsByGroup({ id: idGroup })
-      .unwrap()
-      .then((payload) => {
-        setRightsByGroup(payload);
-        console.log(payload);
-      })
-      .catch((err) => console.log(err));
+    // await _addRightToGroup({GroupId: idGroup, RightId: id});
+    // getRightsByGroup({id:idGroup})
+    // .unwrap()
+    // .then(payload =>{
+    //   setRightsByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
   };
 
   // const removeRightToGroup = async (id) => {
@@ -214,9 +180,9 @@ const UserGroup = () => {
     setFormData(getById(id));
   };
 
-  const deleteUser = (id) => {
+  const deleteVendor = (id) => {
     //const arr = info.filter(el => el.id !== id);
-    if (window.confirm("Удалить группу?")) _deleteGroup(getById(id));
+    if (window.confirm("Удалить поставщика?")) _deleteVendor(getById(id));
     // dispatch(removeUser(id));
     //setInfo(arr);
   };
@@ -224,22 +190,22 @@ const UserGroup = () => {
     console.log("click row");
     console.log(e);
     const id_group = e.dataItem.id;
-    setIdGroup(id_group);
-    getUsersByGroup({ id: id_group })
-      .unwrap()
-      .then((payload) => {
-        setUsersByGroup(payload);
-        console.log(payload);
-      })
-      .catch((err) => console.log(err));
+    // setIdGroup(id_group);
+    // getUsersByGroup({id:id_group})
+    // .unwrap()
+    // .then(payload =>{
+    //   setUsersByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
 
-    getRightsByGroup({ id: id_group })
-      .unwrap()
-      .then((payload) => {
-        setRightsByGroup(payload);
-        console.log(payload);
-      })
-      .catch((err) => console.log(err));
+    // getRightsByGroup({id:id_group})
+    // .unwrap()
+    // .then(payload =>{
+    //   setRightsByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
     // e.target.style.color = 'red';
   };
   const closeDialog = () => {
@@ -257,28 +223,31 @@ const UserGroup = () => {
   //   return element.surname;
   // };
   const save = () => {
+    if (formData.name) {
+      editVendor(formData);
+    }
     // const arr = info.map(el =>{
     //    if(el.id != id) return el;
     //    else return formData;
     // });
     //dispatch(editUser({id, formData}));
-    edit(formData)
-      .unwrap()
-      .then((payload) => {
-        if (payload.message === "Server error") {
-          setError(true);
-          setTimeout(() => {
-            setError(false);
-          }, 2000);
-        }
-        if (payload.message === "success") {
-          setSuccess(true);
-          setTimeout(() => {
-            setSuccess(false);
-          }, 2000);
-        }
-      })
-      .catch((error) => console.error("rejected", error));
+    // edit(formData)
+    // .unwrap()
+    // .then((payload) => {
+    //   if(payload.message === "Server error"){
+    //     setError(true);
+    //     setTimeout(() =>{
+    //       setError(false);
+    //     },2000)
+    //   }
+    //   if(payload.message === "success"){
+    //     setSuccess(true);
+    //     setTimeout(() =>{
+    //       setSuccess(false);
+    //     },2000)
+    //   }
+    // })
+    // .catch((error) => console.error('rejected', error))
     //setInfo(arr);
     closeDialog();
   };
@@ -288,33 +257,38 @@ const UserGroup = () => {
   };
   const add = () => {
     if (formData.name) {
+      createVendor({ id: "", name: formData.name });
       //formData.id = uid();
       //setInfo([...info, formData]);
       // dispatch(addUser(formData));
-      _addGroup(formData)
-        .unwrap()
-        .then((payload) => {
-          if (payload.message === "Server error") {
-            setError(true);
-            setTimeout(() => {
-              setError(false);
-            }, 2000);
-          }
-          if (payload.message === "success") {
-            setSuccess(true);
-            setTimeout(() => {
-              setSuccess(false);
-            }, 2000);
-          }
-        })
-        .catch((error) => {
-          console.error("rejected", error);
-          if (error.status === 401) navigate("/");
-        });
-      setFormData({ name: "", login: "", email: "", password: "" });
-      setVisible(0);
+      //   _addGroup(formData)
+      //   .unwrap()
+      //   .then((payload) => {
+      //     if(payload.message === "Server error"){
+      //       setError(true);
+      //       setTimeout(() =>{
+      //         setError(false);
+      //       },2000)
+      //     }
+      //     if(payload.message === "success"){
+      //       setSuccess(true);
+      //       setTimeout(() =>{
+      //         setSuccess(false);
+      //       },2000)
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error('rejected', error)
+      //     if(error.status === 401) navigate('/');
+      //   })
+      //   setFormData({name:'', login:'', email:'', password:''});
+      //   setVisible(0);
     }
   };
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
 
   const getNameById = (id) => {
     return data.find((el) => el.id === id).name;
@@ -344,65 +318,15 @@ const UserGroup = () => {
         <GridColumn cell={EditCell} width="50px" />
         <GridColumn cell={DeleteCell} width="50px" />
       </Grid>
-      <div className="tables">
-        {idGroup ? (
-          <div>
-            <div className="add_to_group">
-              Добавить пользователей в группу под названием{" "}
-              {getNameById(idGroup)}
-            </div>
-            <Grid
-              data={users}
-              className="grid"
-              style={{
-                height: "400px",
-                width: "45%",
-              }}
-            >
-              <GridColumn field="name" title="Name" />
-              {/* <GridColumn field="email" title="Email"  />
-      <GridColumn field="login" title="Login"  /> */}
-              {/* <GridColumn field="code" title="Code"  />
-      <GridColumn field="surname" title="Surname" /> */}
-              <GridColumn cell={AddToGroupCell} width="200px" />
-            </Grid>
-          </div>
-        ) : (
-          <></>
-        )}
-        {idGroup ? (
-          <div>
-            <div className="add_to_group">
-              Добавить права в группу под названием {getNameById(idGroup)}
-            </div>
-            <Grid
-              data={rights}
-              className="grid"
-              style={{
-                height: "400px",
-                width: "45%",
-              }}
-            >
-              <GridColumn field="name" title="Name" />
-              {/* <GridColumn field="email" title="Email"  />
-      <GridColumn field="login" title="Login"  /> */}
-              {/* <GridColumn field="code" title="Code"  />
-      <GridColumn field="surname" title="Surname" /> */}
-              <GridColumn cell={AddRightToGroupCell} width="200px" />
-            </Grid>
-          </div>
-        ) : (
-          <></>
-        )}
-      </div>
+      <div className="tables"></div>
       {!!visible && (
         <Window title={"Group"} onClose={closeDialog} initialHeight={350}>
           <form className="k-form">
             <fieldset>
               {visible === 1 ? (
-                <legend>Group Details</legend>
+                <legend>Vendor Details</legend>
               ) : (
-                <legend>Add Group</legend>
+                <legend>Add Vendor</legend>
               )}
 
               <label className="k-form-field">
@@ -413,7 +337,7 @@ const UserGroup = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="Code"
+                  placeholder="Name"
                 />
               </label>
             </fieldset>

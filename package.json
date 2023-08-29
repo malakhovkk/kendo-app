@@ -45,6 +45,7 @@
     "@progress/kendo-theme-bootstrap": "^6.5.0",
     "@progress/kendo-theme-default": "^6.5.0",
     "@progress/kendo-theme-material": "^6.5.0",
+    "@progress/kendo-ui": "^2023.2.718",
     "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -55,6 +56,7 @@
     "react-redux": "^8.1.1",
     "react-router-dom": "^6.14.1",
     "react-scripts": "5.0.1",
+    "react-select": "^5.7.4",
     "scss": "^0.2.4",
     "uid": "^2.0.2",
     "web-vitals": "^2.1.4"
@@ -84,6 +86,7 @@
     ]
   },
   "devDependencies": {
+    "prettier": "3.0.1",
     "sass": "^1.63.6"
   }
 }
