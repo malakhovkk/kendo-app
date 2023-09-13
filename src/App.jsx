@@ -15,6 +15,7 @@ import Profile from "./pages/Profile/Profile";
 import Files from "./pages/Files/Files";
 import Dictionary from "./pages/Dictionary/Dictionary";
 import New from "./pages/New/New";
+import Orders from "./pages/Orders/Orders";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/home/files" element={<Files />} />
           <Route path="/home/dictionary" element={<Dictionary />} />
           <Route path="/home/new" element={<New />} />
+          <Route path="/home/orders" element={<Orders />} />
         </Route>
       </Routes>
     </HashRouter>

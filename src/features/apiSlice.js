@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const userApi = createApi({
   reducerPath: "userApi",
-  tagTypes: ["Users", "Groups", "LinkGroup"],
+  tagTypes: ["Users", "Groups", "LinkGroup", "Files"],
   baseQuery: fetchBaseQuery({
     baseUrl: "http://192.168.20.30:55555/api/",
     prepareHeaders: (headers, { getState }) => {
@@ -198,6 +198,7 @@ export const userApi = createApi({
         method: "POST",
         body: doc,
       }),
+      invalidatesTags: [{ type: "Files", id: "LIST" }],
     }),
     getVendors: builder.query({
       query: () => ({
@@ -284,6 +285,12 @@ export const userApi = createApi({
             ]
           : [{ type: "Dictionary", id: "LIST" }],
     }),
+    getDictionaryById: builder.mutation({
+      query: ({ id }) => ({
+        url: `Dictionary/${id}`,
+        method: "GET",
+      }),
+    }),
     editRecord: builder.mutation({
       query: (record) => ({
         url: "Document",
@@ -343,7 +350,42 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Stock", id: "LIST" }],
     }),
-
+    getVendorContacts: builder.mutation({
+      query: ({ id }) => ({
+        url: `vendorcontact/${id}`,
+        method: "GET",
+      }),
+      invalidatesTags: [{ type: "VendorContact", id: "LIST" }],
+    }),
+    removeVendorContacts: builder.mutation({
+      query: ({ id }) => ({
+        url: `vendorcontact/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "VendorContact", id: "LIST" }],
+    }),
+    editVendorContacts: builder.mutation({
+      query: (contact) => ({
+        url: `vendorcontact`,
+        method: "PUT",
+        body: contact,
+      }),
+      invalidatesTags: [{ type: "VendorContact", id: "LIST" }],
+    }),
+    getOrders: builder.mutation({
+      query: (vendorId) => ({
+        url: `order/${vendorId}`,
+        method: "GET",
+      }),
+      invalidatesTags: [{ type: "Orders", id: "LIST" }],
+    }),
+    createOrder: builder.mutation({
+      query: (vendorId) => ({
+        url: `order/${vendorId}`,
+        method: "POST",
+      }),
+      invalidatesTags: [{ type: "Orders", id: "LIST" }],
+    }),
     // getProduct: builder.query({
     //   query: (product) => `products/search?q=${product}`,
     // }),
@@ -386,4 +428,10 @@ export const {
   useDeleteDictionaryMutation,
   useEditDictionaryMutation,
   useAddToStockMutation,
+  useGetVendorContactsMutation,
+  useRemoveVendorContactsMutation,
+  useEditVendorContactsMutation,
+  useGetOrdersMutation,
+  useGetDictionaryByIdMutation,
+  useCreateOrderMutation,
 } = userApi;

@@ -3,7 +3,9 @@ import * as ReactDOM from "react-dom";
 import { Button } from "@progress/kendo-react-buttons";
 import {
   useAddToStockMutation,
+  useCreateOrderMutation,
   useDeleteRecordsMutation,
+  useGetDictionaryByIdMutation,
   useGetDocumentMutation,
   useUploadMutation,
 } from "../../features/apiSlice";
@@ -23,6 +25,9 @@ import { Checkbox } from "@progress/kendo-react-inputs";
 import { useLocation } from "react-router-dom";
 import { Input } from "@progress/kendo-react-inputs";
 import { process } from "@progress/kendo-data-query";
+import { ColumnMenu } from "../../components/columnMenu";
+import { Popup } from "@progress/kendo-react-popup";
+import { Popover } from "@progress/kendo-react-tooltip";
 
 const PriceList = (props) => {
   const abbreviations = {
@@ -88,6 +93,10 @@ const PriceList = (props) => {
   const [volume, setVolume] = React.useState("");
   const [percent, setPercent] = React.useState("");
   const [fields, setFields] = React.useState([]);
+  const [metaId, setMetaId] = React.useState(null);
+  const [getDictionaryById] = useGetDictionaryByIdMutation();
+  const [_createOrder] = useCreateOrderMutation();
+  const [quantOrderArr, setQuantOrderArr] = React.useState([]);
   const allFields = [
     "code",
     "name",
@@ -259,7 +268,7 @@ const PriceList = (props) => {
   }, [dict]);
   React.useEffect(() => {
     if (table === undefined || dict === undefined) return;
-    let res = [[], [], [], [], [], [], []];
+    let res = [[], [], [], [], [], [], [], []];
     for (let i = 0; i < 6; i++) {
       res[i].push({
         id: "",
@@ -273,7 +282,12 @@ const PriceList = (props) => {
         field: el.field,
       });
     }
-
+    let initialState = createDataState({
+      take: 8,
+      skip: 0,
+    });
+    setResult(initialState.result);
+    setDataState(initialState.dataState);
     //console.log(res);
     setDictionary(res);
   }, [table]);
@@ -291,27 +305,39 @@ const PriceList = (props) => {
       //   // ...document[0].values.map((row) => row.key),
       //   ...Object.keys(document[0].jsonValues),
       // ]);
-      setFields([
-        "name",
-        "code",
-        "price",
-        "quant",
-        "keyCount",
-        ...Object.keys(document[0].jsonValues),
-      ]);
+
+      // setFields([
+      //   "name",
+      //   "code",
+      //   "price",
+      //   "quant",
+      //   "keyCount",
+      //   ...Object.keys(document[0].jsonValues),
+      //   "priceDelta",
+      //   "quantDelta",
+      // ]);
+
+      setFields(["name", "sku", "price", "quant"]);
       document.forEach((_el, idx) => {
         console.log(_el);
         let el = {
+          // name: _el.name,
+          // code: _el.code,
+          // price: _el.price,
+          // quant: _el.quant,
+          // id: _el.id,
+          // doc_id: _el.doc_id,
+          // keyCount: _el.keyCount,
+          priceDelta: _el.statistics.price,
+          quantDelta: _el.statistics.quant,
           name: _el.name,
-          code: _el.code,
+          sku: _el.sku,
           price: _el.price,
           quant: _el.quant,
           id: _el.id,
-          doc_id: _el.doc_id,
-          keyCount: _el.keyCount,
         };
-        for (let row in _el.jsonValues) {
-          el[row] = _el.jsonValues[row];
+        for (let row in _el.meta) {
+          el[row] = _el.meta[row];
         }
         // console.log(mapDict[el.country]);
         // console.log(el.country, idx, mapDict[el.country2]);
@@ -793,26 +819,36 @@ const PriceList = (props) => {
       });
   };
 
-  // const dataStateChange = (event) => {
-  //   setDataState(event.dataState);
-  // };
-  // const [result, setResult] = React.useState(initialState.result);
-  // const [dataState, setDataState] = React.useState(initialState.dataState);
-  // const createDataState = (dataState) => {
-  //   return {
-  //     result: process(table.slice(0), dataState),
-  //     dataState: dataState,
-  //   };
-  // };
-
+  const dataStateChange = (event) => {
+    console.error(event.dataState);
+    let updatedState = createDataState(event.dataState);
+    setResult(updatedState.result);
+    console.warn(updatedState.result);
+    setDataState(updatedState.dataState);
+  };
+  const createDataState = (dataState) => {
+    return {
+      result: process(table.slice(0), dataState),
+      dataState: dataState,
+    };
+  };
+  // let initialState = createDataState({
+  //   take: 8,
+  //   skip: 0,
+  // });
+  const [result, setResult] = React.useState();
+  const [dataState, setDataState] = React.useState();
+  const [withChanges, setWithChanges] = React.useState(false);
   const rowRender = (trElement, props) => {
     const available = props.dataItem.keyCount;
+    // if (available === undefined) return;
     const green = {};
     const red = {
       backgroundColor: "rgb(243, 23, 0, 0.32)",
     };
+    // alert(available);
     const trProps = {
-      style: available <= 1 ? green : red,
+      style: available <= 1 || available === undefined ? green : red,
     };
     return React.cloneElement(
       trElement,
@@ -823,20 +859,178 @@ const PriceList = (props) => {
     );
   };
 
-  const smartTable = React.useMemo(
-    () => (
+  const CustomCell = (props) => {
+    return (
+      <td
+        {...props.tdProps}
+        colSpan={1}
+        style={{
+          color: props.color,
+        }}
+      >
+        {props.children}
+      </td>
+    );
+  };
+
+  const ArrowPriceCell = (props) => {
+    console.log(props.dataItem.priceDelta);
+    return (
+      <td>
+        {props.dataItem.priceDelta != 0 && props.dataItem.priceDelta ? (
+          <img
+            // onClick={() => openDialog(props.dataItem.id)}
+            style={{ width: "20px" }}
+            src={
+              props.dataItem.priceDelta > 0
+                ? require("../../assets/arrows/arrow-up.png")
+                : require("../../assets/arrows/arrow-down.png")
+            }
+            alt="Дельта цены"
+          />
+        ) : (
+          <></>
+        )}
+        {props.dataItem.priceDelta}
+        {/* <Button onClick={() => openDialog(props.dataItem.id)}>Изменить</Button> */}
+      </td>
+    );
+  };
+
+  const ArrowQuantCell = (props) => {
+    console.log(props.dataItem.quantDelta);
+    return (
+      <td>
+        {props.dataItem.quantDelta != 0 &&
+        props.dataItem.quantDelta !== undefined ? (
+          <img
+            // onClick={() => openDialog(props.dataItem.id)}
+            style={{ width: "20px" }}
+            src={
+              props.dataItem.quantDelta > 0
+                ? require("../../assets/arrows/arrow-up.png")
+                : require("../../assets/arrows/arrow-down.png")
+            }
+            alt="Дельта количества"
+          />
+        ) : (
+          <></>
+        )}
+        {props.dataItem.quantDelta}
+        {/* <Button onClick={() => openDialog(props.dataItem.id)}>Изменить</Button> */}
+      </td>
+    );
+  };
+
+  const setOrderArr = (id, value) => {
+    setQuantOrderArr([
+      ...quantOrderArr.filter((order) => order.priceRecordId !== id),
+      {
+        // ...quantOrderArr.find((order) => order.priceRecordId === id),
+        id: "",
+        priceRecordId: id,
+        quant: value,
+      },
+    ]);
+  };
+  React.useEffect(() => {
+    console.log(quantOrderArr);
+  }, [quantOrderArr]);
+
+  const OrderCell = (props) => {
+    console.log(
+      quantOrderArr.find((item) => item.priceRecordId === props.dataItem.id)
+        ?.quant
+    );
+    return (
+      <td>
+        <Input
+          type="text"
+          value={
+            quantOrderArr.find(
+              (item) => item.priceRecordId === props.dataItem.id
+            )?.quant ?? 0
+          }
+          onChange={(e) => setOrderArr(props.dataItem.id, e.target.value)}
+        />
+      </td>
+    );
+  };
+
+  React.useEffect(() => {
+    console.log(fields);
+  }, [fields]);
+
+  const showMeta = (id) => {
+    if (metaId !== id) setMetaId(id);
+    else setMetaId(null);
+  };
+
+  const MetaCell = (props) => {
+    //console.log(props)
+    console.log(props);
+    const row = document && document.find((row) => row.id === metaId)?.meta;
+    console.log(row);
+    return (
+      <td style={{ overflow: "visible" }}>
+        {/* <img
+          onClick={() => showMeta(props.dataItem.id)}
+          src={require("../../assets/edit.png")}
+          alt="Изменить"
+        /> */}
+        <Button
+          style={{ position: "relative" }}
+          onClick={() => showMeta(props.dataItem.id)}
+        >
+          Доп. информация
+        </Button>
+        {metaId === props.dataItem.id && (
+          <div
+            style={{
+              position: "absolute",
+              zIndex: "1000",
+              padding: "10px 20px",
+              backgroundColor: "white",
+              marginTop: "20px",
+            }}
+            className="popover"
+          >
+            {row &&
+              Object.keys(row).map((k) => (
+                <div>
+                  {k}: {row[k]}{" "}
+                </div>
+              ))}
+          </div>
+        )}
+      </td>
+    );
+  };
+  // const formatOptions = {
+  //   style: "currency",
+  //   currency: "RUB",
+  //   currencyDisplay: "name",
+  // };
+  const smartTable = React.useMemo(() => {
+    return (
       <Grid
-        data={(function () {
-          console.log(table);
-          return table;
-        })()}
+        // data={(function () {
+        //   console.log(table);
+        //   return table;
+        // })()}
         className="grid"
         rowRender={rowRender}
         style={{
-          height: "400px",
+          height: "700px",
           marginLeft: "0",
-          width: `${fields.length * 150}px`,
+          width: `${(fields.length + 4) * 150}px`,
         }}
+        data={result}
+        {...dataState}
+        onDataStateChange={dataStateChange}
+        sortable={true}
+        pageable={true}
+        pageSize={8}
         // sortable={true}
         // filterable={true}
         // groupable={true}
@@ -868,12 +1062,40 @@ const PriceList = (props) => {
         <GridColumn field="quant" title="quant" width="100px" />
         <GridColumn field="rating" title="rating" width="100px" />
         <GridColumn field="volume" title="volume" width="100px" /> */}
+        {console.log(fields)}
         {fields?.map((field, idx) => {
           console.log(field);
+          if (field === "quantDelta" || field === "priceDelta") return;
           return (
-            <GridColumn key={field} field={field} width="150px" title={field} />
+            <GridColumn
+              columnMenu={ColumnMenu}
+              // key={field}
+              field={field}
+              width="150px"
+              title={field}
+            />
           );
         })}
+        <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
+        <GridColumn cell={ArrowQuantCell} field="quantDelta" width="150px" />
+        <GridColumn cell={MetaCell} width="150px" />
+        <GridColumn cell={OrderCell} width="150px" title="Order" />
+        {/* <GridColumn
+          field="priceDelta"
+          cells={{
+            data: ArrowCell,
+          }}
+          title="priceDelta"
+          width="150px"
+        />
+        <GridColumn
+          field="quantDelta"
+          cells={{
+            data: ArrowCell,
+          }}
+          title="quantDelta"
+          width="150px"
+        /> */}
         {/* {["country", "region", "alcClass", "manufacturer", "color", "type"].map(
           (field, idx) => {
             return (
@@ -895,9 +1117,35 @@ const PriceList = (props) => {
         {/* <GridColumn cell={EditCell}  width="50px" />
             <GridColumn cell={DeleteCell}  width="50px" /> */}
       </Grid>
-    ),
-    [table, checkedRow, fields]
-  );
+    );
+  }, [
+    table,
+    checkedRow,
+    fields,
+    result,
+    dataState,
+    withChanges,
+    metaId,
+    quantOrderArr,
+  ]);
+
+  const showPriceList = () => {
+    getDocument({ id: vendor })
+      .unwrap()
+      .then((payload) => {
+        setDocument(payload);
+        getDictionaryById({ id: 7 })
+          .unwrap()
+          .then((payload) => {})
+          .catch((err) => console.error(err));
+        //console.log(payload);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const createOrder = () => {
+    _createOrder(vendor);
+  };
 
   return (
     <div
@@ -915,7 +1163,9 @@ const PriceList = (props) => {
         placeholder="Выбрать поставщика"
       />
       <div>Выбрано: {getVendorById(vendor)}</div>
-      Профиль:
+      <Button onClick={showPriceList}>Показать прайс-лист</Button>
+      <Button onClick={createOrder}>Создать заказ</Button>
+      {/* Профиль:
       <Select
         options={optionsProfile}
         onChange={onSelectProfile}
@@ -924,7 +1174,7 @@ const PriceList = (props) => {
       <div>Выбрано: {getProfileById(profile)}</div>
       <input type="file" onChange={handleFileChange} />
       <Button onClick={save}>Загрузить</Button>
-      <div>Выбрано: {fileN}</div>
+      <div>Выбрано: {fileN}</div> */}
       <br />
       {/* Фильтры:
       <br />
@@ -996,16 +1246,53 @@ const PriceList = (props) => {
         Удалить выделенные записи
       </Button> */}
       {smartTable}
-      <Button
-        style={{
-          marginTop: "10px",
-        }}
-        onClick={() => {
-          addToStock("174fdd5b-74ad-3340-b230-836b3e4cdf12");
-        }}
-      >
-        Добавить на склад
-      </Button>
+      {!withChanges ? (
+        <Button
+          style={{
+            marginTop: "10px",
+          }}
+          onClick={() => {
+            setWithChanges(true);
+            // setResult(updatedState.result);
+            // // console.warn(updatedState.result);
+            // setDataState(updatedState.dataState);
+
+            const state = {
+              result: process(
+                table.filter(
+                  (row) => row.quantDelta !== 0 || row.priceDelta !== 0
+                ),
+                { ...dataState, skip: 0 }
+              ),
+              dataState: { ...dataState, skip: 0 },
+            };
+            setResult(state.result);
+            setDataState(state.dataState);
+            // addToStock("174fdd5b-74ad-3340-b230-836b3e4cdf12");
+          }}
+        >
+          Показать изменения
+        </Button>
+      ) : (
+        <Button
+          style={{
+            marginTop: "10px",
+          }}
+          onClick={() => {
+            setWithChanges(false);
+
+            const state = {
+              result: process(table.slice(0), dataState),
+              dataState: dataState,
+            };
+            setResult(state.result);
+            setDataState(state.dataState);
+            // addToStock("174fdd5b-74ad-3340-b230-836b3e4cdf12");
+          }}
+        >
+          Показать всю таблицу
+        </Button>
+      )}
       {!!visible && (
         <Window
           title={"Document record"}

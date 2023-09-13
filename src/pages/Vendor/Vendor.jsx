@@ -18,7 +18,10 @@ import {
   useCreateVendorMutation,
   useDeleteVendorMutation,
   useEditVendorMutation,
+  useGetVendorContactsMutation,
   useGetVendorsQuery,
+  useRemoveVendorContactsMutation,
+  useEditVendorContactsMutation,
 } from "../../features/apiSlice";
 import {
   Notification,
@@ -26,6 +29,8 @@ import {
 } from "@progress/kendo-react-notification";
 import { Fade } from "@progress/kendo-react-animation";
 import { useEffect } from "react";
+import { useGetDictionaryQuery } from "../../features/apiSlice";
+import Select from "react-select";
 // const CustomCell = (props) => {
 //   return (
 //     <td
@@ -50,12 +55,23 @@ const UserGroup = () => {
   const [error, setError] = React.useState(false);
   const [usersByGroup, setUsersByGroup] = React.useState([]);
   const [rightsByGroup, setRightsByGroup] = React.useState([]);
+  const [contacts, setContacts] = React.useState([]);
+  const [payload, setPayload] = React.useState([]);
+  const [contactTypes, setContactTypes] = React.useState([]);
   const [editVendor] = useEditVendorMutation();
   const [createVendor] = useCreateVendorMutation();
   const [_deleteVendor] = useDeleteVendorMutation();
-  console.log("error: ", err);
-  const navigate = useNavigate();
-  if (err?.status === 401) navigate("/");
+  const [getContacts] = useGetVendorContactsMutation();
+  const [deleteContact] = useRemoveVendorContactsMutation();
+  const [editContact] = useEditVendorContactsMutation();
+  const { data: dict } = useGetDictionaryQuery();
+  const [editContactData, setEditContactData] = React.useState([]);
+  const [contactType, setContactType] = React.useState([]);
+  const [showContactVisibility, setShowContactVisibility] = React.useState(0);
+  const [idContact, setIdContact] = React.useState();
+  // console.log("error: ", err);
+  // const navigate = useNavigate();
+  // if (err?.status === 401) navigate("/");
   const dispatch = useDispatch();
   const EditCell = (props) => {
     //console.log(props)
@@ -84,6 +100,95 @@ const UserGroup = () => {
       </td>
     );
   };
+
+  const DeleteContactCell = (props) => {
+    //console.log(props)
+    return (
+      <td>
+        <img
+          onClick={() => deleteContactVendor(props.dataItem.id)}
+          src={require("../../assets/remove.png")}
+          alt="Удалить"
+        />
+        {/* <Button themeColor="error" onClick={() => deleteVendor(props.dataItem.id)}>Удалить</Button> */}
+      </td>
+    );
+  };
+  const editContactVendor = (id) => {
+    setShowContactVisibility(1);
+    setEditContactData(contacts.find((contact) => contact.id === id));
+    console.log("editContactVendor");
+  };
+  const EditContactCell = (props) => {
+    //console.log(props)
+    return (
+      <td>
+        <img
+          onClick={() => editContactVendor(props.dataItem.id)}
+          src={require("../../assets/edit.png")}
+          alt="Редактировать"
+        />
+        {/* <Button themeColor="error" onClick={() => deleteVendor(props.dataItem.id)}>Удалить</Button> */}
+      </td>
+    );
+  };
+
+  const ContactCell = (props) => {
+    //console.log(props)
+    return (
+      <td>
+        <Button onClick={() => showContact(props.dataItem.id)}>Контакты</Button>
+
+        {/* <Button themeColor="error" onClick={() => deleteVendor(props.dataItem.id)}>Удалить</Button> */}
+      </td>
+    );
+  };
+  const deleteContactVendor = (id) => {
+    deleteContact({ id });
+  };
+
+  const showContact = (id) => {
+    if (id !== undefined) setIdContact(id);
+    else id = idContact;
+    getContacts({ id })
+      .unwrap()
+      .then((payload) => {
+        // if (payload.message === "Server error") {
+        //   setError(true);
+        //   setTimeout(() => {
+        //     setError(false);
+        //   }, 2000);
+        // }
+        // if (payload.message === "success") {
+        //   setSuccess(true);
+        //   setTimeout(() => {
+        //     setSuccess(false);
+        //   }, 2000);
+        // }
+        setPayload(payload);
+        console.log(payload);
+      })
+      .catch((error) => console.error("rejected", error));
+  };
+
+  useEffect(() => {
+    if (dict === undefined || payload === undefined) return;
+    let info = dict
+      .filter((rec) => rec.dictId === 8)
+      .map((el) => ({ name: el.name, type: el.id }));
+    console.log(info);
+    setContacts(
+      payload.map((contact) => ({
+        ...contact,
+        type: info.find((el) => el.type == contact.type)?.name,
+      }))
+    );
+    setContactType(
+      dict
+        .filter((rec) => rec.dictId === 8)
+        .map((el) => ({ value: el.id, label: el.name }))
+    );
+  }, [dict, payload]);
 
   const removeFromGroup = async (id) => {
     // await removeUserFromGroup({GroupId: idGroup, UserId: id})
@@ -222,9 +327,28 @@ const UserGroup = () => {
   //   const element = data.find(el => el.id === id);
   //   return element.surname;
   // };
+  const addVendor = () => {
+    let found = data.find((vendor) => vendor.code === formData.code);
+    if (found.id !== formData.id) {
+      console.log(found, formData);
+      alert("Поле код должно быть уникальным");
+      return;
+    }
+    createVendor(formData);
+    closeDialog();
+  };
   const save = () => {
-    if (formData.name) {
+    let found = data.find((vendor) => vendor.code === formData.code);
+    if (found.id !== formData.id) {
+      console.log(found, formData);
+      alert("Поле код должно быть уникальным");
+      return;
+    }
+    if (formData.name && formData.code) {
       editVendor(formData);
+      closeDialog();
+    } else {
+      alert("Введите все поля");
     }
     // const arr = info.map(el =>{
     //    if(el.id != id) return el;
@@ -249,11 +373,10 @@ const UserGroup = () => {
     // })
     // .catch((error) => console.error('rejected', error))
     //setInfo(arr);
-    closeDialog();
   };
   const addGroup1 = () => {
-    setVisible(2);
-    setFormData({ id: "", name: "" });
+    setVisible(3);
+    setFormData({ id: "", name: "", code: "" });
   };
   const add = () => {
     if (formData.name) {
@@ -294,6 +417,22 @@ const UserGroup = () => {
     return data.find((el) => el.id === id).name;
   };
 
+  const saveChangesContact = () => {
+    editContactVendor(editContactData);
+  };
+
+  const closeDialogContact = () => {
+    setShowContactVisibility(0);
+  };
+  const closeEditDialog = () => {
+    // setShowContactVisibility(0);
+    setShowContactVisibility(0);
+  };
+  const saveEdit = () => {
+    editContact(editContactData);
+    closeEditDialog();
+    showContact();
+  };
   return (
     <div>
       <div className="add_user">
@@ -314,34 +453,154 @@ const UserGroup = () => {
         //   // mode: selectionMode,
         // }}
       >
-        <GridColumn field="name" title="Name" />
+        <GridColumn field="name" title="Имя" />
+        <GridColumn field="code" title="Код" />
         <GridColumn cell={EditCell} width="50px" />
-        <GridColumn cell={DeleteCell} width="50px" />
+        {/* <GridColumn cell={DeleteCell} width="50px" /> */}
+        <GridColumn cell={ContactCell} width="150px" />
+      </Grid>
+      <Grid
+        data={contacts}
+        className="grid"
+        style={{
+          height: "200px",
+        }}
+        // onRowClick={clickGroup}
+        // selectable={{
+        //   enabled: true,
+        //   // drag: dragEnabled,
+        //   cell: false,
+        //   // mode: selectionMode,
+        // }}
+      >
+        <GridColumn field="name" title="Имя" />
+        <GridColumn field="contact" title="Контакт" />
+        <GridColumn field="type" title="Тип" />
+        <GridColumn cell={EditContactCell} width="50px" />
+        <GridColumn cell={DeleteContactCell} width="50px" />
       </Grid>
       <div className="tables"></div>
-      {!!visible && (
-        <Window title={"Group"} onClose={closeDialog} initialHeight={350}>
+      {showContactVisibility === 1 && (
+        <Window title={"User"} onClose={closeDialogContact} initialHeight={350}>
           <form className="k-form">
             <fieldset>
-              {visible === 1 ? (
-                <legend>Vendor Details</legend>
-              ) : (
-                <legend>Add Vendor</legend>
-              )}
+              <legend>Edit contact</legend>
 
               <label className="k-form-field">
-                <span>Name</span>
+                <span>Имя</span>
                 <input
                   className="k-input"
-                  value={formData.name}
+                  value={editContactData.name}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setEditContactData({
+                      ...editContactData,
+                      name: e.target.value,
+                    })
                   }
                   placeholder="Name"
                 />
               </label>
+              <label className="k-form-field">
+                <span>Контакт</span>
+                <input
+                  className="k-input"
+                  value={editContactData.contact}
+                  onChange={(e) =>
+                    setEditContactData({
+                      ...editContactData,
+                      contact: e.target.value,
+                    })
+                  }
+                  placeholder="Contact"
+                />
+              </label>
+              <Select
+                options={contactType}
+                onChange={(e) => {
+                  console.log(e.value);
+                  // onSelectFilter(e, idx);
+                  setEditContactData({ ...editContactData, type: e.value });
+                }}
+                placeholder={"Тип"}
+              />
             </fieldset>
 
+            <div className="text-right">
+              <button
+                type="button"
+                className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
+                onClick={closeEditDialog}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                onClick={saveEdit}
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </Window>
+      )}
+
+      {!!visible && (
+        <Window title={"Group"} onClose={closeDialog} initialHeight={350}>
+          <form className="k-form">
+            <fieldset>
+              {visible === 1 || visible === 3 ? (
+                <legend>Vendor Details</legend>
+              ) : (
+                <legend>Vendor Contact</legend>
+              )}
+
+              {/* {contacts.map()} */}
+              {visible === 1 || visible === 3 ? (
+                <>
+                  <label className="k-form-field">
+                    <span>Name</span>
+                    <input
+                      className="k-input"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      placeholder="Name"
+                    />
+                  </label>
+
+                  <label className="k-form-field">
+                    <span>Code</span>
+                    <input
+                      className="k-input"
+                      value={formData.code}
+                      onChange={(e) =>
+                        setFormData({ ...formData, code: e.target.value })
+                      }
+                      placeholder="Code"
+                    />
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label className="k-form-field">
+                    <span>Contact</span>
+                    <input
+                      className="k-input"
+                      value={editContactData.contact}
+                      onChange={(e) =>
+                        setEditContactData({
+                          ...editContactData,
+                          contact: e.target.value,
+                        })
+                      }
+                      placeholder="Name"
+                    />
+                  </label>
+                </>
+              )}
+            </fieldset>
             <div className="text-right">
               <button
                 type="button"
@@ -357,8 +616,16 @@ const UserGroup = () => {
             >
               Submit
             </button> */}
-
-              {visible === 1 ? (
+              {visible === 3 && (
+                <button
+                  type="button"
+                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                  onClick={addVendor}
+                >
+                  Submit
+                </button>
+              )}
+              {visible === 1 && (
                 <button
                   type="button"
                   className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
@@ -366,11 +633,12 @@ const UserGroup = () => {
                 >
                   Submit
                 </button>
-              ) : (
+              )}
+              {visible === 2 && (
                 <button
                   type="button"
                   className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-                  onClick={add}
+                  onClick={saveChangesContact}
                 >
                   Submit
                 </button>

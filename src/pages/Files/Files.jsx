@@ -2,20 +2,37 @@ import React from "react";
 import {
   useDeleteFileMutation,
   useGetAllUsersQuery,
+  useGetDocumentMutation,
   useGetFilesQuery,
   useGetProfilesQuery,
   useGetVendorsQuery,
 } from "../../features/apiSlice";
 import { useNavigate } from "react-router-dom";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
+import Select from "react-select";
+import { Button } from "@progress/kendo-react-buttons";
+import axios from "axios";
+import { Loader } from "@progress/kendo-react-indicators";
 
 export default function Files(props) {
-  const { data: files } = useGetFilesQuery();
+  const { data: files, refetch } = useGetFilesQuery();
   const [info, setInfo] = React.useState([]);
   const { data: users } = useGetAllUsersQuery();
   const { data: vendors } = useGetVendorsQuery();
   const { data: profiles } = useGetProfilesQuery();
+  const { data, error: err, isLoading } = useGetVendorsQuery();
+  const [options, setOptions] = React.useState([]);
+  const [vendor, setVendor] = React.useState(null);
+  const [optionsProfile, setOptionsProfile] = React.useState([]);
   const [deleteFile] = useDeleteFileMutation();
+  const [profile, setProfile] = React.useState(null);
+  const [file, setFile] = React.useState();
+  const [fileN, setFileN] = React.useState(null);
+  const [showTable, setShowTable] = React.useState(false);
+  const [docId, setDocId] = React.useState();
+  const [loading, setLoading] = React.useState(false);
+  const { data: dataProfiles } = useGetProfilesQuery();
+  console.log(files);
   const getUserById = (id) => {
     return users.find((user) => user.id === id)?.name;
   };
@@ -82,6 +99,10 @@ export default function Files(props) {
     );
   };
   React.useEffect(() => {}, []);
+  React.useEffect(() => {
+    //console.log(data);
+    setOptions(data?.map((el) => ({ value: el.id, label: el.name })));
+  }, [data]);
   const editRow = ({ profileId, vendorId, id, fileName }) => {
     navigate(
       "/home/pricelist",
@@ -90,24 +111,153 @@ export default function Files(props) {
     console.log("AAA ", profileId, "BBB", vendorId);
   };
 
+  const onSelectVendor = (select) => {
+    //console.log(select.value);
+    setVendor(select.value);
+  };
+  const onSelectProfile = (select) => {
+    //console.log(select.value);
+    setProfile(select.value);
+  };
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      console.log(e.target.files[0]);
+    }
+  };
+
+  const save = (e) => {
+    console.log(file);
+    if (!file || !profile || !vendor || !localStorage.getItem("login")) return;
+    setFileN(file.name);
+    const url = "http://192.168.20.30:55555/api/file";
+    const formData = new FormData();
+    formData.append("Document", file);
+    formData.append("ProfileId", profile);
+    formData.append("UserLogin", localStorage.getItem("login"));
+    formData.append("VendorId", vendor);
+    // formData.append('fileName', file.name);
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        User: `${localStorage.getItem("login")}`,
+      },
+    };
+    setLoading(true);
+    // {
+    //     Document: formData,
+    //     Description:'',
+    //     UserLogin: localStorage.getItem('login'),
+    //     VendorId: 'Поставщик 1'
+    // }
+    axios
+      .post(url, formData, config)
+      .then((response) => {
+        //console.log(response.data);
+        setShowTable(true);
+
+        const doc_id = response.data.result;
+        //setId("0bc3bc0c-7233-4fea-a647-11956fccb5cf");
+        //setDocId("0bc3bc0c-7233-4fea-a647-11956fccb5cf");
+        setDocId(doc_id);
+        if (files !== undefined) refetch();
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err?.response.data.message === "Records not found")
+          alert("Профиль не соотвествует файлу");
+        else alert("Произошла ошибка");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    //     upload({
+    //     Document: file,
+    //     Description:'',
+    //     UserLogin: localStorage.getItem('login'),
+    //     VendorId: 'Поставщик 1'
+    // })
+  };
+
+  React.useEffect(() => {
+    //console.log(dataProfiles);
+    setOptionsProfile(
+      dataProfiles?.map((el) => ({ value: el.id, label: el.name }))
+    );
+  }, [dataProfiles]);
+
   return (
-    <Grid
-      data={info}
-      className="grid"
-      style={{
-        height: "400px",
-      }}
-    >
-      <GridColumn field="inputName" title="Имя" />
-      <GridColumn field="userName" title="Пользователь" />
-      <GridColumn field="vendorName" title="Поставщик" />
-      <GridColumn field="profileName" title="Профиль" />
-      <GridColumn cell={DeleteCell} width="50px" />
-      <GridColumn cell={EditCell} width="50px" />
-      {/* <GridColumn field="code" title="Code"  />
+    <div style={{ marginLeft: "10px", marginTop: "15px" }}>
+      {loading && (
+        <div
+          style={{
+            content: "",
+            position: "absolute",
+            top: "-247px",
+            left: 0,
+            background: "rgba(0,0,0,.5)",
+            zIndex: "1000",
+            height: "100vh",
+            display: "flex",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Loader size="large" type="infinite-spinner" />{" "}
+        </div>
+      )}
+      Поставщик:
+      <div
+        style={{
+          width: "300px",
+        }}
+      >
+        <Select
+          options={options}
+          onChange={onSelectVendor}
+          placeholder="Выбрать поставщика"
+        />
+      </div>
+      <div>Выбрано: {vendors && getVendorById(vendor)}</div>
+      Профиль:
+      <div
+        style={{
+          width: "300px",
+        }}
+      >
+        <Select
+          options={optionsProfile}
+          onChange={onSelectProfile}
+          placeholder="Выбрать профиль"
+        />
+      </div>
+      <div>Выбрано: {profiles && getProfileById(profile)}</div>
+      <input type="file" onChange={handleFileChange} />
+      <Button onClick={save}>Загрузить</Button>
+      <div>Выбрано: {fileN}</div>
+      <Grid
+        data={info}
+        className="grid"
+        style={{
+          height: "400px",
+          marginLeft: 0,
+          marginTop: "10px",
+        }}
+      >
+        <GridColumn field="inputName" title="Имя" />
+        <GridColumn field="userName" title="Пользователь" />
+        <GridColumn field="vendorName" title="Поставщик" />
+        <GridColumn field="profileName" title="Профиль" />
+        <GridColumn cell={DeleteCell} width="50px" />
+        <GridColumn cell={EditCell} width="50px" />
+        {/* <GridColumn field="code" title="Code"  />
       <GridColumn field="surname" title="Surname" /> */}
-      {/* <GridColumn cell={EditCell} width="50px" />
+        {/* <GridColumn cell={EditCell} width="50px" />
         <GridColumn cell={DeleteCell} width="50px" /> */}
-    </Grid>
+      </Grid>
+    </div>
   );
 }

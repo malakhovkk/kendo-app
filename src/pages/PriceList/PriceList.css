@@ -1,4 +1,17 @@
-.select
-{
-    width: 250px;
+.popover {
+  border: 1px solid rgba(230, 230, 230, 0.739);
+}
+.popover::after,
+.popover::before {
+  content: "";
+  position: absolute;
+  top: -41px;
+  left: -1px;
+  border: 20px solid transparent;
+  border-bottom: 20px solid rgba(230, 230, 230, 0.739);
+}
+
+.popover::after {
+  border-bottom: 20px solid white;
+  top: -40px;
 }

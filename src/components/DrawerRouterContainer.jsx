@@ -58,6 +58,11 @@ const items = [
     icon: "k-i-globe",
     route: "/home/new",
   },
+  {
+    text: "Заказы",
+    icon: "k-i-globe",
+    route: "/home/orders",
+  },
 ];
 const DrawerRouterContainer = (props) => {
   const [expanded, setExpanded] = React.useState(true);
