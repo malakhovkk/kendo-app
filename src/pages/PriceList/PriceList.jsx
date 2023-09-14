@@ -28,7 +28,8 @@ import { process } from "@progress/kendo-data-query";
 import { ColumnMenu } from "../../components/columnMenu";
 import { Popup } from "@progress/kendo-react-popup";
 import { Popover } from "@progress/kendo-react-tooltip";
-
+import { NumericTextBox } from "@progress/kendo-react-inputs";
+import { default as NumInput } from "../../components/NumInput";
 const PriceList = (props) => {
   const abbreviations = {
     code: "Код",
@@ -335,6 +336,7 @@ const PriceList = (props) => {
           price: _el.price,
           quant: _el.quant,
           id: _el.id,
+          orderQuant: 0,
         };
         for (let row in _el.meta) {
           el[row] = _el.meta[row];
@@ -874,7 +876,7 @@ const PriceList = (props) => {
   };
 
   const ArrowPriceCell = (props) => {
-    console.log(props.dataItem.priceDelta);
+    //console.log(props.dataItem.priceDelta);
     return (
       <td>
         {props.dataItem.priceDelta != 0 && props.dataItem.priceDelta ? (
@@ -898,7 +900,7 @@ const PriceList = (props) => {
   };
 
   const ArrowQuantCell = (props) => {
-    console.log(props.dataItem.quantDelta);
+    //console.log(props.dataItem.quantDelta);
     return (
       <td>
         {props.dataItem.quantDelta != 0 &&
@@ -937,25 +939,52 @@ const PriceList = (props) => {
     console.log(quantOrderArr);
   }, [quantOrderArr]);
 
-  const OrderCell = (props) => {
-    console.log(
-      quantOrderArr.find((item) => item.priceRecordId === props.dataItem.id)
-        ?.quant
-    );
-    return (
-      <td>
-        <Input
-          type="text"
-          value={
-            quantOrderArr.find(
-              (item) => item.priceRecordId === props.dataItem.id
-            )?.quant ?? 0
-          }
-          onChange={(e) => setOrderArr(props.dataItem.id, e.target.value)}
-        />
-      </td>
-    );
+  const [val, setVal] = React.useState("");
+
+  const saveChanges = (dataItem) => {
+    console.log("saveChanges");
+    console.log(quantOrderArr);
+    setTable(table.map((row) => (row.id !== dataItem.id ? row : dataItem)));
+    setOrderArr(dataItem.id, dataItem.orderQuant);
   };
+  const MyCell = (props) => (
+    <NumInput {...props} saveChanges={saveChanges} min={1} max={100} />
+  );
+
+  // const OrderCell = (props) => {
+  //   console.log("UPDATE2");
+
+  //   return (
+  //     <td>
+  //       <NumericTextBox
+  //         // type="text"
+  //         value={val}
+  //         onChange={(e) => setVal(e.target.value)}
+  //       />
+  //     </td>
+  //   );
+  // };
+
+  // const OrderCell = React.memo((props) => {
+  //   console.log("UPDATE");
+  //   console.log(
+  //     quantOrderArr.find((item) => item.priceRecordId === props.dataItem.id)
+  //       ?.quant
+  //   );
+  //   return (
+  //     <td>
+  //       <Input
+  //         type="text"
+  //         value={
+  //           quantOrderArr.find(
+  //             (item) => item.priceRecordId === props.dataItem.id
+  //           )?.quant ?? 0
+  //         }
+  //         onChange={(e) => setOrderArr(props.dataItem.id, e.target.value)}
+  //       />
+  //     </td>
+  //   );
+  // });
 
   React.useEffect(() => {
     console.log(fields);
@@ -968,9 +997,9 @@ const PriceList = (props) => {
 
   const MetaCell = (props) => {
     //console.log(props)
-    console.log(props);
+    //console.log(props);
     const row = document && document.find((row) => row.id === metaId)?.meta;
-    console.log(row);
+    //console.log(row);
     return (
       <td style={{ overflow: "visible" }}>
         {/* <img
@@ -1011,7 +1040,7 @@ const PriceList = (props) => {
   //   currency: "RUB",
   //   currencyDisplay: "name",
   // };
-  const smartTable = React.useMemo(() => {
+  const smartTable = () => {
     return (
       <Grid
         // data={(function () {
@@ -1079,7 +1108,12 @@ const PriceList = (props) => {
         <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
         <GridColumn cell={ArrowQuantCell} field="quantDelta" width="150px" />
         <GridColumn cell={MetaCell} width="150px" />
-        <GridColumn cell={OrderCell} width="150px" title="Order" />
+        <GridColumn
+          cell={MyCell}
+          field="orderQuant"
+          width="150px"
+          title="Order"
+        />
         {/* <GridColumn
           field="priceDelta"
           cells={{
@@ -1118,16 +1152,17 @@ const PriceList = (props) => {
             <GridColumn cell={DeleteCell}  width="50px" /> */}
       </Grid>
     );
-  }, [
-    table,
-    checkedRow,
-    fields,
-    result,
-    dataState,
-    withChanges,
-    metaId,
-    quantOrderArr,
-  ]);
+  };
+  // }, [
+  //   table,
+  //   checkedRow,
+  //   fields,
+  //   result,
+  //   dataState,
+  //   withChanges,
+  //   metaId,
+  //   quantOrderArr,
+  // ]);
 
   const showPriceList = () => {
     getDocument({ id: vendor })
@@ -1245,7 +1280,7 @@ const PriceList = (props) => {
       <Button onClick={deleteRows} style={{ marginTop: "20px" }}>
         Удалить выделенные записи
       </Button> */}
-      {smartTable}
+      {smartTable()}
       {!withChanges ? (
         <Button
           style={{

@@ -5,6 +5,7 @@ export const userApi = createApi({
   tagTypes: ["Users", "Groups", "LinkGroup", "Files"],
   baseQuery: fetchBaseQuery({
     baseUrl: "http://192.168.20.30:55555/api/",
+    // baseUrl: "http://194.87.239.231:55555/api/",
     prepareHeaders: (headers, { getState }) => {
       headers.set("Authorization", `Bearer ${localStorage.getItem("token")}`);
       headers.set("User", `${localStorage.getItem("login")}`);
