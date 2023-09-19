@@ -53,14 +53,25 @@ const NumInput = (props) => {
     //   syntheticEvent: e.syntheticEvent,
     //   value: e.target.value,
     // });
-    // props.onChange({
+    //if (e.target.value > props.dataItem.quant) return;
+    console.log(props);
+    alert(1);
+    props.onChange({
+      dataItem: props.dataItem,
+      field: props.field,
+      syntheticEvent: e.syntheticEvent,
+      value:
+        e.target.value > props.dataItem.quant
+          ? props.dataItem.quant
+          : e.target.value,
+    });
+    // props.dataItem[props.field] = e.target.value;
+
+    // props.saveChanges({
     //   dataItem: props.dataItem,
-    //   field: props.field,
-    //   syntheticEvent: e.syntheticEvent,
-    //   value: e.target.value,
+    //   orderQuant: e.target.value,
     // });
-    props.dataItem[props.field] = e.target.value;
-    props.saveChanges(props.dataItem);
+
     // console.log(props.dataItem[props.field]);
   };
 
@@ -70,8 +81,8 @@ const NumInput = (props) => {
         value={props.dataItem[props.field]}
         onChange={handleChange}
         // format={this.props.format}
-        // max={this.props.max}
-        // min={this.props.min}
+        max={props.dataItem.quant}
+        min={0}
       />
     </td>
   );

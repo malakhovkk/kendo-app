@@ -7,6 +7,8 @@ import {
   useDeleteRecordsMutation,
   useGetDictionaryByIdMutation,
   useGetDocumentMutation,
+  useSaveEditOrderMutation,
+  useSaveOrderMutation,
   useUploadMutation,
 } from "../../features/apiSlice";
 import axios from "axios";
@@ -16,6 +18,7 @@ import {
   useGetProfilesQuery,
   useGetDictionaryQuery,
   useEditRecordMutation,
+  useGetOrderMutation,
 } from "../../features/apiSlice";
 import "./PriceList.css";
 import { codeSnippetIcon } from "@progress/kendo-svg-icons";
@@ -30,7 +33,30 @@ import { Popup } from "@progress/kendo-react-popup";
 import { Popover } from "@progress/kendo-react-tooltip";
 import { NumericTextBox } from "@progress/kendo-react-inputs";
 import { default as NumInput } from "../../components/NumInput";
+
+const MyCell = (props) => <NumInput {...props} />;
+
+// const removeFromOrder = (priceRecordId) => {
+//   // setOrderArr(priceRecordId, null, "deleted");
+// };
+
 const PriceList = (props) => {
+  const DeleteCell = (props) => {
+    //console.log(props)
+    //console.log(props);
+
+    //console.log(row);
+    return (
+      <td style={{ overflow: "visible" }}>
+        <img
+          onClick={() => removeFromOrder(props.dataItem.id)}
+          src={require("../../assets/remove.png")}
+          alt="Удалить"
+        />
+      </td>
+    );
+  };
+
   const abbreviations = {
     code: "Код",
     name: "Название",
@@ -98,6 +124,9 @@ const PriceList = (props) => {
   const [getDictionaryById] = useGetDictionaryByIdMutation();
   const [_createOrder] = useCreateOrderMutation();
   const [quantOrderArr, setQuantOrderArr] = React.useState([]);
+  const [orderId, setOrderId] = React.useState();
+  const [getOrder] = useGetOrderMutation();
+
   const allFields = [
     "code",
     "name",
@@ -337,6 +366,7 @@ const PriceList = (props) => {
           quant: _el.quant,
           id: _el.id,
           orderQuant: 0,
+          status: "new",
         };
         for (let row in _el.meta) {
           el[row] = _el.meta[row];
@@ -829,6 +859,7 @@ const PriceList = (props) => {
     setDataState(updatedState.dataState);
   };
   const createDataState = (dataState) => {
+    console.log(table);
     return {
       result: process(table.slice(0), dataState),
       dataState: dataState,
@@ -849,8 +880,15 @@ const PriceList = (props) => {
       backgroundColor: "rgb(243, 23, 0, 0.32)",
     };
     // alert(available);
+    // const trProps = {
+    //   style: available <= 1 || available === undefined ? green : red,
+    // };
     const trProps = {
-      style: available <= 1 || available === undefined ? green : red,
+      style:
+        quantOrderArr.find((item) => item.priceRecordId === props.dataItem.id)
+          ?.status !== "deleted"
+          ? green
+          : red,
     };
     return React.cloneElement(
       trElement,
@@ -924,33 +962,59 @@ const PriceList = (props) => {
     );
   };
 
-  const setOrderArr = (id, value) => {
+  const setOrderArr = (priceRecordId, value, status, id) => {
+    console.log(id, value);
     setQuantOrderArr([
-      ...quantOrderArr.filter((order) => order.priceRecordId !== id),
+      ...quantOrderArr.filter((order) => order.priceRecordId !== priceRecordId),
       {
         // ...quantOrderArr.find((order) => order.priceRecordId === id),
-        id: "",
-        priceRecordId: id,
-        quant: value,
+        id:
+          id ??
+          quantOrderArr.find((order) => order.priceRecordId === priceRecordId)
+            .id,
+        priceRecordId,
+        quant:
+          value ??
+          quantOrderArr.find((order) => order.priceRecordId === priceRecordId)
+            .quant,
+        status,
       },
     ]);
   };
+
+  const removeFromOrder = (priceRecordId) => {
+    if (
+      quantOrderArr.find((el) => el.priceRecordId === priceRecordId)?.status !==
+      "new"
+    )
+      setOrderArr(priceRecordId, null, "deleted", null);
+    else {
+      setQuantOrderArr(
+        quantOrderArr.filter((item) => item.priceRecordId !== priceRecordId)
+      );
+    }
+  };
+
   React.useEffect(() => {
     console.log(quantOrderArr);
   }, [quantOrderArr]);
 
   const [val, setVal] = React.useState("");
 
-  const saveChanges = (dataItem) => {
+  const saveChanges = (data) => {
     console.log("saveChanges");
     console.log(quantOrderArr);
-    setTable(table.map((row) => (row.id !== dataItem.id ? row : dataItem)));
-    setOrderArr(dataItem.id, dataItem.orderQuant);
+    console.log(table);
+    setTable(
+      table.map((row) =>
+        row.id !== data.dataItem.id
+          ? row
+          : { ...row, orderQuant: data.orderQuant }
+      )
+    );
+    setOrderArr(data.dataItem.id, data.orderQuant);
   };
-  const MyCell = (props) => (
-    <NumInput {...props} saveChanges={saveChanges} min={1} max={100} />
-  );
-
+  console.log(quantOrderArr);
   // const OrderCell = (props) => {
   //   console.log("UPDATE2");
 
@@ -1025,8 +1089,8 @@ const PriceList = (props) => {
             className="popover"
           >
             {row &&
-              Object.keys(row).map((k) => (
-                <div>
+              Object.keys(row).map((k, idx) => (
+                <div key={idx}>
                   {k}: {row[k]}{" "}
                 </div>
               ))}
@@ -1040,6 +1104,68 @@ const PriceList = (props) => {
   //   currency: "RUB",
   //   currencyDisplay: "name",
   // };
+
+  function itemChange(event) {
+    console.log(event);
+    let value = event.value;
+    const name = event.field;
+    if (event.dataItem.quant < value) value = event.dataItem.quant;
+    let obj = quantOrderArr.find(
+      (el) => el.priceRecordId === event.dataItem.id
+    );
+
+    let status;
+    if (obj) {
+      status = obj.status;
+      if (status === "toEdit") {
+        status = "edited";
+      }
+    } else {
+      status = "new";
+      console.log(quantOrderArr);
+      console.log("status = new");
+    }
+    setOrderArr(event.dataItem.id, value, status, obj?.id ?? "");
+    if (!name) {
+      return;
+    }
+    // const updatedData = table.slice();
+    setTable(
+      table.map((row) =>
+        row.id === event.dataItem.id ? { ...row, [name]: value } : row
+      )
+    );
+    // setTable(updatedData);
+  }
+  React.useEffect(() => {
+    console.log("TABLE ", table);
+  }, [table]);
+  // function update(data, item, remove) {
+  //   let updated;
+  //   console.log(data, item, remove);
+  //   let index = data.findIndex(
+  //     (p) => p === item || (item.id && p.id === item.id)
+  //   );
+  //   if (index >= 0) {
+  //     updated = Object.assign({}, item);
+  //     data[index] = updated;
+  //   } else {
+  //     let id = 1;
+  //     data.forEach((p) => {
+  //       id = Math.max(p.id + 1, id);
+  //     });
+  //     updated = Object.assign({}, item, { id: id });
+  //     data.unshift(updated);
+  //     index = 0;
+  //   }
+
+  //   if (remove) {
+  //     return data.splice(index, 1)[0];
+  //   }
+
+  //   return data[index];
+  // }
+
   const smartTable = () => {
     return (
       <Grid
@@ -1052,9 +1178,10 @@ const PriceList = (props) => {
         style={{
           height: "700px",
           marginLeft: "0",
-          width: `${(fields.length + 4) * 150}px`,
+          width: `${(fields.length + 3 + +!!orderId) * 150}px`,
         }}
         data={result}
+        onItemChange={itemChange}
         {...dataState}
         onDataStateChange={dataStateChange}
         sortable={true}
@@ -1098,7 +1225,7 @@ const PriceList = (props) => {
           return (
             <GridColumn
               columnMenu={ColumnMenu}
-              // key={field}
+              key={field}
               field={field}
               width="150px"
               title={field}
@@ -1108,12 +1235,21 @@ const PriceList = (props) => {
         <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
         <GridColumn cell={ArrowQuantCell} field="quantDelta" width="150px" />
         <GridColumn cell={MetaCell} width="150px" />
-        <GridColumn
-          cell={MyCell}
+        {orderId && (
+          <GridColumn
+            cell={MyCell}
+            field="orderQuant"
+            width="150px"
+            title="Order"
+          />
+        )}
+        <GridColumn cell={DeleteCell} width="50px" />
+        {/* <GridColumn
+          cell={MyCellSecond}
           field="orderQuant"
           width="150px"
           title="Order"
-        />
+        /> */}
         {/* <GridColumn
           field="priceDelta"
           cells={{
@@ -1179,7 +1315,68 @@ const PriceList = (props) => {
   };
 
   const createOrder = () => {
-    _createOrder(vendor);
+    _createOrder(vendor)
+      .unwrap()
+      .then((payload) => {
+        setOrderId(payload.id);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const [_saveOrder] = useSaveOrderMutation();
+  const [_saveEditOrder] = useSaveEditOrderMutation();
+
+  const getOrderRequest = () => {
+    getOrder(orderId)
+      .unwrap()
+      .then((payload) => {
+        console.log(payload);
+        setQuantOrderArr(
+          quantOrderArr.map((item) => ({
+            ...item,
+            status: "toEdit",
+            id: payload.find((el) => el.priceRecordId === item.priceRecordId)
+              .id,
+          }))
+        );
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const saveOrder = () => {
+    _saveOrder({
+      // vendorId: vendor,
+      body: quantOrderArr
+        .filter((el) => el.status === "new")
+        .map((el) => ({
+          id: "",
+          priceRecordId: el.priceRecordId,
+          quant: el.quant,
+          orderId: orderId,
+        })),
+    })
+      .unwrap()
+      .then((_) => {
+        if (quantOrderArr.filter((el) => el.status === "edited").length)
+          _saveEditOrder({
+            // vendorId: vendor,
+            body: quantOrderArr
+              .filter((el) => el.status === "edited")
+              .map((el) => ({
+                id: el.id,
+                priceRecordId: el.priceRecordId,
+                quant: el.quant,
+                orderId: orderId,
+              })),
+          })
+            .unwrap()
+            .then((_) => {
+              getOrderRequest();
+            })
+            .catch((err) => console.error(err));
+        else getOrderRequest();
+      })
+      .catch((err) => console.error(err));
   };
 
   return (
@@ -1199,7 +1396,16 @@ const PriceList = (props) => {
       />
       <div>Выбрано: {getVendorById(vendor)}</div>
       <Button onClick={showPriceList}>Показать прайс-лист</Button>
-      <Button onClick={createOrder}>Создать заказ</Button>
+      {!orderId && (
+        <Button style={{ marginLeft: "10px" }} onClick={createOrder}>
+          Создать заказ
+        </Button>
+      )}
+      {orderId && (
+        <Button style={{ marginLeft: "10px" }} onClick={saveOrder}>
+          Сохранить заказ
+        </Button>
+      )}
       {/* Профиль:
       <Select
         options={optionsProfile}

@@ -4,8 +4,8 @@ export const userApi = createApi({
   reducerPath: "userApi",
   tagTypes: ["Users", "Groups", "LinkGroup", "Files"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://192.168.20.30:55555/api/",
-    // baseUrl: "http://194.87.239.231:55555/api/",
+    // baseUrl: "http://192.168.20.30:55555/api/",
+    baseUrl: "http://194.87.239.231:55555/api/",
     prepareHeaders: (headers, { getState }) => {
       headers.set("Authorization", `Bearer ${localStorage.getItem("token")}`);
       headers.set("User", `${localStorage.getItem("login")}`);
@@ -387,6 +387,30 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Orders", id: "LIST" }],
     }),
+    saveOrder: builder.mutation({
+      query: ({ body }) => ({
+        url: `orderContent/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "Orders", id: "LIST" }],
+    }),
+    getOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `orderContent/${orderId}`,
+        method: "GET",
+      }),
+      invalidatesTags: [{ type: "Orders", id: "LIST" }],
+    }),
+    saveEditOrder: builder.mutation({
+      query: ({ body }) => ({
+        url: `orderContent/`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: [{ type: "Orders", id: "LIST" }],
+    }),
+
     // getProduct: builder.query({
     //   query: (product) => `products/search?q=${product}`,
     // }),
@@ -435,4 +459,7 @@ export const {
   useGetOrdersMutation,
   useGetDictionaryByIdMutation,
   useCreateOrderMutation,
+  useSaveOrderMutation,
+  useGetOrderMutation,
+  useSaveEditOrderMutation,
 } = userApi;
