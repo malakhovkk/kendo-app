@@ -489,7 +489,7 @@ const PriceList = (props) => {
   const save = (e) => {
     console.log(file);
     setFileN(file.name);
-    const url = "https://192.168.20.30:44444/api/file";
+    const url = "https://192.168.20.30:443/api/file";
     const formData = new FormData();
     formData.append("Document", file);
     formData.append("ProfileId", profile);
