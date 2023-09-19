@@ -48,16 +48,16 @@ const items = [
     icon: "k-i-globe",
     route: "/home/files",
   },
-  {
-    text: "Словарь",
-    icon: "k-i-globe",
-    route: "/home/dictionary",
-  },
-  {
-    text: "New",
-    icon: "k-i-globe",
-    route: "/home/new",
-  },
+  // {
+  //   text: "Словарь",
+  //   icon: "k-i-globe",
+  //   route: "/home/dictionary",
+  // },
+  // {
+  //   text: "New",
+  //   icon: "k-i-globe",
+  //   route: "/home/new",
+  // },
   {
     text: "Заказы",
     icon: "k-i-globe",

@@ -55,7 +55,6 @@ const NumInput = (props) => {
     // });
     //if (e.target.value > props.dataItem.quant) return;
     console.log(props);
-    alert(1);
     props.onChange({
       dataItem: props.dataItem,
       field: props.field,

@@ -1179,7 +1179,7 @@ const PriceList = (props) => {
         style={{
           height: "700px",
           marginLeft: "0",
-          width: `${(fields.length + 3 + +!!orderId) * 150}px`,
+          width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
         }}
         data={result}
         onItemChange={itemChange}
@@ -1244,7 +1244,7 @@ const PriceList = (props) => {
             title="Order"
           />
         )}
-        <GridColumn cell={DeleteCell} width="50px" />
+        {orderId && <GridColumn cell={DeleteCell} width="50px" />}
         {/* <GridColumn
           cell={MyCellSecond}
           field="orderQuant"
