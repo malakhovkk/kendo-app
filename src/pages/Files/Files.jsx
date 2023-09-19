@@ -132,6 +132,7 @@ export default function Files(props) {
     setFileN(file.name);
     // const url = "http://192.168.20.30:55555/api/file";
     const url = "http://194.87.239.231:55555/api/file";
+
     const formData = new FormData();
     formData.append("Document", file);
     formData.append("ProfileId", profile);
