@@ -2,7 +2,8 @@ import * as React from "react";
 import { useNavigate, useLocation, Outlet, Link } from "react-router-dom";
 import { Drawer, DrawerContent } from "@progress/kendo-react-layout";
 import { Button } from "@progress/kendo-react-buttons";
-
+import { useSelector, useDispatch } from "react-redux";
+import { freeze } from "../features/settings.js";
 const items = [
   // {
   //   text: "Зарегистрироваться",
@@ -68,11 +69,24 @@ const DrawerRouterContainer = (props) => {
   const [expanded, setExpanded] = React.useState(true);
   let navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const handleClick = () => {
     setExpanded(!expanded);
   };
+  const frozen = useSelector((state) => state.settings.frozen);
   const onSelect = (e) => {
-    navigate(e.itemTarget.props.route);
+    if (frozen) {
+      if (
+        window.confirm(
+          "Ваша информация будет потеряна, если Вы покинете страницу"
+        )
+      ) {
+        navigate(e.itemTarget.props.route);
+        dispatch(freeze(false));
+      }
+    } else {
+      navigate(e.itemTarget.props.route);
+    }
     // setExpanded(!expanded);
   };
   const setSelectedItem = (pathName) => {

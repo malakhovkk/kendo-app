@@ -5,6 +5,9 @@ import { Error } from "@progress/kendo-react-labels";
 import { Input } from "@progress/kendo-react-inputs";
 import { useLogonMutation } from "../features/apiSlice";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+// Импортируем нужные действия
+import { addToRights } from "../features/settings.js";
 
 const emailRegex = new RegExp(/\S+@\S+\.\S+/);
 const emailValidator = (value) =>
@@ -21,36 +24,38 @@ const EmailInput = (fieldRenderProps) => {
 const FormMain = () => {
   const [logon, { error }] = useLogonMutation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   //console.log(error);
   //if(error) navigate('/');
   const handleSubmit = (dataItem) => {
     logon(dataItem)
-    .unwrap()
-    .then((payload) => { 
-      console.log(payload)
-      if(payload.message === "Server error"){
-        // setError(true);
-        // setTimeout(() =>{
-        //   setError(false);
-        // },2000)
-        console.log("err")
-      }
-      if(payload.message === "success"){
-        // setSuccess(true);
-        // setTimeout(() =>{
-        //   setSuccess(false);
-        // },2000)
-        localStorage.setItem("token", payload.result);
-        localStorage.setItem("login", dataItem.login);
-        navigate('/home/users');
-        console.log("suc")
-      }        
-    })
-    .catch((error) =>{
-       console.log('rejected', error)
-       if(error?.status === 400) alert("Неверный пароль")
-  })
-  }
+      .unwrap()
+      .then((payload) => {
+        console.log(payload);
+        if (payload.message === "Server error") {
+          // setError(true);
+          // setTimeout(() =>{
+          //   setError(false);
+          // },2000)
+          console.log("err");
+        }
+        if (payload.message === "success") {
+          // setSuccess(true);
+          // setTimeout(() =>{
+          //   setSuccess(false);
+          // },2000)
+          localStorage.setItem("token", payload.result);
+          localStorage.setItem("login", dataItem.login);
+          dispatch(addToRights(payload.rights));
+          navigate("/home/users");
+          console.log("suc");
+        }
+      })
+      .catch((error) => {
+        console.log("rejected", error);
+        if (error?.status === 400) alert("Неверный пароль");
+      });
+  };
   return (
     <Form
       onSubmit={handleSubmit}
@@ -60,7 +65,7 @@ const FormMain = () => {
             maxWidth: 350,
             // border: "1px solid #e3e0e0",
             padding: 10,
-            borderRadius: '5px'
+            borderRadius: "5px",
           }}
         >
           <fieldset className={"k-form-fieldset"}>

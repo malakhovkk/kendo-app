@@ -457,6 +457,7 @@ const UserGroup = () => {
 
   const closeDialogContact = () => {
     setShowContactVisibility(0);
+    setEditContactData({});
   };
   const closeEditDialog = () => {
     // setShowContactVisibility(0);
@@ -469,6 +470,7 @@ const UserGroup = () => {
   };
   const saveContact = () => {
     addContact({ body: { ...editContactData, vendorId: idContact, id: "" } });
+    setEditContactData({});
     closeEditDialog();
   };
   return (

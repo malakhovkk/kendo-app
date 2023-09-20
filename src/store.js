@@ -18,7 +18,6 @@
 
 // export default store;
 
-
 // import { configureStore } from '@reduxjs/toolkit'
 // import userReducer from './features/main_slice';
 
@@ -32,14 +31,15 @@
 // })
 
 // export default store;
-import { configureStore } from "@reduxjs/toolkit";
 import { userApi } from "./features/apiSlice";
+import { configureStore } from "@reduxjs/toolkit";
+import settings from "./features/settings";
 
 export const store = configureStore({
   reducer: {
-   [userApi.reducerPath]: userApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
+    settings: settings,
   },
   middleware: (getDefaultMiddleware) =>
-   getDefaultMiddleware().concat(userApi.middleware),
+    getDefaultMiddleware().concat(userApi.middleware),
 });
-

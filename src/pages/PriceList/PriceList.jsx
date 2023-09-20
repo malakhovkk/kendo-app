@@ -33,6 +33,8 @@ import { Popup } from "@progress/kendo-react-popup";
 import { Popover } from "@progress/kendo-react-tooltip";
 import { NumericTextBox } from "@progress/kendo-react-inputs";
 import { default as NumInput } from "../../components/NumInput";
+import { useSelector, useDispatch } from "react-redux";
+import { freeze } from "../../features/settings.js";
 
 const MyCell = (props) => <NumInput {...props} />;
 
@@ -126,6 +128,14 @@ const PriceList = (props) => {
   const [quantOrderArr, setQuantOrderArr] = React.useState([]);
   const [orderId, setOrderId] = React.useState();
   const [getOrder] = useGetOrderMutation();
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if (orderId) {
+      dispatch(freeze(true));
+      //alert(1);
+    }
+  }, [orderId]);
 
   const allFields = [
     "code",

@@ -14,13 +14,20 @@ import { Button } from "@progress/kendo-react-buttons";
 import { Window } from "@progress/kendo-react-dialogs";
 import { uid } from "uid";
 import { formatCodeBlockIcon } from "@progress/kendo-svg-icons";
-import { useSelector, useDispatch } from "react-redux";
+
 import { addUser, removeUser, editUser } from "../../features/slice";
 import {
   Notification,
   NotificationGroup,
 } from "@progress/kendo-react-notification";
 import { Fade } from "@progress/kendo-react-animation";
+import { useSelector, useDispatch } from "react-redux";
+// Импортируем нужные действия
+
+// import {
+//   addToRights
+// } from "../../features/settings.js";
+
 // const CustomCell = (props) => {
 //   return (
 //     <td
@@ -37,7 +44,6 @@ import { Fade } from "@progress/kendo-react-animation";
 // const MyCustomCell = (props) => <CustomCell {...props} color={"red"} />;
 
 const Users = () => {
-  const dispatch = useDispatch();
   const EditCell = (props) => {
     //console.log(props)
     return (
@@ -74,6 +80,7 @@ const Users = () => {
   const [id, setId] = React.useState(null);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState(false);
+
   // const [info, setInfo] = React.useState(users);
   // const info = useSelector((state) => state.info.users);
   // React.useEffect(() =>{
@@ -183,8 +190,12 @@ const Users = () => {
     }
   };
   console.log(success, error);
+  const count = useSelector((state) => state.settings.value);
+  // Возвращает метод store.dispatch() текущего хранилища
+  const dispatch = useDispatch();
   return (
     <div>
+      {count}
       <div className="add_user">
         <Button onClick={() => addUser1()}>Добавить</Button>
       </div>
