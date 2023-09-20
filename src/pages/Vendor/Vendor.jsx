@@ -22,6 +22,7 @@ import {
   useGetVendorsQuery,
   useRemoveVendorContactsMutation,
   useEditVendorContactsMutation,
+  useAddContactMutation,
 } from "../../features/apiSlice";
 import {
   Notification,
@@ -69,6 +70,7 @@ const UserGroup = () => {
   const [contactType, setContactType] = React.useState([]);
   const [showContactVisibility, setShowContactVisibility] = React.useState(0);
   const [idContact, setIdContact] = React.useState();
+  const [addContact] = useAddContactMutation();
   // console.log("error: ", err);
   // const navigate = useNavigate();
   // if (err?.status === 401) navigate("/");
@@ -137,12 +139,44 @@ const UserGroup = () => {
     //console.log(props)
     return (
       <td>
-        <Button onClick={() => showContact(props.dataItem.id)}>Контакты</Button>
+        <div onClick={() => showContact(props.dataItem.id)}>
+          <img
+            style={{ width: "20px" }}
+            src={require("../../assets/contact.png")}
+            alt="Показать контакты"
+            title="Показать контакты"
+          />
+        </div>
 
         {/* <Button themeColor="error" onClick={() => deleteVendor(props.dataItem.id)}>Удалить</Button> */}
       </td>
     );
   };
+
+  const AddCell = (props) => {
+    //console.log(props)
+    return (
+      <td>
+        <div
+          onClick={() => {
+            console.log(props.dataItem.id);
+            setIdContact(props.dataItem.id);
+            setShowContactVisibility(3);
+          }}
+        >
+          <img
+            style={{ width: "20px" }}
+            src={require("../../assets/add.png")}
+            alt="Добавить контакт"
+            title="Добавить контакт"
+          />
+        </div>
+
+        {/* <Button themeColor="error" onClick={() => deleteVendor(props.dataItem.id)}>Удалить</Button> */}
+      </td>
+    );
+  };
+
   const deleteContactVendor = (id) => {
     deleteContact({ id });
   };
@@ -433,6 +467,10 @@ const UserGroup = () => {
     closeEditDialog();
     showContact();
   };
+  const saveContact = () => {
+    addContact({ body: { ...editContactData, vendorId: idContact, id: "" } });
+    closeEditDialog();
+  };
   return (
     <div>
       <div className="add_user">
@@ -457,7 +495,8 @@ const UserGroup = () => {
         <GridColumn field="code" title="Код" />
         <GridColumn cell={EditCell} width="50px" />
         {/* <GridColumn cell={DeleteCell} width="50px" /> */}
-        <GridColumn cell={ContactCell} width="150px" />
+        <GridColumn cell={ContactCell} width="50px" />
+        <GridColumn cell={AddCell} width="50px" />
       </Grid>
       <Grid
         data={contacts}
@@ -480,7 +519,7 @@ const UserGroup = () => {
         <GridColumn cell={DeleteContactCell} width="50px" />
       </Grid>
       <div className="tables"></div>
-      {showContactVisibility === 1 && (
+      {(showContactVisibility === 1 || showContactVisibility === 3) && (
         <Window title={"User"} onClose={closeDialogContact} initialHeight={350}>
           <form className="k-form">
             <fieldset>
@@ -533,13 +572,24 @@ const UserGroup = () => {
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-                onClick={saveEdit}
-              >
-                Submit
-              </button>
+              {showContactVisibility === 1 && (
+                <button
+                  type="button"
+                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                  onClick={saveEdit}
+                >
+                  Submit
+                </button>
+              )}
+              {showContactVisibility === 3 && (
+                <button
+                  type="button"
+                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
+                  onClick={saveContact}
+                >
+                  Submit
+                </button>
+              )}
             </div>
           </form>
         </Window>

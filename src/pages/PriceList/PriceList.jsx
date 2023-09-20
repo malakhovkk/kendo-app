@@ -312,14 +312,17 @@ const PriceList = (props) => {
         field: el.field,
       });
     }
-    let initialState = createDataState({
-      take: 8,
-      skip: 0,
-    });
+    let initialState = createDataState(
+      dataState || {
+        take: 8,
+        skip: 0,
+      }
+    );
     setResult(initialState.result);
     setDataState(initialState.dataState);
     //console.log(res);
     setDictionary(res);
+    console.log(res);
   }, [table]);
   React.useEffect(() => {
     if (mapDict === undefined || !document === undefined || !document.length)

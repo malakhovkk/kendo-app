@@ -410,7 +410,14 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Orders", id: "LIST" }],
     }),
-
+    addContact: builder.mutation({
+      query: ({ body }) => ({
+        url: `vendorcontact/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "Contacts", id: "LIST" }],
+    }),
     // getProduct: builder.query({
     //   query: (product) => `products/search?q=${product}`,
     // }),
@@ -462,4 +469,5 @@ export const {
   useSaveOrderMutation,
   useGetOrderMutation,
   useSaveEditOrderMutation,
+  useAddContactMutation,
 } = userApi;
