@@ -236,7 +236,7 @@ const Profile = () => {
       style={{
         width: "1000px",
         minHeight: "500px",
-        marginTop: "20px",
+        marginTop: "80px",
         marginLeft: "20px",
       }}
     >

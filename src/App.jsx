@@ -18,20 +18,44 @@ import New from "./pages/New/New";
 import Orders from "./pages/Orders/Orders";
 import { useGetRightsSettingsMutation } from "./features/apiSlice.js";
 import NotFound from "./pages/NotFound/NotFound";
+import { Loader } from "@progress/kendo-react-indicators";
 const App = () => {
   const [settings, setSettings] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
   const [codes, setCodes] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   React.useEffect(() => {
     getRightsSettings(localStorage.getItem("login"))
       .unwrap()
       .then((payload) => {
         setSettings(payload);
         setCodes(payload.map((el) => el.code));
+        setIsLoading(false);
       })
       .catch((err) => console.error(err));
   }, []);
   console.log(codes);
+  if (isLoading)
+    return (
+      <div
+        style={{
+          content: "",
+          position: "absolute",
+          // top: "-247px",
+          left: 0,
+          background: "rgba(0,0,0,.5)",
+          zIndex: "1000",
+          height: "100vh",
+          display: "flex",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Loader size="large" type="infinite-spinner" />{" "}
+      </div>
+    );
   return (
     <HashRouter>
       <Routes>

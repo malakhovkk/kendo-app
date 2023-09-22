@@ -196,7 +196,7 @@ export default function Files(props) {
           style={{
             content: "",
             position: "absolute",
-            top: "-247px",
+            top: "-179px",
             left: 0,
             background: "rgba(0,0,0,.5)",
             zIndex: "1000",
@@ -215,6 +215,7 @@ export default function Files(props) {
       <div
         style={{
           width: "300px",
+          marginTop: "80px",
         }}
       >
         <Select
