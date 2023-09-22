@@ -35,7 +35,7 @@ const items = [
     rights: "SETTINGS",
   },
   {
-    text: "Поставщики1",
+    text: "Поставщики",
     icon: "k-i-globe",
     route: "/home/vendor",
     rights: "VENDORS",
