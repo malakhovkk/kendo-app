@@ -41,7 +41,7 @@ const items = [
     rights: "VENDORS",
   },
   {
-    text: "Прайс-лист",
+    text: "Текущий прайс-лист",
     icon: "k-i-globe",
     route: "/home/pricelist",
     rights: "PRICE",
@@ -53,7 +53,7 @@ const items = [
     rights: "ALL",
   },
   {
-    text: "Файлы",
+    text: "Прайс-листы",
     icon: "k-i-globe",
     route: "/home/files",
     rights: "LOAD",
