@@ -52,7 +52,7 @@ const Orders = () => {
       .catch((error) => console.error("rejected", error));
   }, [vendorId]);
   return (
-    <div style={{ marginLeft: "10px", marginTop: "20px" }}>
+    <div style={{ marginLeft: "10px", marginTop: "80px" }}>
       {optionsVendor && (
         <div style={{ width: "300px", marginBottom: "10px" }}>
           <Select
