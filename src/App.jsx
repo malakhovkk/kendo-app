@@ -30,9 +30,11 @@ const App = () => {
       .then((payload) => {
         setSettings(payload);
         setCodes(payload.map((el) => el.code));
-        setIsLoading(false);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
   React.useEffect(() => {
     console.log(settings);
