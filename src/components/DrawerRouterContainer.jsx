@@ -98,7 +98,23 @@ const DrawerRouterContainer = (props) => {
 
   // const settings = useSelector((state) => state.settings.value);
   console.log(settings);
+  const setSelectedItem = (pathName) => {
+    console.log("pathName: " + pathName);
+    console.log(items);
+    let currentPath = items.find((item) => item.route === pathName);
+    if (currentPath.text) {
+      return currentPath.text;
+    }
+  };
+  const [selected, setSelected] = React.useState(
+    setSelectedItem(location.pathname)
+  );
   const onSelect = (e) => {
+    let route;
+    console.error(e.itemTarget.props.route);
+    route = e.itemTarget.props.route;
+    console.log("location.pathname=", location.pathname);
+    setSelected(setSelectedItem(route));
     if (frozen) {
       if (
         window.confirm(
@@ -113,16 +129,9 @@ const DrawerRouterContainer = (props) => {
     }
     // setExpanded(!expanded);
   };
-  const setSelectedItem = (pathName) => {
-    console.log("pathName: " + pathName);
-    console.log(items);
-    let currentPath = items.find((item) => item.route === pathName);
-    if (currentPath.text) {
-      return currentPath.text;
-    }
-  };
+
   console.log(location.pathname);
-  let selected = setSelectedItem(location.pathname);
+  // let selected = setSelectedItem(location.pathname);
   return (
     <div>
       <div className="custom-toolbar">

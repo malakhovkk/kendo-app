@@ -34,7 +34,9 @@ const App = () => {
       })
       .catch((err) => console.error(err));
   }, []);
-  console.log(codes);
+  React.useEffect(() => {
+    console.log(settings);
+  });
   if (isLoading)
     return (
       <div
@@ -56,6 +58,7 @@ const App = () => {
         <Loader size="large" type="infinite-spinner" />{" "}
       </div>
     );
+
   return (
     <HashRouter>
       <Routes>
