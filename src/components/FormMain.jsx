@@ -47,7 +47,7 @@ const FormMain = () => {
           localStorage.setItem("token", payload.result);
           localStorage.setItem("login", dataItem.login);
           dispatch(addToRights(payload.rights));
-          navigate("/home/users");
+          navigate("/home/profile");
           console.log("suc");
         }
       })

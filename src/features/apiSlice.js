@@ -418,6 +418,13 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Contacts", id: "LIST" }],
     }),
+    getRightsSettings: builder.mutation({
+      query: (login) => ({
+        url: `rights/${login}`,
+        method: "GET",
+      }),
+      invalidatesTags: [{ type: "RightsSettings", id: "LIST" }],
+    }),
     // getProduct: builder.query({
     //   query: (product) => `products/search?q=${product}`,
     // }),
@@ -470,4 +477,5 @@ export const {
   useGetOrderMutation,
   useSaveEditOrderMutation,
   useAddContactMutation,
+  useGetRightsSettingsMutation,
 } = userApi;

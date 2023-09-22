@@ -4,6 +4,8 @@ import { Drawer, DrawerContent } from "@progress/kendo-react-layout";
 import { Button } from "@progress/kendo-react-buttons";
 import { useSelector, useDispatch } from "react-redux";
 import { freeze } from "../features/settings.js";
+// import { fetchUserById } from './slices/usersSlice.js';
+import { useGetRightsSettingsMutation } from "../features/apiSlice.js";
 const items = [
   // {
   //   text: "Зарегистрироваться",
@@ -18,36 +20,43 @@ const items = [
     text: "Пользователи",
     icon: "k-i-calendar",
     route: "/home/users",
+    rights: "SETTINGS",
   },
   {
     text: "Группа пользователей",
     icon: "k-i-bell",
     route: "/home/group",
+    rights: "SETTINGS",
   },
   {
     text: "Права пользователей",
     icon: "k-i-globe",
     route: "/home/rights",
+    rights: "SETTINGS",
   },
   {
     text: "Поставщики",
     icon: "k-i-globe",
     route: "/home/vendor",
+    rights: "VENDORS",
   },
   {
     text: "Прайс-лист",
     icon: "k-i-globe",
     route: "/home/pricelist",
+    rights: "PRICE",
   },
   {
     text: "Профиль",
     icon: "k-i-globe",
     route: "/home/profile",
+    rights: "ALL",
   },
   {
     text: "Файлы",
     icon: "k-i-globe",
     route: "/home/files",
+    rights: "LOAD",
   },
   // {
   //   text: "Словарь",
@@ -63,6 +72,7 @@ const items = [
     text: "Заказы",
     icon: "k-i-globe",
     route: "/home/orders",
+    rights: "ORDER",
   },
 ];
 const DrawerRouterContainer = (props) => {
@@ -74,6 +84,20 @@ const DrawerRouterContainer = (props) => {
     setExpanded(!expanded);
   };
   const frozen = useSelector((state) => state.settings.frozen);
+  const [settings, setSettings] = React.useState([]);
+  const [getRightsSettings] = useGetRightsSettingsMutation();
+
+  React.useEffect(() => {
+    getRightsSettings(localStorage.getItem("login"))
+      .unwrap()
+      .then((payload) => {
+        setSettings(payload);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  // const settings = useSelector((state) => state.settings.value);
+  console.log(settings);
   const onSelect = (e) => {
     if (frozen) {
       if (
@@ -140,23 +164,31 @@ const DrawerRouterContainer = (props) => {
             </Button>
           </Link>
         </div>
-        <Drawer
-          expanded={expanded}
-          position={"start"}
-          mode={"push"}
-          width={240}
-          items={items.map((item) => ({
-            ...item,
-            selected: item.text === selected,
-          }))}
-          onSelect={onSelect}
-          className="drawer"
-        >
-          <DrawerContent>
-            {props.children}
-            <Outlet />{" "}
-          </DrawerContent>
-        </Drawer>
+        {settings && (
+          <Drawer
+            expanded={expanded}
+            position={"start"}
+            mode={"push"}
+            width={240}
+            items={items
+              .filter(
+                (item) =>
+                  settings.map((item) => item.code).includes(item.rights) ||
+                  item.rights === "ALL"
+              )
+              .map((item) => ({
+                ...item,
+                selected: item.text === selected,
+              }))}
+            onSelect={onSelect}
+            className="drawer"
+          >
+            <DrawerContent>
+              {props.children}
+              <Outlet />{" "}
+            </DrawerContent>
+          </Drawer>
+        )}
       </div>
     </div>
   );

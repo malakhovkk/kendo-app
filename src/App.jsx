@@ -16,24 +16,53 @@ import Files from "./pages/Files/Files";
 import Dictionary from "./pages/Dictionary/Dictionary";
 import New from "./pages/New/New";
 import Orders from "./pages/Orders/Orders";
-
+import { useGetRightsSettingsMutation } from "./features/apiSlice.js";
+import NotFound from "./pages/NotFound/NotFound";
 const App = () => {
+  const [settings, setSettings] = React.useState([]);
+  const [getRightsSettings] = useGetRightsSettingsMutation();
+  const [codes, setCodes] = React.useState([]);
+  React.useEffect(() => {
+    getRightsSettings(localStorage.getItem("login"))
+      .unwrap()
+      .then((payload) => {
+        setSettings(payload);
+        setCodes(payload.map((el) => el.code));
+      })
+      .catch((err) => console.error(err));
+  }, []);
+  console.log(codes);
   return (
     <HashRouter>
       <Routes>
+        <Route path="*" element={<NotFound />} />
         <Route path="/" element={<LogIn />} />
         <Route path="/home" element={<Home />}>
-          <Route path="/home/users" element={<Users />} />
-          <Route path="/home/group" element={<UserGroup />} />
-          <Route path="/home/rights" element={<Rights />} />
+          {codes.includes("SETTINGS") && (
+            <Route path="/home/users" element={<Users />} />
+          )}
+          {codes.includes("SETTINGS") && (
+            <Route path="/home/group" element={<UserGroup />} />
+          )}
+          {codes.includes("SETTINGS") && (
+            <Route path="/home/rights" element={<Rights />} />
+          )}
           {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
-          <Route path="/home/pricelist" element={<PriceList />} />
-          <Route path="/home/vendor" element={<Vendor />} />
+          {codes.includes("PRICE") && (
+            <Route path="/home/pricelist" element={<PriceList />} />
+          )}
+          {codes.includes("VENDORS") && (
+            <Route path="/home/vendor" element={<Vendor />} />
+          )}
           <Route path="/home/profile" element={<Profile />} />
-          <Route path="/home/files" element={<Files />} />
+          {codes.includes("LOAD") && (
+            <Route path="/home/files" element={<Files />} />
+          )}
           {/* <Route path="/home/dictionary" element={<Dictionary />} />
           <Route path="/home/new" element={<New />} /> */}
-          <Route path="/home/orders" element={<Orders />} />
+          {codes.includes("ORDER") && (
+            <Route path="/home/orders" element={<Orders />} />
+          )}
         </Route>
       </Routes>
     </HashRouter>

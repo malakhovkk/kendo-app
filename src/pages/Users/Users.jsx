@@ -195,7 +195,6 @@ const Users = () => {
   const dispatch = useDispatch();
   return (
     <div>
-      {count}
       <div className="add_user">
         <Button onClick={() => addUser1()}>Добавить</Button>
       </div>
