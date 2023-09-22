@@ -1398,7 +1398,7 @@ const PriceList = (props) => {
       style={{
         width: "500px",
         minHeight: "500px",
-        marginTop: "20px",
+        marginTop: "80px",
         marginLeft: "20px",
       }}
     >
