@@ -146,11 +146,11 @@ const DrawerRouterContainer = (props) => {
 
       <div>
         <div className="user-container">
-          <img
+          {/* <img
             src={require("../assets/people/user-avatar.jpg")}
             alt="user avatar"
-          />
-          <h1>Jaxons Danniels</h1>
+          /> */}
+          <h1>{localStorage.getItem("login")}</h1>
           <div className="user-email">jaxons.daniels@company.com</div>
           <Link to="/" style={{ textDecoration: "none" }}>
             <Button
