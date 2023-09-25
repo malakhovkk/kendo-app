@@ -30,11 +30,15 @@ const App = () => {
       .then((payload) => {
         setSettings(payload);
         setCodes(payload.map((el) => el.code));
-        setIsLoading(false);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
-  console.log(codes);
+  React.useEffect(() => {
+    console.log(settings);
+  });
   if (isLoading)
     return (
       <div
@@ -56,6 +60,7 @@ const App = () => {
         <Loader size="large" type="infinite-spinner" />{" "}
       </div>
     );
+
   return (
     <HashRouter>
       <Routes>
