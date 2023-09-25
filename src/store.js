@@ -34,11 +34,12 @@
 import { userApi } from "./features/apiSlice";
 import { configureStore } from "@reduxjs/toolkit";
 import settings from "./features/settings";
-
+import login from "./features/login";
 export const store = configureStore({
   reducer: {
     [userApi.reducerPath]: userApi.reducer,
-    settings: settings,
+    settings,
+    login,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(userApi.middleware),

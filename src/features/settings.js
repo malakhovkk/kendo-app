@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 // Начальное значение
 const initialState = {
   value: [],
+  rights: [],
+  login: "",
 };
 
 const settings = createSlice({
@@ -11,10 +13,13 @@ const settings = createSlice({
   // Редьюсеры в слайсах мутируют состояние и ничего не возвращают наружу
   reducers: {
     addToRights: (state, action) => {
-      state.value.push(...action.payload);
+      state.rights.push(...action.payload);
     },
     freeze: (state, action) => {
       state.frozen = action.payload;
+    },
+    logon: (state, action) => {
+      state.login = action.payload;
     },
     // increment: (state) => {
     //   state.value += 1;
@@ -31,7 +36,7 @@ const settings = createSlice({
 
 // Слайс генерирует действия, которые экспортируются отдельно
 // Действия генерируются автоматически из имен ключей редьюсеров
-export const { addToRights, freeze } = settings.actions;
+export const { addToRights, freeze, logon } = settings.actions;
 
 // По умолчанию экспортируется редьюсер, сгенерированный слайсом
 export default settings.reducer;

@@ -84,17 +84,21 @@ const DrawerRouterContainer = (props) => {
     setExpanded(!expanded);
   };
   const frozen = useSelector((state) => state.settings.frozen);
+  const login = useSelector((state) => state.settings.login);
+  const rights = useSelector((state) => state.settings.rights);
+
   const [settings, setSettings] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
 
   React.useEffect(() => {
-    getRightsSettings(localStorage.getItem("login"))
-      .unwrap()
-      .then((payload) => {
-        setSettings(payload);
-      })
-      .catch((err) => console.error(err));
-  }, []);
+    // getRightsSettings(localStorage.getItem("login"))
+    //   .unwrap()
+    //   .then((payload) => {
+    //     setSettings(payload);
+    //   })
+    //   .catch((err) => console.error(err));
+    setSettings(rights);
+  }, [rights]);
 
   // const settings = useSelector((state) => state.settings.value);
   console.log(settings);

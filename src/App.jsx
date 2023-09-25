@@ -19,13 +19,19 @@ import Orders from "./pages/Orders/Orders";
 import { useGetRightsSettingsMutation } from "./features/apiSlice.js";
 import NotFound from "./pages/NotFound/NotFound";
 import { Loader } from "@progress/kendo-react-indicators";
+import { useSelector } from "react-redux";
+
 const App = () => {
   const [settings, setSettings] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
   const [codes, setCodes] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const rights = useSelector((state) => state.settings.rights);
+  const s = useSelector((state) => state);
+  const login = useSelector((state) => state.settings.login);
+  console.log(s);
   React.useEffect(() => {
-    getRightsSettings(localStorage.getItem("login"))
+    getRightsSettings(login || localStorage.getItem("login"))
       .unwrap()
       .then((payload) => {
         setSettings(payload);
@@ -33,12 +39,16 @@ const App = () => {
       })
       .catch((err) => {
         console.error(err);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
+      });
+  }, [login]);
   React.useEffect(() => {
     console.log(settings);
   });
+  React.useEffect(() => {
+    console.log(rights);
+    if (!rights) return;
+    setIsLoading(false);
+  }, [rights]);
   if (isLoading)
     return (
       <div
@@ -67,29 +77,29 @@ const App = () => {
         <Route path="*" element={<NotFound />} />
         <Route path="/" element={<LogIn />} />
         <Route path="/home" element={<Home />}>
-          {codes.includes("SETTINGS") && (
+          {codes?.includes("SETTINGS") && (
             <Route path="/home/users" element={<Users />} />
           )}
-          {codes.includes("SETTINGS") && (
+          {codes?.includes("SETTINGS") && (
             <Route path="/home/group" element={<UserGroup />} />
           )}
-          {codes.includes("SETTINGS") && (
+          {codes?.includes("SETTINGS") && (
             <Route path="/home/rights" element={<Rights />} />
           )}
           {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
-          {codes.includes("PRICE") && (
+          {codes?.includes("PRICE") && (
             <Route path="/home/pricelist" element={<PriceList />} />
           )}
-          {codes.includes("VENDORS") && (
+          {codes?.includes("VENDORS") && (
             <Route path="/home/vendor" element={<Vendor />} />
           )}
           <Route path="/home/profile" element={<Profile />} />
-          {codes.includes("LOAD") && (
+          {codes?.includes("LOAD") && (
             <Route path="/home/files" element={<Files />} />
           )}
           {/* <Route path="/home/dictionary" element={<Dictionary />} />
           <Route path="/home/new" element={<New />} /> */}
-          {codes.includes("ORDER") && (
+          {codes?.includes("ORDER") && (
             <Route path="/home/orders" element={<Orders />} />
           )}
         </Route>
