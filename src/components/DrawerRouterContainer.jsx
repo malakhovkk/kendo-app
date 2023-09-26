@@ -35,7 +35,7 @@ const items = [
     rights: "SETTINGS",
   },
   {
-    text: "Поставщики1",
+    text: "Поставщики",
     icon: "k-i-globe",
     route: "/home/vendor",
     rights: "VENDORS",
@@ -88,17 +88,33 @@ const DrawerRouterContainer = (props) => {
   const rights = useSelector((state) => state.settings.rights);
 
   const [settings, setSettings] = React.useState([]);
+  const [rights2, setRights2] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
 
   React.useEffect(() => {
-    // getRightsSettings(localStorage.getItem("login"))
-    //   .unwrap()
-    //   .then((payload) => {
-    //     setSettings(payload);
-    //   })
-    //   .catch((err) => console.error(err));
-    setSettings(rights);
-  }, [rights]);
+    console.log(rights);
+    if (!rights.length) {
+      // alert(1);
+      getRightsSettings(localStorage.getItem("login"))
+        .unwrap()
+        .then((payload) => {
+          setRights2(payload.map((el) => el.code));
+        })
+        .catch((err) => console.error(err));
+    } else {
+      setRights2(rights);
+    }
+  }, []);
+  // React.useEffect(() => {
+  //   if (!rights) return;
+  //   getRightsSettings(localStorage.getItem("login"))
+  //     .unwrap()
+  //     .then((payload) => {
+  //       setSettings(payload);
+  //     })
+  //     .catch((err) => console.error(err));
+  //   setSettings(rights);
+  // }, []);
 
   // const settings = useSelector((state) => state.settings.value);
   console.log(settings);
@@ -118,7 +134,7 @@ const DrawerRouterContainer = (props) => {
     console.error(e.itemTarget.props.route);
     route = e.itemTarget.props.route;
     console.log("location.pathname=", location.pathname);
-    setSelected(setSelectedItem(route));
+
     if (frozen) {
       if (
         window.confirm(
@@ -127,14 +143,17 @@ const DrawerRouterContainer = (props) => {
       ) {
         navigate(e.itemTarget.props.route);
         dispatch(freeze(false));
+        setSelected(setSelectedItem(route));
       }
     } else {
       navigate(e.itemTarget.props.route);
+      setSelected(setSelectedItem(route));
     }
     // setExpanded(!expanded);
   };
 
   console.log(location.pathname);
+  console.log(settings);
   // let selected = setSelectedItem(location.pathname);
   return (
     <div>
@@ -177,7 +196,7 @@ const DrawerRouterContainer = (props) => {
             </Button>
           </Link>
         </div>
-        {settings && (
+        {rights2 && (
           <Drawer
             expanded={expanded}
             position={"start"}
@@ -186,8 +205,8 @@ const DrawerRouterContainer = (props) => {
             items={items
               .filter(
                 (item) =>
-                  settings.map((item) => item.code).includes(item.rights) ||
-                  item.rights === "ALL"
+                  // settings.map((item) => item.code).includes(item.rights) ||
+                  rights2.includes(item.rights) || item.rights === "ALL"
               )
               .map((item) => ({
                 ...item,

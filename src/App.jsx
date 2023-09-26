@@ -31,22 +31,28 @@ const App = () => {
   const login = useSelector((state) => state.settings.login);
   console.log(s);
   React.useEffect(() => {
-    getRightsSettings(login || localStorage.getItem("login"))
-      .unwrap()
-      .then((payload) => {
-        setSettings(payload);
-        setCodes(payload.map((el) => el.code));
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    if (login || localStorage.getItem("login"))
+      getRightsSettings(login || localStorage.getItem("login"))
+        .unwrap()
+        .then((payload) => {
+          setSettings(payload);
+          setCodes(payload.map((el) => el.code));
+        })
+        .catch((err) => {
+          console.error(err);
+        });
   }, [login]);
   React.useEffect(() => {
     console.log(settings);
   });
+  // React.useEffect(() => {
+  //   if(!codes) return;
+
+  // }, [codes]);
   React.useEffect(() => {
     console.log(rights);
     if (!rights) return;
+    setCodes(rights);
     setIsLoading(false);
   }, [rights]);
   if (isLoading)
@@ -70,41 +76,45 @@ const App = () => {
         <Loader size="large" type="infinite-spinner" />{" "}
       </div>
     );
-
+  console.warn("CODES", codes.join(" "));
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="*" element={<NotFound />} />
-        <Route path="/" element={<LogIn />} />
-        <Route path="/home" element={<Home />}>
-          {codes?.includes("SETTINGS") && (
-            <Route path="/home/users" element={<Users />} />
-          )}
-          {codes?.includes("SETTINGS") && (
-            <Route path="/home/group" element={<UserGroup />} />
-          )}
-          {codes?.includes("SETTINGS") && (
-            <Route path="/home/rights" element={<Rights />} />
-          )}
-          {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
-          {codes?.includes("PRICE") && (
-            <Route path="/home/pricelist" element={<PriceList />} />
-          )}
-          {codes?.includes("VENDORS") && (
-            <Route path="/home/vendor" element={<Vendor />} />
-          )}
-          <Route path="/home/profile" element={<Profile />} />
-          {codes?.includes("LOAD") && (
-            <Route path="/home/files" element={<Files />} />
-          )}
-          {/* <Route path="/home/dictionary" element={<Dictionary />} />
+    <>
+      {/* {codes.join(" ")}
+      AAAA{codes.includes("PRICE")} */}
+      <HashRouter>
+        <Routes>
+          <Route path="*" element={<NotFound />} />
+          <Route path="/" element={<LogIn />} />
+          <Route path="/home" element={<Home />}>
+            {codes?.includes("SETTINGS") && (
+              <Route path="/home/users" element={<Users />} />
+            )}
+            {codes?.includes("SETTINGS") && (
+              <Route path="/home/group" element={<UserGroup />} />
+            )}
+            {codes?.includes("SETTINGS") && (
+              <Route path="/home/rights" element={<Rights />} />
+            )}
+            {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
+            {codes?.includes("PRICE") && (
+              <Route path="/home/pricelist" element={<PriceList />} />
+            )}
+            {codes?.includes("VENDORS") && (
+              <Route path="/home/vendor" element={<Vendor />} />
+            )}
+            <Route path="/home/profile" element={<Profile />} />
+            {codes?.includes("LOAD") && (
+              <Route path="/home/files" element={<Files />} />
+            )}
+            {/* <Route path="/home/dictionary" element={<Dictionary />} />
           <Route path="/home/new" element={<New />} /> */}
-          {codes?.includes("ORDER") && (
-            <Route path="/home/orders" element={<Orders />} />
-          )}
-        </Route>
-      </Routes>
-    </HashRouter>
+            {codes?.includes("ORDER") && (
+              <Route path="/home/orders" element={<Orders />} />
+            )}
+          </Route>
+        </Routes>
+      </HashRouter>
+    </>
   );
   // return (
   //   <BrowserRouter>

@@ -13,7 +13,7 @@ const settings = createSlice({
   // Редьюсеры в слайсах мутируют состояние и ничего не возвращают наружу
   reducers: {
     addToRights: (state, action) => {
-      state.rights.push(...action.payload);
+      state.rights = action.payload;
     },
     freeze: (state, action) => {
       state.frozen = action.payload;
