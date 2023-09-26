@@ -53,7 +53,7 @@ const items = [
     rights: "ALL",
   },
   {
-    text: "Прайс-листы",
+    text: "Файлы",
     icon: "k-i-globe",
     route: "/home/files",
     rights: "LOAD",

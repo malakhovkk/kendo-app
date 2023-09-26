@@ -131,7 +131,7 @@ export default function Files(props) {
     if (!file || !profile || !vendor || !localStorage.getItem("login")) return;
     setFileN(file.name);
     // const url = "http://192.168.20.30:55555/api/file";
-    const url = "http://194.87.239.231:55555/api/file";
+    const url = "https://localhost:44322/api/file";
 
     const formData = new FormData();
     formData.append("Document", file);

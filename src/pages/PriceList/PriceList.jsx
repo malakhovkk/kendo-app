@@ -502,7 +502,7 @@ const PriceList = (props) => {
   const save = (e) => {
     console.log(file);
     setFileN(file.name);
-    const url = "http://194.87.239.231:55555/api/file";
+    const url = "https://localhost:44322/api/file";
 
     const formData = new FormData();
     formData.append("Document", file);
