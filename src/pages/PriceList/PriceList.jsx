@@ -48,6 +48,11 @@ const PriceList = (props) => {
     //console.log(props);
 
     //console.log(row);
+    if (props.rowType === "groupHeader") {
+      console.error(props);
+      // alert(1);
+      return null;
+    }
     return (
       <td style={{ overflow: "visible" }}>
         <img
@@ -359,8 +364,11 @@ const PriceList = (props) => {
       //   "priceDelta",
       //   "quantDelta",
       // ]);
-
-      setFields(["name", "sku", "price", "quant"]);
+      let meta = [];
+      for (let k in document[0].meta) {
+        if (!["name", "sku", "price", "quant"].includes(k)) meta.push(k);
+      }
+      setFields(["name", "sku", "price", "quant", ...meta]);
       document.forEach((_el, idx) => {
         console.log(_el);
         let el = {
@@ -375,15 +383,27 @@ const PriceList = (props) => {
           quantDelta: _el.statistics.quant,
           name: _el.name,
           sku: _el.sku,
-          price: _el.price,
-          quant: _el.quant,
+          price:
+            _el.statistics.price === 0
+              ? _el.quant
+              : _el.statistics.price > 0
+              ? `${_el.quant}(+${_el.statistics.price})`
+              : `${_el.quant}(-${_el.statistics.price})`,
+          quant:
+            _el.statistics.quant === 0
+              ? _el.quant
+              : _el.statistics.quant > 0
+              ? `${_el.quant}(+${_el.statistics.quant})`
+              : `${_el.quant}(-${_el.statistics.quant})`,
           id: _el.id,
+          // ..._el.meta,
           orderQuant: 0,
           status: "new",
         };
         for (let row in _el.meta) {
           el[row] = _el.meta[row];
         }
+
         // console.log(mapDict[el.country]);
         // console.log(el.country, idx, mapDict[el.country2]);
         //if (el.country && !mapDict[el.country]) el.country = "UNDEFINED";
@@ -1076,6 +1096,7 @@ const PriceList = (props) => {
   const MetaCell = (props) => {
     //console.log(props)
     //console.log(props);
+
     const row = document && document.find((row) => row.id === metaId)?.meta;
     //console.log(row);
     return (
@@ -1192,7 +1213,8 @@ const PriceList = (props) => {
         style={{
           height: "700px",
           marginLeft: "0",
-          width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
+          // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
+          // width: "2000px",
         }}
         data={result}
         onItemChange={itemChange}
@@ -1246,9 +1268,9 @@ const PriceList = (props) => {
             />
           );
         })}
-        <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
+        {/* <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
         <GridColumn cell={ArrowQuantCell} field="quantDelta" width="150px" />
-        <GridColumn cell={MetaCell} width="150px" />
+        <GridColumn cell={MetaCell} width="150px" /> */}
         {orderId && (
           <GridColumn
             cell={MyCell}
@@ -1396,18 +1418,21 @@ const PriceList = (props) => {
   return (
     <div
       style={{
-        width: "500px",
+        // width: "100%",
         minHeight: "500px",
         marginTop: "80px",
         marginLeft: "20px",
       }}
     >
-      Поставщик:
-      <Select
-        options={options}
-        onChange={onSelectVendor}
-        placeholder="Выбрать поставщика"
-      />
+      <div style={{ width: "500px" }}>
+        Поставщик:
+        <Select
+          options={options}
+          onChange={onSelectVendor}
+          placeholder="Выбрать поставщика"
+        />
+      </div>
+
       <div>Выбрано: {getVendorById(vendor)}</div>
       <Button onClick={showPriceList}>Показать прайс-лист</Button>
       {!orderId && (
