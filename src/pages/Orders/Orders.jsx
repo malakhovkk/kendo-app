@@ -23,7 +23,7 @@ const Orders = () => {
   const [getContacts] = useGetVendorContactsMutation();
   const [contacts, setContacts] = React.useState([]);
   const [checkedRow, setCheckedRow] = React.useState({});
-  const [ToChangeByOrderId, setToChangeByOrderId] = React.useState();
+  const [ToChange, setToChange] = React.useState();
   // const [sendOrder] = useSendOrderMutation();
   const sendOrder = (body) => {
     const url = "http://194.87.239.231:55555/api/order";
@@ -136,13 +136,13 @@ const Orders = () => {
     );
   };
 
-  const edit = (id) => {
-    setToChangeByOrderId(id);
+  const edit = (idVendor, idOrder) => {
+    setToChange({ idVendor, idOrder });
   };
 
   const EditCell = (props) => {
     //console.log(props)
-    // console.log(props);
+    console.log(props);
 
     //console.log(row);
 
@@ -150,7 +150,7 @@ const Orders = () => {
       <td style={{ overflow: "visible" }}>
         <img
           style={{ width: "20px", height: "20px" }}
-          onClick={() => edit(props.dataItem.id)}
+          onClick={() => edit(props.dataItem.vendorId, props.dataItem.id)}
           src={require("../../assets/edit.png")}
           alt="Редактировать"
         />
@@ -239,12 +239,8 @@ const Orders = () => {
           <Button onClick={send}>Отправить</Button>
         </Window>
       )}
-      {ToChangeByOrderId && (
-        <Navigate
-          to="/home/pricelist"
-          state={ToChangeByOrderId}
-          replace={true}
-        />
+      {ToChange && (
+        <Navigate to="/home/pricelist" state={ToChange} replace={true} />
       )}
     </div>
   );

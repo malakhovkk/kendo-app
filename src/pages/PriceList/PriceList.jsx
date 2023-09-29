@@ -251,16 +251,60 @@ const PriceList = (props) => {
   const [formData, setFormData] = React.useState(emptyObject());
   const [addToStock] = useAddToStockMutation();
   const { state } = useLocation();
-
+  const [loadingOrder, setLoadingOrder] = React.useState(false);
   React.useEffect(() => {
     if (!state) return;
-    const { profileId, vendorId, docId: doc_id, fileName } = state;
-    setProfile(profileId);
-    setVendor(vendorId);
-    setDocId(doc_id);
-    setFileN(fileName);
-    console.log(profileId, vendorId);
+    setLoadingOrder(true);
+    let idVendor = state.idVendor;
+    let idOrder = state.idOrder;
+    setVendor(idVendor);
+    getDocument({ id: idVendor })
+      .unwrap()
+      .then((payload) => {
+        setDocument(payload);
+        getDictionaryById({ id: 7 })
+          .unwrap()
+          .then((payload) => {})
+          .catch((err) => console.error(err));
+        //console.log(payload);
+      })
+      .catch((err) => console.log(err));
+
+    getOrder(idOrder)
+      .unwrap()
+      .then((payload) => {
+        console.log(payload);
+        setOrderId(idOrder);
+
+        let obj = {};
+        payload.forEach((el) => {
+          obj[el.priceRecordId] = el.quant;
+        });
+        setQuantOrderArr(
+          payload.map((el) => ({
+            id: el.id,
+            priceRecordId: el.priceRecordId,
+            quant: obj[el.priceRecordId],
+            status: "toEdit",
+          }))
+        );
+        console.error(
+          table.map((row) => ({ ...row, orderQuant: obj[row.id] }))
+        );
+        // let obj = {};
+        //loadingTable
+        setTable(table.map((row) => ({ ...row, orderQuant: obj[row.id] })));
+      })
+      .catch((err) => console.error(err));
+
+    // const { profileId, vendorId, docId: doc_id, fileName } = state;
+    // setProfile(profileId);
+    // setVendor(vendorId);
+    // setDocId(doc_id);
+    // setFileN(fileName);
+    // console.log(profileId, vendorId);
   }, [state]);
+  React.useEffect(() => console.log(table), [table]);
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -340,7 +384,12 @@ const PriceList = (props) => {
     console.log(res);
   }, [table]);
   React.useEffect(() => {
-    if (mapDict === undefined || !document === undefined || !document.length)
+    if (
+      mapDict === undefined ||
+      !document === undefined ||
+      !document.length ||
+      (!quantOrderArr?.length && loadingOrder)
+    )
       return;
     let res = [];
     console.log(mapDict === undefined || document === undefined);
@@ -369,8 +418,14 @@ const PriceList = (props) => {
         if (!["name", "sku", "price", "quant"].includes(k)) meta.push(k);
       }
       setFields(["name", "sku", "price", "quant", ...meta]);
+
+      let obj = {};
+      quantOrderArr.forEach((el) => {
+        obj[el.priceRecordId] = el.quant;
+      });
+
       document.forEach((_el, idx) => {
-        console.log(_el);
+        // console.log(_el);
         let el = {
           // name: _el.name,
           // code: _el.code,
@@ -383,21 +438,22 @@ const PriceList = (props) => {
           quantDelta: _el.statistics.quant,
           name: _el.name,
           sku: _el.sku,
+          orderQuant: quantOrderArr.length === 0 ? 0 : obj[_el.id],
           price:
             _el.statistics.price === 0
               ? _el.quant
               : _el.statistics.price > 0
-              ? `${_el.quant}(+${_el.statistics.price})`
-              : `${_el.quant}(-${_el.statistics.price})`,
+              ? `${_el.quant} (+${_el.statistics.price})`
+              : `${_el.quant} (-${_el.statistics.price})`,
           quant:
             _el.statistics.quant === 0
               ? _el.quant
               : _el.statistics.quant > 0
-              ? `${_el.quant}(+${_el.statistics.quant})`
-              : `${_el.quant}(-${_el.statistics.quant})`,
+              ? `${_el.quant} (+${_el.statistics.quant})`
+              : `${_el.quant} (-${_el.statistics.quant})`,
           id: _el.id,
           // ..._el.meta,
-          orderQuant: 0,
+          // orderQuant: 0,
           status: "new",
         };
         for (let row in _el.meta) {
@@ -421,6 +477,7 @@ const PriceList = (props) => {
       });
       console.error(res);
       setTable(res);
+      setLoadingOrder(false);
     } catch (err) {
       console.log(err);
       setTable([]);
@@ -1200,7 +1257,9 @@ const PriceList = (props) => {
 
   //   return data[index];
   // }
-
+  React.useEffect(() => {
+    console.log(quantOrderArr);
+  }, [quantOrderArr]);
   const smartTable = () => {
     return (
       <Grid
@@ -1415,6 +1474,14 @@ const PriceList = (props) => {
       .catch((err) => console.error(err));
   };
 
+  const reset = () => {
+    setQuantOrderArr([]);
+    setTable([]);
+    setDocument([]);
+    setOrderId();
+    setVendor();
+  };
+
   return (
     <div
       style={{
@@ -1424,8 +1491,9 @@ const PriceList = (props) => {
         marginLeft: "20px",
       }}
     >
-      <div style={{ width: "500px" }}>
-        Поставщик:
+      <div style={{ width: "500px", marginBottom: "10px" }}>
+        <div style={{ marginBottom: "10px" }}>Поставщик:</div>
+
         <Select
           options={options}
           onChange={onSelectVendor}
@@ -1433,17 +1501,26 @@ const PriceList = (props) => {
         />
       </div>
 
-      <div>Выбрано: {getVendorById(vendor)}</div>
-      <Button onClick={showPriceList}>Показать прайс-лист</Button>
-      {!orderId && (
-        <Button style={{ marginLeft: "10px" }} onClick={createOrder}>
-          Создать заказ
+      <div style={{ marginBottom: "10px" }}>
+        Выбрано: {getVendorById(vendor)}
+      </div>
+      {vendor && !table?.length && (
+        <Button style={{ marginRight: "10px" }} onClick={showPriceList}>
+          Показать прайс-лист
         </Button>
       )}
+      {!orderId && vendor && !!table?.length && (
+        <>
+          <Button onClick={createOrder}>Создать заказ</Button>
+        </>
+      )}
       {orderId && (
-        <Button style={{ marginLeft: "10px" }} onClick={saveOrder}>
-          Сохранить заказ
-        </Button>
+        <>
+          <Button onClick={saveOrder} style={{ marginRight: "10px" }}>
+            Сохранить заказ
+          </Button>
+          <Button onClick={reset}>Новый заказ</Button>
+        </>
       )}
       {/* Профиль:
       <Select

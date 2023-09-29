@@ -83,14 +83,41 @@ const DrawerRouterContainer = (props) => {
   const handleClick = () => {
     setExpanded(!expanded);
   };
+
   const frozen = useSelector((state) => state.settings.frozen);
   const login = useSelector((state) => state.settings.login);
   const rights = useSelector((state) => state.settings.rights);
-
+  const initial = () => {
+    let pathName = location.pathname;
+    console.log("pathName: " + pathName);
+    console.log(items);
+    let currentPath = items.find((item) => item.route === pathName);
+    console.log(currentPath);
+    if (currentPath.text) {
+      //setSelected(currentPath.route);
+      return currentPath.text;
+    }
+  };
+  const [selected, setSelected] = React.useState(initial());
   const [settings, setSettings] = React.useState([]);
   const [rights2, setRights2] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
-
+  console.log(location.pathname);
+  React.useEffect(() => {
+    console.log("LOCATION", location);
+    // alert("USEEFFECT");
+    //if (!location) return;
+    // navigate(location.pathname);
+    // console.log(items);
+    console.log(location.pathname);
+    if (items.find((item) => item.route === location.pathname)) {
+      console.log(items.find((item) => item.route === location.pathname).text);
+      setSelected(items.find((item) => item.route === location.pathname).text);
+    }
+  }, [location.pathname]);
+  React.useEffect(() => {
+    console.error(selected);
+  });
   React.useEffect(() => {
     console.log(rights);
     if (!rights.length) {
@@ -118,23 +145,24 @@ const DrawerRouterContainer = (props) => {
 
   // const settings = useSelector((state) => state.settings.value);
   console.log(settings);
+
   const setSelectedItem = (pathName) => {
     console.log("pathName: " + pathName);
     console.log(items);
     let currentPath = items.find((item) => item.route === pathName);
+    console.log(currentPath);
     if (currentPath.text) {
+      //setSelected(currentPath.route);
       return currentPath.text;
     }
   };
-  const [selected, setSelected] = React.useState(
-    setSelectedItem(location.pathname)
-  );
+
   const onSelect = (e) => {
     let route;
     console.error(e.itemTarget.props.route);
     route = e.itemTarget.props.route;
     console.log("location.pathname=", location.pathname);
-
+    console.log(route);
     if (frozen) {
       if (
         window.confirm(
@@ -146,14 +174,18 @@ const DrawerRouterContainer = (props) => {
         setSelected(setSelectedItem(route));
       }
     } else {
-      navigate(e.itemTarget.props.route);
-      setSelected(setSelectedItem(route));
+      console.log("1, ", route);
+      if (route) {
+        console.log("2, ", route);
+        navigate(route);
+        setSelected(setSelectedItem(route));
+      }
     }
     // setExpanded(!expanded);
   };
 
   console.log(location.pathname);
-  console.log(settings);
+  console.log(selected);
   // let selected = setSelectedItem(location.pathname);
   return (
     <div>
@@ -196,6 +228,7 @@ const DrawerRouterContainer = (props) => {
             </Button>
           </Link>
         </div>
+
         {rights2 && (
           <Drawer
             expanded={expanded}
