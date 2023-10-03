@@ -35,6 +35,7 @@ import { userApi } from "./features/apiSlice";
 import { configureStore } from "@reduxjs/toolkit";
 import settings from "./features/settings";
 import login from "./features/login";
+import { rtkQueryErrorLogger } from "./middlewareError";
 export const store = configureStore({
   reducer: {
     [userApi.reducerPath]: userApi.reducer,
@@ -42,5 +43,5 @@ export const store = configureStore({
     login,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(userApi.middleware),
+    getDefaultMiddleware().concat(userApi.middleware, rtkQueryErrorLogger),
 });

@@ -5,7 +5,10 @@ import { Button } from "@progress/kendo-react-buttons";
 import { useSelector, useDispatch } from "react-redux";
 import { freeze } from "../features/settings.js";
 // import { fetchUserById } from './slices/usersSlice.js';
-import { useGetRightsSettingsMutation } from "../features/apiSlice.js";
+import {
+  useGetDictionaryByIdMutation,
+  useGetRightsSettingsMutation,
+} from "../features/apiSlice.js";
 const items = [
   // {
   //   text: "Зарегистрироваться",
@@ -77,6 +80,7 @@ const items = [
 ];
 const DrawerRouterContainer = (props) => {
   const [expanded, setExpanded] = React.useState(true);
+  const [getDictionaryReq] = useGetDictionaryByIdMutation();
   let navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -87,6 +91,7 @@ const DrawerRouterContainer = (props) => {
   const frozen = useSelector((state) => state.settings.frozen);
   const login = useSelector((state) => state.settings.login);
   const rights = useSelector((state) => state.settings.rights);
+
   const initial = () => {
     let pathName = location.pathname;
     console.log("pathName: " + pathName);

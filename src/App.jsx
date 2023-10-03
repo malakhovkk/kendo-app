@@ -20,7 +20,7 @@ import { useGetRightsSettingsMutation } from "./features/apiSlice.js";
 import NotFound from "./pages/NotFound/NotFound";
 import { Loader } from "@progress/kendo-react-indicators";
 import { useSelector } from "react-redux";
-
+import { useNavigate } from "react-router-dom";
 const App = () => {
   const [settings, setSettings] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
@@ -29,6 +29,16 @@ const App = () => {
   const rights = useSelector((state) => state.settings.rights);
   const s = useSelector((state) => state);
   const login = useSelector((state) => state.settings.login);
+  const navigate = useNavigate();
+  const jwtExpired = useSelector((state) => state.settings.jwtExpired);
+
+  React.useEffect(() => {
+    if (jwtExpired) {
+      navigate("/");
+      console.log("jwtExpired", jwtExpired);
+    }
+  }, [jwtExpired]);
+
   console.log(s);
   React.useEffect(() => {
     if (login || localStorage.getItem("login"))
@@ -78,43 +88,37 @@ const App = () => {
     );
   console.warn("CODES", codes.join(" "));
   return (
-    <>
-      {/* {codes.join(" ")}
-      AAAA{codes.includes("PRICE")} */}
-      <HashRouter>
-        <Routes>
-          <Route path="*" element={<NotFound />} />
-          <Route path="/" element={<LogIn />} />
-          <Route path="/home" element={<Home />}>
-            {codes?.includes("SETTINGS") && (
-              <Route path="/home/users" element={<Users />} />
-            )}
-            {codes?.includes("SETTINGS") && (
-              <Route path="/home/group" element={<UserGroup />} />
-            )}
-            {codes?.includes("SETTINGS") && (
-              <Route path="/home/rights" element={<Rights />} />
-            )}
-            {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
-            {codes?.includes("PRICE") && (
-              <Route path="/home/pricelist" element={<PriceList />} />
-            )}
-            {codes?.includes("VENDORS") && (
-              <Route path="/home/vendor" element={<Vendor />} />
-            )}
-            <Route path="/home/profile" element={<Profile />} />
-            {codes?.includes("LOAD") && (
-              <Route path="/home/files" element={<Files />} />
-            )}
-            {/* <Route path="/home/dictionary" element={<Dictionary />} />
+    <Routes>
+      <Route path="*" element={<NotFound />} />
+      <Route path="/" element={<LogIn />} />
+      <Route path="/home" element={<Home />}>
+        {codes?.includes("SETTINGS") && (
+          <Route path="/home/users" element={<Users />} />
+        )}
+        {codes?.includes("SETTINGS") && (
+          <Route path="/home/group" element={<UserGroup />} />
+        )}
+        {codes?.includes("SETTINGS") && (
+          <Route path="/home/rights" element={<Rights />} />
+        )}
+        {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
+        {codes?.includes("PRICE") && (
+          <Route path="/home/pricelist" element={<PriceList />} />
+        )}
+        {codes?.includes("VENDORS") && (
+          <Route path="/home/vendor" element={<Vendor />} />
+        )}
+        <Route path="/home/profile" element={<Profile />} />
+        {codes?.includes("LOAD") && (
+          <Route path="/home/files" element={<Files />} />
+        )}
+        {/* <Route path="/home/dictionary" element={<Dictionary />} />
           <Route path="/home/new" element={<New />} /> */}
-            {codes?.includes("ORDER") && (
-              <Route path="/home/orders" element={<Orders />} />
-            )}
-          </Route>
-        </Routes>
-      </HashRouter>
-    </>
+        {codes?.includes("ORDER") && (
+          <Route path="/home/orders" element={<Orders />} />
+        )}
+      </Route>
+    </Routes>
   );
   // return (
   //   <BrowserRouter>

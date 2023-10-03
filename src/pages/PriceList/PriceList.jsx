@@ -26,7 +26,7 @@ import { codeSnippetIcon } from "@progress/kendo-svg-icons";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 import { Window } from "@progress/kendo-react-dialogs";
 import { Checkbox } from "@progress/kendo-react-inputs";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@progress/kendo-react-inputs";
 import { process } from "@progress/kendo-data-query";
 import { ColumnMenu } from "../../components/columnMenu";
@@ -137,7 +137,7 @@ const PriceList = (props) => {
   const [orderId, setOrderId] = React.useState();
   const [getOrder] = useGetOrderMutation();
   const [comment, setComment] = React.useState("");
-  const [orderCommentReq] = useOrderCommentMutation();
+  // const [orderCommentReq] = useOrderCommentMutation();
   const dispatch = useDispatch();
 
   React.useEffect(() => {
@@ -589,7 +589,7 @@ const PriceList = (props) => {
     const element = table.find((el) => el.id === id);
     return element.doc_id;
   };
-
+  const navigate = useNavigate();
   const save = (e) => {
     console.log(file);
     setFileN(file.name);
@@ -626,6 +626,7 @@ const PriceList = (props) => {
       })
       .catch((err) => {
         console.log(err);
+        if (err.response.status === 401) navigate("/");
         if (err.response.data.message === "Records not found")
           alert("Профиль не соотвествует файлу");
       });

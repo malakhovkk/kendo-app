@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import { Button } from "@progress/kendo-react-buttons";
 import { useUploadMutation } from "../../features/apiSlice";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Suppliers = () => {
   const [file, setFile] = React.useState();
@@ -12,6 +13,7 @@ const Suppliers = () => {
       setFile(e.target.files[0]);
     }
   };
+  const navigate = useNavigate();
   const save = (e) => {
     console.log(file);
     const url = "http://192.168.20.30:55555/api/file";
@@ -40,6 +42,7 @@ const Suppliers = () => {
         console.log(response.data);
       })
       .catch((err) => {
+        if (err.response.status === 401) navigate("/");
         console.log(err);
       });
     //     upload({

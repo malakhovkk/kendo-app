@@ -12,7 +12,7 @@ import { Window } from "@progress/kendo-react-dialogs";
 import { Checkbox } from "@progress/kendo-react-inputs";
 import { Button } from "@progress/kendo-react-buttons";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 const Orders = () => {
   const [getOrders] = useGetOrdersMutation();
   const [vendorId, setVendorId] = React.useState();
@@ -24,6 +24,7 @@ const Orders = () => {
   const [contacts, setContacts] = React.useState([]);
   const [checkedRow, setCheckedRow] = React.useState({});
   const [ToChange, setToChange] = React.useState();
+  const navigate = useNavigate();
   // const [sendOrder] = useSendOrderMutation();
   const sendOrder = (body) => {
     const url = "http://194.87.239.231:55555/api/order";
@@ -57,6 +58,7 @@ const Orders = () => {
         console.log(response);
       })
       .catch((err) => {
+        if (err.response.status === 401) navigate("/");
         console.log(err);
       })
       .finally(() => {});

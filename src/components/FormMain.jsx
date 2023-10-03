@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { loginSlice } from "../features/login";
 // Импортируем нужные действия
-import { addToRights, logon } from "../features/settings.js";
+import { addToRights, jwtExpired, logon } from "../features/settings.js";
 import { logonUser } from "../features/actions";
 // import { logon } from "../features/settings.js";
 const emailRegex = new RegExp(/\S+@\S+\.\S+/);
@@ -40,6 +40,7 @@ const FormMain = () => {
     localStorage.setItem("token", loginData.data.result);
     localStorage.setItem("login", login);
     localStorage.setItem("name", loginData.data.user.name);
+    dispatch(jwtExpired(false));
     navigate("/home/profile");
     dispatch(addToRights(loginData.data.rights));
     dispatch(loginSlice.actions.delete());

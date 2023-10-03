@@ -432,13 +432,13 @@ export const userApi = createApi({
         body,
       }),
     }),
-    orderComment: builder.mutation({
-      query: (body) => ({
-        url: `ordercomment/`,
-        method: "PUT",
-        body,
-      }),
-    }),
+    // orderComment: builder.mutation({
+    //   query: (body) => ({
+    //     url: `ordercomment/`,
+    //     method: "PUT",
+    //     body,
+    //   }),
+    // }),
     // getProduct: builder.query({
     //   query: (product) => `products/search?q=${product}`,
     // }),

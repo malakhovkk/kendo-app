@@ -5,6 +5,8 @@ const initialState = {
   value: [],
   rights: [],
   login: "",
+  name: "",
+  jwtExpired: false,
 };
 
 const settings = createSlice({
@@ -21,6 +23,9 @@ const settings = createSlice({
     logon: (state, action) => {
       state.login = action.payload;
     },
+    jwtExpired: (state, action) => {
+      state.jwtExpired = action.payload;
+    },
     // increment: (state) => {
     //   state.value += 1;
     // },
@@ -36,7 +41,7 @@ const settings = createSlice({
 
 // Слайс генерирует действия, которые экспортируются отдельно
 // Действия генерируются автоматически из имен ключей редьюсеров
-export const { addToRights, freeze, logon } = settings.actions;
+export const { addToRights, freeze, logon, jwtExpired } = settings.actions;
 
 // По умолчанию экспортируется редьюсер, сгенерированный слайсом
 export default settings.reducer;
