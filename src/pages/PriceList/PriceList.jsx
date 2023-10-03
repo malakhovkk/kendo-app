@@ -7,6 +7,7 @@ import {
   useDeleteRecordsMutation,
   useGetDictionaryByIdMutation,
   useGetDocumentMutation,
+  useOrderCommentMutation,
   useSaveEditOrderMutation,
   useSaveOrderMutation,
   useUploadMutation,
@@ -35,6 +36,8 @@ import { NumericTextBox } from "@progress/kendo-react-inputs";
 import { default as NumInput } from "../../components/NumInput";
 import { useSelector, useDispatch } from "react-redux";
 import { freeze } from "../../features/settings.js";
+import { load } from "@progress/kendo-react-intl";
+import { TextArea } from "@progress/kendo-react-inputs";
 
 const MyCell = (props) => <NumInput {...props} />;
 
@@ -133,6 +136,8 @@ const PriceList = (props) => {
   const [quantOrderArr, setQuantOrderArr] = React.useState([]);
   const [orderId, setOrderId] = React.useState();
   const [getOrder] = useGetOrderMutation();
+  const [comment, setComment] = React.useState("");
+  const [orderCommentReq] = useOrderCommentMutation();
   const dispatch = useDispatch();
 
   React.useEffect(() => {
@@ -251,10 +256,15 @@ const PriceList = (props) => {
   const [formData, setFormData] = React.useState(emptyObject());
   const [addToStock] = useAddToStockMutation();
   const { state } = useLocation();
-  const [loadingOrder, setLoadingOrder] = React.useState(false);
+  const [loadingOrder, setLoadingOrder] = React.useState(0);
+
+  // React.useEffect(() => {
+  //   setLoadingOrder(true);
+  // }, [quantOrderArr]);
+
   React.useEffect(() => {
     if (!state) return;
-    setLoadingOrder(true);
+
     let idVendor = state.idVendor;
     let idOrder = state.idOrder;
     setVendor(idVendor);
@@ -280,6 +290,7 @@ const PriceList = (props) => {
         payload.forEach((el) => {
           obj[el.priceRecordId] = el.quant;
         });
+        if (!(payload?.length !== 0)) setLoadingOrder(3);
         setQuantOrderArr(
           payload.map((el) => ({
             id: el.id,
@@ -304,7 +315,7 @@ const PriceList = (props) => {
     // setFileN(fileName);
     // console.log(profileId, vendorId);
   }, [state]);
-  React.useEffect(() => console.log(table), [table]);
+  React.useEffect(() => console.warn(table), [table]);
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -384,13 +395,14 @@ const PriceList = (props) => {
     console.log(res);
   }, [table]);
   React.useEffect(() => {
+    // alert(loadingOrder);
+    console.error(mapDict, document, quantOrderArr, loadingOrder);
     if (
-      mapDict === undefined ||
-      !document === undefined ||
-      !document.length ||
-      (!quantOrderArr?.length && loadingOrder)
+      (mapDict === undefined || !document === undefined || !document.length) &&
+      loadingOrder !== 3
     )
       return;
+    if (!document?.length) return;
     let res = [];
     console.log(mapDict === undefined || document === undefined);
     console.log(document);
@@ -477,17 +489,17 @@ const PriceList = (props) => {
       });
       console.error(res);
       setTable(res);
-      setLoadingOrder(false);
+      setLoadingOrder(0);
     } catch (err) {
       console.log(err);
       setTable([]);
-      alert("Произошла ошибка");
+      // alert("Произошла ошибка");
     }
     //console.log("BBB");
 
     //console.log(res);
     //console.log(abbreviations);
-  }, [mapDict, document]);
+  }, [mapDict, document, quantOrderArr, loadingOrder]);
   React.useEffect(() => {
     if (dictionary === undefined) return;
     let f = [];
@@ -1408,7 +1420,12 @@ const PriceList = (props) => {
       })
       .catch((err) => console.log(err));
   };
-
+  React.useEffect(() => {
+    console.log("TABLE", table);
+  }, [table]);
+  React.useEffect(() => {
+    console.log("DOCUMENT", document);
+  }, [document]);
   const createOrder = () => {
     _createOrder(vendor)
       .unwrap()
@@ -1439,6 +1456,27 @@ const PriceList = (props) => {
   };
 
   const saveOrder = () => {
+    console.log(comment);
+    const url = "http://194.87.239.231:55555/api/ordercomment";
+    const formData = new FormData();
+    formData.append("comment", comment);
+    formData.append("orderid", orderId);
+
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        User: `${localStorage.getItem("login")}`,
+      },
+    };
+    // {
+    //     Document: formData,
+    //     Description:'',
+    //     UserLogin: localStorage.getItem('login'),
+    //     VendorId: 'Поставщик 1'
+    // }
+    axios.put(url, formData, config).catch((err) => console.error(err));
+
     _saveOrder({
       // vendorId: vendor,
       body: quantOrderArr
@@ -1491,37 +1529,56 @@ const PriceList = (props) => {
         marginLeft: "20px",
       }}
     >
-      <div style={{ width: "500px", marginBottom: "10px" }}>
-        <div style={{ marginBottom: "10px" }}>Поставщик:</div>
+      <div style={{ display: "flex" }}>
+        <div>
+          <div style={{ width: "500px", marginBottom: "10px" }}>
+            <div style={{ marginBottom: "10px" }}>Поставщик:</div>
 
-        <Select
-          options={options}
-          onChange={onSelectVendor}
-          placeholder="Выбрать поставщика"
-        />
-      </div>
+            <Select
+              options={options}
+              onChange={onSelectVendor}
+              placeholder="Выбрать поставщика"
+            />
+          </div>
 
-      <div style={{ marginBottom: "10px" }}>
-        Выбрано: {getVendorById(vendor)}
+          <div style={{ marginBottom: "10px" }}>
+            Выбрано: {getVendorById(vendor)}
+          </div>
+          {vendor && !table?.length && (
+            <Button style={{ marginRight: "10px" }} onClick={showPriceList}>
+              Показать прайс-лист
+            </Button>
+          )}
+          {!orderId && vendor && !!table?.length && (
+            <>
+              <Button onClick={createOrder}>Создать заказ</Button>
+            </>
+          )}
+          {orderId && (
+            <>
+              <Button onClick={saveOrder} style={{ marginRight: "10px" }}>
+                Сохранить заказ
+              </Button>
+              <Button onClick={reset}>Новый заказ</Button>
+            </>
+          )}
+        </div>
+        <div
+          style={{
+            marginTop: "5px",
+            marginLeft: "20px",
+          }}
+        >
+          <TextArea
+            style={{ height: "100px" }}
+            placeholder="Комментарий"
+            value={comment}
+            onChange={(e) => {
+              setComment(e.target.value);
+            }}
+          />
+        </div>
       </div>
-      {vendor && !table?.length && (
-        <Button style={{ marginRight: "10px" }} onClick={showPriceList}>
-          Показать прайс-лист
-        </Button>
-      )}
-      {!orderId && vendor && !!table?.length && (
-        <>
-          <Button onClick={createOrder}>Создать заказ</Button>
-        </>
-      )}
-      {orderId && (
-        <>
-          <Button onClick={saveOrder} style={{ marginRight: "10px" }}>
-            Сохранить заказ
-          </Button>
-          <Button onClick={reset}>Новый заказ</Button>
-        </>
-      )}
       {/* Профиль:
       <Select
         options={optionsProfile}

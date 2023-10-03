@@ -432,6 +432,13 @@ export const userApi = createApi({
         body,
       }),
     }),
+    orderComment: builder.mutation({
+      query: (body) => ({
+        url: `ordercomment/`,
+        method: "PUT",
+        body,
+      }),
+    }),
     // getProduct: builder.query({
     //   query: (product) => `products/search?q=${product}`,
     // }),
@@ -486,4 +493,5 @@ export const {
   useAddContactMutation,
   useGetRightsSettingsMutation,
   useSendOrderMutation,
+  useOrderCommentMutation,
 } = userApi;

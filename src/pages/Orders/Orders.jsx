@@ -136,13 +136,26 @@ const Orders = () => {
     );
   };
 
+  const CommentCell = (props) => {
+    //console.log(props)
+    // console.log(props);
+
+    //console.log(row);
+
+    return (
+      <td>
+        <p style={{ whiteSpace: "pre-wrap" }}>{props.dataItem.comment}</p>
+      </td>
+    );
+  };
+
   const edit = (idVendor, idOrder) => {
     setToChange({ idVendor, idOrder });
   };
 
   const EditCell = (props) => {
     //console.log(props)
-    console.log(props);
+    // console.log(props);
 
     //console.log(row);
 
@@ -194,7 +207,7 @@ const Orders = () => {
         .join(","),
     });
   };
-
+  console.log(orders);
   return (
     <div style={{ marginLeft: "10px", marginTop: "80px" }}>
       {optionsVendor && (
@@ -217,7 +230,8 @@ const Orders = () => {
             width="150px"
             title="Количество позиций"
           />
-          <GridColumn field="comment" width="150px" title="Комментарий" />
+          <GridColumn cell={CommentCell} title="Комментарий" width="500px" />
+          {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
           <GridColumn cell={ContactCell} width="50px" />
           <GridColumn cell={EditCell} width="50px" />
         </Grid>
