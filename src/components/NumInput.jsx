@@ -55,6 +55,15 @@ const NumInput = (props) => {
     // });
     //if (e.target.value > props.dataItem.quant) return;
     console.log(props);
+    if (e.target.value === "") {
+      props.onChange({
+        dataItem: props.dataItem,
+        field: props.field,
+        syntheticEvent: e.syntheticEvent,
+        value: 0,
+      });
+      return;
+    }
     props.onChange({
       dataItem: props.dataItem,
       field: props.field,

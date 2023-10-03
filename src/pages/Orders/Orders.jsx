@@ -149,8 +149,8 @@ const Orders = () => {
     );
   };
 
-  const edit = (idVendor, idOrder) => {
-    setToChange({ idVendor, idOrder });
+  const edit = (idVendor, idOrder, comment) => {
+    setToChange({ idVendor, idOrder, comment });
   };
 
   const EditCell = (props) => {
@@ -163,7 +163,13 @@ const Orders = () => {
       <td style={{ overflow: "visible" }}>
         <img
           style={{ width: "20px", height: "20px" }}
-          onClick={() => edit(props.dataItem.vendorId, props.dataItem.id)}
+          onClick={() =>
+            edit(
+              props.dataItem.vendorId,
+              props.dataItem.id,
+              props.dataItem.comment
+            )
+          }
           src={require("../../assets/edit.png")}
           alt="Редактировать"
         />

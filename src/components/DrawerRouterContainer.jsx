@@ -215,11 +215,12 @@ const DrawerRouterContainer = (props) => {
             alt="user avatar"
           /> */}
           <h1>{localStorage.getItem("login")}</h1>
-          <div className="user-email">jaxons.daniels@company.com</div>
+          <div className="user-email">{localStorage.getItem("name")}</div>
           <Link to="/" style={{ textDecoration: "none" }}>
             <Button
               onClick={() => {
                 localStorage.removeItem("login");
+                localStorage.removeItem("name");
                 localStorage.removeItem("token");
               }}
               className="user-button k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"

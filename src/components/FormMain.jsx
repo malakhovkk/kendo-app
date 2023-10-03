@@ -26,6 +26,7 @@ const EmailInput = (fieldRenderProps) => {
 const FormMain = () => {
   // const [logon, { error }] = useLogonMutation();
   const login = useSelector((state) => state.settings.login);
+  // const name = useSelector((state) => state.settings.name);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loginData = useSelector((state) => state.login);
@@ -38,6 +39,7 @@ const FormMain = () => {
     console.error("NOT ERROR");
     localStorage.setItem("token", loginData.data.result);
     localStorage.setItem("login", login);
+    localStorage.setItem("name", loginData.data.user.name);
     navigate("/home/profile");
     dispatch(addToRights(loginData.data.rights));
     dispatch(loginSlice.actions.delete());
@@ -73,6 +75,7 @@ const FormMain = () => {
     //     console.log("rejected", error);
     //     if (error?.status === 400) alert("Неверный пароль");
     //   });
+    console.log(dataItem);
     dispatch(logon(dataItem.login));
     dispatch(logonUser(dataItem));
   };

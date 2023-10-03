@@ -267,6 +267,7 @@ const PriceList = (props) => {
 
     let idVendor = state.idVendor;
     let idOrder = state.idOrder;
+    setComment(state.comment);
     setVendor(idVendor);
     getDocument({ id: idVendor })
       .unwrap()
@@ -450,7 +451,8 @@ const PriceList = (props) => {
           quantDelta: _el.statistics.quant,
           name: _el.name,
           sku: _el.sku,
-          orderQuant: quantOrderArr.length === 0 ? 0 : obj[_el.id],
+          orderQuant:
+            quantOrderArr.length === 0 ? 0 : obj[_el.id] ? obj[_el.id] : 0,
           price:
             _el.statistics.price === 0
               ? _el.quant
@@ -1067,22 +1069,23 @@ const PriceList = (props) => {
 
   const setOrderArr = (priceRecordId, value, status, id) => {
     console.log(id, value);
-    setQuantOrderArr([
-      ...quantOrderArr.filter((order) => order.priceRecordId !== priceRecordId),
-      {
-        // ...quantOrderArr.find((order) => order.priceRecordId === id),
-        id:
-          id ??
-          quantOrderArr.find((order) => order.priceRecordId === priceRecordId)
-            .id,
-        priceRecordId,
-        quant:
-          value ??
-          quantOrderArr.find((order) => order.priceRecordId === priceRecordId)
-            .quant,
-        status,
-      },
-    ]);
+    setQuantOrderArr(
+      [
+        ...quantOrderArr.filter(
+          (order) => order.priceRecordId !== priceRecordId
+        ),
+        {
+          // ...quantOrderArr.find((order) => order.priceRecordId === id),
+          // id:
+          //   id ??
+          //   quantOrderArr.find((order) => order.priceRecordId === priceRecordId)
+          //     .id,
+          priceRecordId,
+          quant: value ?? 0,
+          status,
+        },
+      ].filter((el) => el.quant !== 0)
+    );
   };
 
   const removeFromOrder = (priceRecordId) => {
@@ -1229,7 +1232,9 @@ const PriceList = (props) => {
       console.log(quantOrderArr);
       console.log("status = new");
     }
-    setOrderArr(event.dataItem.id, value, status, obj?.id ?? "");
+    console.log("VALUE=", value);
+    console.log(event.dataItem.id, value, status, obj?.id);
+    setOrderArr(event.dataItem.id, value, status);
     if (!name) {
       return;
     }
@@ -1273,6 +1278,15 @@ const PriceList = (props) => {
     console.log(quantOrderArr);
   }, [quantOrderArr]);
   const smartTable = () => {
+    let new_fields = [];
+    if (fields) {
+      let idx = fields.findIndex((el) => el === "quant");
+      new_fields = [
+        ...fields.slice(0, idx + 1),
+        "orderQuant",
+        ...fields.slice(idx + 1, fields.length),
+      ];
+    }
     return (
       <Grid
         // data={(function () {
@@ -1326,9 +1340,20 @@ const PriceList = (props) => {
         <GridColumn field="rating" title="rating" width="100px" />
         <GridColumn field="volume" title="volume" width="100px" /> */}
         {console.log(fields)}
-        {fields?.map((field, idx) => {
+        {new_fields?.map((field, idx) => {
           console.log(field);
           if (field === "quantDelta" || field === "priceDelta") return;
+          if (field === "orderQuant" && orderId) {
+            return (
+              <GridColumn
+                cell={MyCell}
+                field="orderQuant"
+                width="150px"
+                title="Order"
+              />
+            );
+          }
+          if (field === "orderQuant") return;
           return (
             <GridColumn
               columnMenu={ColumnMenu}
@@ -1342,14 +1367,16 @@ const PriceList = (props) => {
         {/* <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
         <GridColumn cell={ArrowQuantCell} field="quantDelta" width="150px" />
         <GridColumn cell={MetaCell} width="150px" /> */}
-        {orderId && (
+
+        {/* {orderId && (
           <GridColumn
             cell={MyCell}
             field="orderQuant"
             width="150px"
             title="Order"
           />
-        )}
+        )} */}
+
         {orderId && <GridColumn cell={DeleteCell} width="50px" />}
         {/* <GridColumn
           cell={MyCellSecond}
