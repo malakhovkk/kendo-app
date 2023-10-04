@@ -46,6 +46,35 @@ const MyCell = (props) => <NumInput {...props} />;
 // };
 
 const PriceList = (props) => {
+  const columns = (new_fields) => {
+    console.log("Render columns");
+    let cols = new_fields?.map((field, idx) => {
+      console.log(field);
+      if (field === "quantDelta" || field === "priceDelta") return;
+      if (field === "orderQuant" && orderId) {
+        return (
+          <GridColumn
+            cell={MyCell}
+            field="orderQuant"
+            width="150px"
+            title="Order"
+          />
+        );
+      }
+      if (field === "orderQuant") return;
+      return (
+        <GridColumn
+          columnMenu={ColumnMenu}
+          key={field}
+          field={field}
+          width="150px"
+          title={field}
+        />
+      );
+    });
+    if (orderId) <GridColumn cell={DeleteCell} width="50px" />;
+    return cols;
+  };
   const DeleteCell = (props) => {
     //console.log(props)
     //console.log(props);
@@ -305,7 +334,9 @@ const PriceList = (props) => {
         );
         // let obj = {};
         //loadingTable
-        setTable(table.map((row) => ({ ...row, orderQuant: obj[row.id] })));
+        setTable(
+          table.slice(0, 10).map((row) => ({ ...row, orderQuant: obj[row.id] }))
+        );
       })
       .catch((err) => console.error(err));
 
@@ -316,7 +347,7 @@ const PriceList = (props) => {
     // setFileN(fileName);
     // console.log(profileId, vendorId);
   }, [state]);
-  React.useEffect(() => console.warn(table), [table]);
+
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -331,7 +362,6 @@ const PriceList = (props) => {
     //console.log(select.value);
     setProfile(select.value);
   };
-  //console.log(table);
   React.useEffect(() => {
     //console.log(data);
     setOptions(data?.map((el) => ({ value: el.id, label: el.name })));
@@ -383,12 +413,11 @@ const PriceList = (props) => {
         field: el.field,
       });
     }
-    let initialState = createDataState(
-      dataState || {
-        take: 8,
-        skip: 0,
-      }
-    );
+    let initialState = createDataState();
+    // dataState || {
+    //   take: 8,
+    //   skip: 0,
+    // }
     setResult(initialState.result);
     setDataState(initialState.dataState);
     //console.log(res);
@@ -397,7 +426,7 @@ const PriceList = (props) => {
   }, [table]);
   React.useEffect(() => {
     // alert(loadingOrder);
-    console.error(mapDict, document, quantOrderArr, loadingOrder);
+
     if (
       (mapDict === undefined || !document === undefined || !document.length) &&
       loadingOrder !== 3
@@ -406,8 +435,7 @@ const PriceList = (props) => {
     if (!document?.length) return;
     let res = [];
     console.log(mapDict === undefined || document === undefined);
-    console.log(document);
-    console.log(mapDict);
+
     try {
       // console.log([
       //   "name",
@@ -489,7 +517,7 @@ const PriceList = (props) => {
         res.push(el);
         //console.log(el.alcClass);
       });
-      console.error(res);
+
       setTable(res);
       setLoadingOrder(0);
     } catch (err) {
@@ -723,10 +751,7 @@ const PriceList = (props) => {
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
-            console.log("1");
             setDocument(payload);
-            //console.log(payload);
-            //console.log(2);
           })
           .catch((err) => console.log(err));
 
@@ -735,48 +760,24 @@ const PriceList = (props) => {
       .catch((err) => {
         console.log(err);
       });
-    // });
-
-    // getDocument({ id: docId })
-    //   .unwrap()
-    //   .then((payload) => {
-    //     setDocument(payload);
-    //     console.log(payload);
-    //     console.log(2);
-    //   })
-    //   .catch((err) => console.log(err));
-
-    //console.log(res);
-    //console.log(filterValue);
-    //console.log(checkedRow);
   };
 
   const deleteRows = () => {
     let res = JSON.parse(JSON.stringify(document));
-    //console.log(res);
-    //console.log(checkedRow);
-    // const fieldName = fieldNameDictionary[idx + 1];
+
     let request = [];
     res = res.forEach((row) => {
-      //console.log(row);
       if (checkedRow[row.id]) {
-        //console.log(row);
-        // row[fieldName] = filterValue[idx];
-        // console.warn(idx, filterValue[idx]);
         request.push(row);
       }
     });
     deleteRecords(request)
       .unwrap()
       .then((_) => {
-        //num++;
-        //if (num === res.length)
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
             setDocument(payload);
-            //console.log(payload);
-            //console.log(2);
           })
           .catch((err) => console.log(err));
       });
@@ -794,7 +795,6 @@ const PriceList = (props) => {
   const [editValue, setEditValue] = React.useState({});
   const getFieldByConf = (conf, idx) => {
     if (conf.select) {
-      //console.log(mapDict);
       return (
         <>
           <Select
@@ -833,11 +833,9 @@ const PriceList = (props) => {
   };
   const changeYear = () => {
     let res = JSON.parse(JSON.stringify(document));
-    //console.log(res);
-    //console.log(checkedRow);
+
     let request = [];
-    // console.error(isNaN(year));
-    // console.error(Number.parseInt(year) == year);
+
     if (Number.parseInt(year) != year) {
       alert("Введите целое число");
       return;
@@ -845,7 +843,6 @@ const PriceList = (props) => {
     res.forEach((row) => {
       //console.log(row);
       if (checkedRow[row.id]) {
-        //console.log(row);
         row.year = year;
         request.push(row);
       }
@@ -863,8 +860,6 @@ const PriceList = (props) => {
           .unwrap()
           .then((payload) => {
             setDocument(payload);
-            //console.log(payload);
-            //console.log(2);
           })
           .catch((err) => console.log(err));
       })
@@ -875,11 +870,9 @@ const PriceList = (props) => {
 
   const changePercent = () => {
     let res = JSON.parse(JSON.stringify(document));
-    //console.log(res);
-    //console.log(checkedRow);
+
     let request = [];
-    // console.error(isNaN(year));
-    // console.error(Number.parseInt(year) == year);
+
     if (isNaN(percent)) {
       alert("Введите число");
       return;
@@ -905,8 +898,6 @@ const PriceList = (props) => {
           .unwrap()
           .then((payload) => {
             setDocument(payload);
-            //console.log(payload);
-            //console.log(2);
           })
           .catch((err) => console.log(err));
       })
@@ -917,19 +908,15 @@ const PriceList = (props) => {
 
   const changeVolume = () => {
     let res = JSON.parse(JSON.stringify(document));
-    //console.log(res);
-    //console.log(checkedRow);
+
     let request = [];
-    // console.error(isNaN(year));
-    // console.error(Number.parseInt(year) == year);
+
     if (isNaN(percent)) {
       alert("Введите число");
       return;
     }
     res.forEach((row) => {
-      //console.log(row);
       if (checkedRow[row.id]) {
-        //console.log(row);
         row.value = volume;
         request.push(row);
       }
@@ -947,8 +934,6 @@ const PriceList = (props) => {
           .unwrap()
           .then((payload) => {
             setDocument(payload);
-            //console.log(payload);
-            //console.log(2);
           })
           .catch((err) => console.log(err));
       })
@@ -958,17 +943,16 @@ const PriceList = (props) => {
   };
 
   const dataStateChange = (event) => {
-    console.error(event.dataState);
     let updatedState = createDataState(event.dataState);
     setResult(updatedState.result);
-    console.warn(updatedState.result);
+
     setDataState(updatedState.dataState);
   };
   const createDataState = (dataState) => {
-    console.log(table);
     return {
-      result: process(table.slice(0), dataState),
-      dataState: dataState,
+      // result: process(table.slice(0), dataState),
+      result: table.slice(0),
+      // dataState: dataState,
     };
   };
   // let initialState = createDataState({
@@ -1111,7 +1095,6 @@ const PriceList = (props) => {
   const saveChanges = (data) => {
     console.log("saveChanges");
     console.log(quantOrderArr);
-    console.log(table);
     setTable(
       table.map((row) =>
         row.id !== data.dataItem.id
@@ -1240,16 +1223,20 @@ const PriceList = (props) => {
       return;
     }
     // const updatedData = table.slice();
-    setTable(
-      table.map((row) =>
-        row.id === event.dataItem.id ? { ...row, [name]: value } : row
-      )
-    );
+    // setTable(
+    //   table.map((row) =>
+    //     row.id === event.dataItem.id ? { ...row, [name]: value } : row
+    //   )
+    // );
     // setTable(updatedData);
   }
-  React.useEffect(() => {
-    console.log("TABLE ", table);
-  }, [table]);
+  // React.useEffect(() => {
+  //   console.log("TABLE ", table);
+  // }, [table]);
+
+  // React.useEffect(() => {
+  //   console.log("RESULT ", result);
+  // }, [result]);
   // function update(data, item, remove) {
   //   let updated;
   //   console.log(data, item, remove);
@@ -1278,7 +1265,8 @@ const PriceList = (props) => {
   React.useEffect(() => {
     console.log(quantOrderArr);
   }, [quantOrderArr]);
-  const smartTable = () => {
+
+  const smartTable = ({ result, dataState }) => {
     let new_fields = [];
     if (fields) {
       let idx = fields.findIndex((el) => el === "quant");
@@ -1290,12 +1278,10 @@ const PriceList = (props) => {
     }
     return (
       <Grid
-        // data={(function () {
-        //   console.log(table);
-        //   return table;
-        // })()}
         className="grid"
         rowRender={rowRender}
+        // dataItemKey={"id"}
+        // scrollable={"virtual"}
         style={{
           height: "700px",
           marginLeft: "0",
@@ -1304,11 +1290,12 @@ const PriceList = (props) => {
         }}
         data={result}
         onItemChange={itemChange}
-        {...dataState}
+        // {...dataState}
         onDataStateChange={dataStateChange}
         sortable={true}
-        pageable={true}
-        pageSize={8}
+        // pageable={true}
+        // pageSize={8}
+
         // sortable={true}
         // filterable={true}
         // groupable={true}
@@ -1340,31 +1327,7 @@ const PriceList = (props) => {
         <GridColumn field="quant" title="quant" width="100px" />
         <GridColumn field="rating" title="rating" width="100px" />
         <GridColumn field="volume" title="volume" width="100px" /> */}
-        {console.log(fields)}
-        {new_fields?.map((field, idx) => {
-          console.log(field);
-          if (field === "quantDelta" || field === "priceDelta") return;
-          if (field === "orderQuant" && orderId) {
-            return (
-              <GridColumn
-                cell={MyCell}
-                field="orderQuant"
-                width="150px"
-                title="Order"
-              />
-            );
-          }
-          if (field === "orderQuant") return;
-          return (
-            <GridColumn
-              columnMenu={ColumnMenu}
-              key={field}
-              field={field}
-              width="150px"
-              title={field}
-            />
-          );
-        })}
+        {columns(new_fields)}
         {/* <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
         <GridColumn cell={ArrowQuantCell} field="quantDelta" width="150px" />
         <GridColumn cell={MetaCell} width="150px" /> */}
@@ -1378,7 +1341,6 @@ const PriceList = (props) => {
           />
         )} */}
 
-        {orderId && <GridColumn cell={DeleteCell} width="50px" />}
         {/* <GridColumn
           cell={MyCellSecond}
           field="orderQuant"
@@ -1424,6 +1386,7 @@ const PriceList = (props) => {
       </Grid>
     );
   };
+  const MemoizedTable = React.memo(smartTable);
   // }, [
   //   table,
   //   checkedRow,
@@ -1448,12 +1411,12 @@ const PriceList = (props) => {
       })
       .catch((err) => console.log(err));
   };
-  React.useEffect(() => {
-    console.log("TABLE", table);
-  }, [table]);
-  React.useEffect(() => {
-    console.log("DOCUMENT", document);
-  }, [document]);
+  // React.useEffect(() => {
+  //   console.log("TABLE", table);
+  // }, [table]);
+  // React.useEffect(() => {
+  //   console.log("DOCUMENT", document);
+  // }, [document]);
   const createOrder = () => {
     _createOrder(vendor)
       .unwrap()
@@ -1687,7 +1650,7 @@ const PriceList = (props) => {
       <Button onClick={deleteRows} style={{ marginTop: "20px" }}>
         Удалить выделенные записи
       </Button> */}
-      {smartTable()}
+      {<MemoizedTable result={result} dataState={dataState} />}
       {!withChanges ? (
         <Button
           style={{
@@ -1703,10 +1666,10 @@ const PriceList = (props) => {
               result: process(
                 table.filter(
                   (row) => row.quantDelta !== 0 || row.priceDelta !== 0
-                ),
-                { ...dataState, skip: 0 }
+                )
+                // { ...dataState, skip: 0 }
               ),
-              dataState: { ...dataState, skip: 0 },
+              // dataState: { ...dataState, skip: 0 },
             };
             setResult(state.result);
             setDataState(state.dataState);

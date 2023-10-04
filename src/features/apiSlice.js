@@ -432,6 +432,19 @@ export const userApi = createApi({
         body,
       }),
     }),
+    deleteAllZeros: builder.mutation({
+      query: (body) => ({
+        url: `order/0`,
+        method: "DELETE",
+        body,
+      }),
+    }),
+    deleteOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `order/${orderId}`,
+        method: "DELETE",
+      }),
+    }),
     // orderComment: builder.mutation({
     //   query: (body) => ({
     //     url: `ordercomment/`,
@@ -494,4 +507,6 @@ export const {
   useGetRightsSettingsMutation,
   useSendOrderMutation,
   useOrderCommentMutation,
+  useDeleteAllZerosMutation,
+  useDeleteOrderMutation,
 } = userApi;

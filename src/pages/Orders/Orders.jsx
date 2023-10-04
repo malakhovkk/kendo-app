@@ -2,6 +2,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 import {
+  useDeleteAllZerosMutation,
+  useDeleteOrderMutation,
   useGetOrdersMutation,
   useGetVendorContactsMutation,
   useGetVendorsQuery,
@@ -24,6 +26,8 @@ const Orders = () => {
   const [contacts, setContacts] = React.useState([]);
   const [checkedRow, setCheckedRow] = React.useState({});
   const [ToChange, setToChange] = React.useState();
+  const [deleteAllZerosReq] = useDeleteAllZerosMutation();
+  const [deleteOrderReq] = useDeleteOrderMutation();
   const navigate = useNavigate();
   // const [sendOrder] = useSendOrderMutation();
   const sendOrder = (body) => {
@@ -56,6 +60,7 @@ const Orders = () => {
       .then((response) => {
         //console.log(response.data);
         console.log(response);
+        getContactsAndOrders();
       })
       .catch((err) => {
         if (err.response.status === 401) navigate("/");
@@ -74,8 +79,7 @@ const Orders = () => {
     );
   }, [vendors]);
 
-  React.useEffect(() => {
-    if (vendorId === undefined) return;
+  const getContactsAndOrders = () => {
     getContacts({ id: vendorId })
       .unwrap()
       .then((payload) => {
@@ -100,20 +104,13 @@ const Orders = () => {
             }))
             .sort((date1, date2) => -date1.timeCreate + date2.timeCreate)
         );
-        // if (payload.message === "Server error") {
-        //     setError(true);
-        //     setTimeout(() => {
-        //         setError(false);
-        //     }, 2000);
-        // }
-        // if (payload.message === "success") {
-        //     setSuccess(true);
-        //     setTimeout(() => {
-        //         setSuccess(false);
-        //     }, 2000);
-        // }
       })
       .catch((error) => console.error("rejected", error));
+  };
+
+  React.useEffect(() => {
+    if (vendorId === undefined) return;
+    getContactsAndOrders();
   }, [vendorId]);
 
   const pickContacts = (id) => {
@@ -200,6 +197,45 @@ const Orders = () => {
       </td>
     );
   };
+  const deleteAllZeros = () => {
+    if (
+      window.confirm(
+        "Вы уверены, что хотите удалить все заказы у всех поставщиков, где количество позиций равно 0?"
+      )
+    ) {
+      deleteAllZerosReq()
+        .unwrap()
+        .then((_) => {
+          getContactsAndOrders();
+        });
+    }
+  };
+  const deleteOrder = (id, date) => {
+    if (window.confirm("Вы уверены, что хотите удалить данный заказ?"))
+      deleteOrderReq(id)
+        .unwrap()
+        .then((_) => {
+          getContactsAndOrders();
+        })
+        .catch((err) => console.error(err));
+  };
+  const DeleteCell = (props) => {
+    //console.log(props)
+    return (
+      <td>
+        {!props.dataItem.dateSend && (
+          <img
+            onClick={() =>
+              deleteOrder(props.dataItem.id, props.dataItem.dateSend)
+            }
+            src={require("../../assets/remove.png")}
+            alt="Удалить"
+          />
+        )}
+        {/* <Button themeColor="error" onClick={() => deleteRight(props.dataItem.id)}>Удалить</Button> */}
+      </td>
+    );
+  };
 
   const send = () => {
     if (!orderId || !vendorId) {
@@ -227,22 +263,32 @@ const Orders = () => {
           />
         </div>
       )}
+      <Button style={{ marginBottom: "10px" }} onClick={deleteAllZeros}>
+        Удалить пустые заказы у всех поставщиков
+      </Button>
       {orders && (
-        <Grid data={orders} style={{ height: "600px" }}>
-          <GridColumn field="number" width="150px" title="Номер" />
-          <GridColumn field="dateCreate" width="150px" title="Дата создания" />
-          <GridColumn field="dateSend" width="150px" title="Дата отправки" />
-          <GridColumn field="eMailSend" width="150px" title="Почта" />
-          <GridColumn
-            field="orderPositions"
-            width="150px"
-            title="Количество позиций"
-          />
-          <GridColumn cell={CommentCell} title="Комментарий" width="500px" />
-          {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
-          <GridColumn cell={ContactCell} width="50px" />
-          <GridColumn cell={EditCell} width="50px" />
-        </Grid>
+        <>
+          <Grid data={orders} style={{ height: "600px" }}>
+            <GridColumn field="number" width="150px" title="Номер" />
+            <GridColumn
+              field="dateCreate"
+              width="150px"
+              title="Дата создания"
+            />
+            <GridColumn field="dateSend" width="150px" title="Дата отправки" />
+            <GridColumn field="eMailSend" width="150px" title="Почта" />
+            <GridColumn
+              field="orderPositions"
+              width="150px"
+              title="Количество позиций"
+            />
+            <GridColumn cell={CommentCell} title="Комментарий" width="500px" />
+            {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
+            <GridColumn cell={ContactCell} width="50px" />
+            <GridColumn cell={EditCell} width="50px" />
+            <GridColumn cell={DeleteCell} width="50px" />
+          </Grid>
+        </>
       )}
 
       {orderId && (
