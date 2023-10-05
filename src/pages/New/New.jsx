@@ -13,6 +13,7 @@ let pagerSettings = {
   previousNext: true,
 };
 const CellWithState = (props) => {
+  console.log("CellWithState");
   const field = props.field || "";
   const [inEdit, setInEdit] = React.useState(false);
   const [value, setValue] = React.useState(props.dataItem[field]);
@@ -133,7 +134,7 @@ const New = () => {
                 height: "400px",
               }}
               columnVirtualization={true}
-              scrollable={"virtual"}
+              // scrollable={"virtual"}
               rowHeight={50}
               data={data.slice(page.skip, page.take + page.skip)}
               skip={page.skip}

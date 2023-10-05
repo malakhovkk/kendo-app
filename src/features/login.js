@@ -28,7 +28,7 @@ export const loginSlice = createSlice({
     [logonUser.rejected]: (state, { payload }) => {
       state.isLoading = false;
       state.isSuccess = false;
-      alert("Произошла ошибка! ");
+      //   alert("Произошла ошибка! ");
       state.errorMessage = payload;
     },
   },

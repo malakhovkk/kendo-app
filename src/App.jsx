@@ -21,6 +21,8 @@ import NotFound from "./pages/NotFound/NotFound";
 import { Loader } from "@progress/kendo-react-indicators";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const App = () => {
   const [settings, setSettings] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
@@ -88,38 +90,41 @@ const App = () => {
     );
   console.warn("CODES", codes.join(" "));
   return (
-    <Routes>
-      <Route path="*" element={<NotFound />} />
-      <Route path="/" element={<LogIn />} />
-      <Route path="/home" element={<Home />}>
-        {codes?.includes("SETTINGS") && (
-          <Route path="/home/users" element={<Users />} />
-        )}
-        {codes?.includes("SETTINGS") && (
-          <Route path="/home/group" element={<UserGroup />} />
-        )}
-        {codes?.includes("SETTINGS") && (
-          <Route path="/home/rights" element={<Rights />} />
-        )}
-        {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
-        {codes?.includes("PRICE") && (
-          <Route path="/home/pricelist" element={<PriceList />} />
-        )}
-        {codes?.includes("VENDORS") && (
-          <Route path="/home/vendor" element={<Vendor />} />
-        )}
-        <Route path="/home/profile" element={<Profile />} />
-        {codes?.includes("LOAD") && (
-          <Route path="/home/files" element={<Files />} />
-        )}
-        {/* <Route path="/home/dictionary" element={<Dictionary />} />
+    <>
+      <ToastContainer />
+      <Routes>
+        <Route path="*" element={<NotFound />} />
+        <Route path="/" element={<LogIn />} />
+        <Route path="/home" element={<Home />}>
+          {codes?.includes("SETTINGS") && (
+            <Route path="/home/users" element={<Users />} />
+          )}
+          {codes?.includes("SETTINGS") && (
+            <Route path="/home/group" element={<UserGroup />} />
+          )}
+          {codes?.includes("SETTINGS") && (
+            <Route path="/home/rights" element={<Rights />} />
+          )}
+          {/* <Route path="/home/suppliers" element={<Suppliers/>}/> */}
+          {codes?.includes("PRICE") && (
+            <Route path="/home/pricelist" element={<PriceList />} />
+          )}
+          {codes?.includes("VENDORS") && (
+            <Route path="/home/vendor" element={<Vendor />} />
+          )}
+          <Route path="/home/profile" element={<Profile />} />
+          {codes?.includes("LOAD") && (
+            <Route path="/home/files" element={<Files />} />
+          )}
+          {/* <Route path="/home/dictionary" element={<Dictionary />} />
           <Route path="/home/new" element={<New />} /> */}
-        {codes?.includes("ORDER") && (
-          <Route path="/home/orders" element={<Orders />} />
-        )}
-        <Route path="/home/new" element={<New />} />
-      </Route>
-    </Routes>
+          {codes?.includes("ORDER") && (
+            <Route path="/home/orders" element={<Orders />} />
+          )}
+          <Route path="/home/new" element={<New />} />
+        </Route>
+      </Routes>
+    </>
   );
   // return (
   //   <BrowserRouter>

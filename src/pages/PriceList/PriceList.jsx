@@ -39,42 +39,20 @@ import { freeze } from "../../features/settings.js";
 import { load } from "@progress/kendo-react-intl";
 import { TextArea } from "@progress/kendo-react-inputs";
 
-const MyCell = (props) => <NumInput {...props} />;
-
 // const removeFromOrder = (priceRecordId) => {
 //   // setOrderArr(priceRecordId, null, "deleted");
 // };
-
+const MyCell = function (props) {
+  // console.log(props);
+  console.log("MyCell");
+  // return <NumInput itemChange={itemChange} {...props} />;
+  return <NumInput {...props} />;
+};
 const PriceList = (props) => {
-  const columns = (new_fields) => {
-    console.log("Render columns");
-    let cols = new_fields?.map((field, idx) => {
-      console.log(field);
-      if (field === "quantDelta" || field === "priceDelta") return;
-      if (field === "orderQuant" && orderId) {
-        return (
-          <GridColumn
-            cell={MyCell}
-            field="orderQuant"
-            width="150px"
-            title="Order"
-          />
-        );
-      }
-      if (field === "orderQuant") return;
-      return (
-        <GridColumn
-          columnMenu={ColumnMenu}
-          key={field}
-          field={field}
-          width="150px"
-          title={field}
-        />
-      );
-    });
-    if (orderId) <GridColumn cell={DeleteCell} width="50px" />;
-    return cols;
-  };
+  React.useEffect(() => {
+    console.log("PriceList");
+  }, []);
+
   const DeleteCell = (props) => {
     //console.log(props)
     //console.log(props);
@@ -166,8 +144,52 @@ const PriceList = (props) => {
   const [orderId, setOrderId] = React.useState();
   const [getOrder] = useGetOrderMutation();
   const [comment, setComment] = React.useState("");
+
+  // setTimeout(() => setQuantOrderArr([]), 25000);
+
   // const [orderCommentReq] = useOrderCommentMutation();
   const dispatch = useDispatch();
+  const func_fields = (fields) => {
+    if (!fields) return;
+
+    console.log("Render columns");
+    let new_fields;
+    let idx = fields.findIndex((el) => el === "quant");
+    new_fields = [
+      ...fields.slice(0, idx + 1),
+      "orderQuant",
+      ...fields.slice(idx + 1, fields.length),
+    ];
+    console.error(new_fields);
+    let cols = new_fields?.map((field, idx) => {
+      console.log(field);
+      if (field === "quantDelta" || field === "priceDelta") return;
+      if (field === "orderQuant" && orderId) {
+        return (
+          <GridColumn
+            cell={MyCell}
+            field="orderQuant"
+            width="150px"
+            title="Order"
+            key={field}
+          />
+        );
+      }
+      if (field === "orderQuant") return;
+      return (
+        <GridColumn
+          columnMenu={ColumnMenu}
+          key={field}
+          field={field}
+          width="150px"
+          title={field}
+        />
+      );
+    });
+    if (orderId) <GridColumn cell={DeleteCell} width="50px" />;
+    return cols;
+  };
+  const columns = React.useMemo(() => func_fields(fields), [fields, orderId]);
 
   React.useEffect(() => {
     if (orderId) {
@@ -424,6 +446,17 @@ const PriceList = (props) => {
     setDictionary(res);
     console.log(res);
   }, [table]);
+
+  React.useEffect(() => {
+    if (!document || document.length === 0) return;
+    console.log(document);
+    let meta = [];
+    for (let k in document[0].meta) {
+      if (!["name", "sku", "price", "quant"].includes(k)) meta.push(k);
+    }
+    setFields(["name", "sku", "price", "quant", ...meta]);
+  }, [document]);
+
   React.useEffect(() => {
     // alert(loadingOrder);
 
@@ -454,11 +487,12 @@ const PriceList = (props) => {
       //   "priceDelta",
       //   "quantDelta",
       // ]);
-      let meta = [];
-      for (let k in document[0].meta) {
-        if (!["name", "sku", "price", "quant"].includes(k)) meta.push(k);
-      }
-      setFields(["name", "sku", "price", "quant", ...meta]);
+
+      // let meta = [];
+      // for (let k in document[0].meta) {
+      //   if (!["name", "sku", "price", "quant"].includes(k)) meta.push(k);
+      // }
+      // setFields(["name", "sku", "price", "quant", ...meta]);
 
       let obj = {};
       quantOrderArr.forEach((el) => {
@@ -529,7 +563,7 @@ const PriceList = (props) => {
 
     //console.log(res);
     //console.log(abbreviations);
-  }, [mapDict, document, quantOrderArr, loadingOrder]);
+  }, [mapDict, document, loadingOrder]);
   React.useEffect(() => {
     if (dictionary === undefined) return;
     let f = [];
@@ -1199,8 +1233,8 @@ const PriceList = (props) => {
   function itemChange(event) {
     console.log(event);
     let value = event.value;
-    const name = event.field;
-    if (event.dataItem.quant < value) value = event.dataItem.quant;
+    const name = event.dataItem.field;
+    if (event.quant < value) value = event.dataItem.quant;
     let obj = quantOrderArr.find(
       (el) => el.priceRecordId === event.dataItem.id
     );
@@ -1219,17 +1253,50 @@ const PriceList = (props) => {
     console.log("VALUE=", value);
     console.log(event.dataItem.id, value, status, obj?.id);
     setOrderArr(event.dataItem.id, value, status);
-    if (!name) {
-      return;
-    }
-    // const updatedData = table.slice();
-    // setTable(
-    //   table.map((row) =>
-    //     row.id === event.dataItem.id ? { ...row, [name]: value } : row
-    //   )
-    // );
-    // setTable(updatedData);
+
+    const state = {
+      result: table.map((item) => {
+        if (item.id === event.dataItem.id) {
+          item[event.field || ""] = event.value;
+        }
+        return item;
+      }),
+      dataState,
+      // { ...dataState, skip: 0 }
+
+      // dataState: { ...dataState, skip: 0 },
+    };
+    setResult(state.result);
+    // setDataState(state.dataState);
   }
+
+  // function itemChange(value, event) {
+
+  //   console.log(event);
+  //   // let value = event.value;
+  //   const name = event.field;
+  //   if (event.quant < value) value = event.quant;
+  //   let obj = quantOrderArr.find((el) => el.priceRecordId === event.id);
+
+  //   let status;
+  //   if (obj) {
+  //     status = obj.status;
+  //     if (status === "toEdit") {
+  //       status = "edited";
+  //     }
+  //   } else {
+  //     status = "new";
+  //     console.log(quantOrderArr);
+  //     console.log("status = new");
+  //   }
+  //   console.log("VALUE=", value);
+  //   console.log(event.id, value, status, obj?.id);
+  //    setOrderArr(event.id, value, status);
+  //   if (!name) {
+  //     return;
+  //   }
+
+  // }
   // React.useEffect(() => {
   //   console.log("TABLE ", table);
   // }, [table]);
@@ -1267,15 +1334,15 @@ const PriceList = (props) => {
   }, [quantOrderArr]);
 
   const smartTable = ({ result, dataState }) => {
-    let new_fields = [];
-    if (fields) {
-      let idx = fields.findIndex((el) => el === "quant");
-      new_fields = [
-        ...fields.slice(0, idx + 1),
-        "orderQuant",
-        ...fields.slice(idx + 1, fields.length),
-      ];
-    }
+    // let new_fields = [];
+    // if (fields) {
+    //   let idx = fields.findIndex((el) => el === "quant");
+    //   new_fields = [
+    //     ...fields.slice(0, idx + 1),
+    //     "orderQuant",
+    //     ...fields.slice(idx + 1, fields.length),
+    //   ];
+    // }
     return (
       <Grid
         className="grid"
@@ -1304,89 +1371,11 @@ const PriceList = (props) => {
         // {...dataState}
         // onDataStateChange={dataStateChange}
       >
-        {/* <GridColumn cell={CheckCell} width="50px" /> */}
-        {/*         
-          // [
-          //   "code",
-          //   "name",
-          //   "year",
-          //   "alcohol",
-          //   "value",
-          //   "price",
-          //   "quant",
-          //   "structure",
-          //   "rating",
-          //   "barcode",
-          // ] */}
-        {/* <GridColumn field="abv" title="abv" width="100px" />
-        <GridColumn field="code" title="code" width="100px" />
-        <GridColumn field="country" title="country" width="100px" />
-        <GridColumn field="grape" title="grape" width="100px" />
-        <GridColumn field="name" title="name" width="100px" />
-        <GridColumn field="price" title="price" width="100px" />
-        <GridColumn field="quant" title="quant" width="100px" />
-        <GridColumn field="rating" title="rating" width="100px" />
-        <GridColumn field="volume" title="volume" width="100px" /> */}
-        {columns(new_fields)}
-        {/* <GridColumn cell={ArrowPriceCell} field="priceDelta" width="150px" />
-        <GridColumn cell={ArrowQuantCell} field="quantDelta" width="150px" />
-        <GridColumn cell={MetaCell} width="150px" /> */}
-
-        {/* {orderId && (
-          <GridColumn
-            cell={MyCell}
-            field="orderQuant"
-            width="150px"
-            title="Order"
-          />
-        )} */}
-
-        {/* <GridColumn
-          cell={MyCellSecond}
-          field="orderQuant"
-          width="150px"
-          title="Order"
-        /> */}
-        {/* <GridColumn
-          field="priceDelta"
-          cells={{
-            data: ArrowCell,
-          }}
-          title="priceDelta"
-          width="150px"
-        />
-        <GridColumn
-          field="quantDelta"
-          cells={{
-            data: ArrowCell,
-          }}
-          title="quantDelta"
-          width="150px"
-        /> */}
-        {/* {["country", "region", "alcClass", "manufacturer", "color", "type"].map(
-          (field, idx) => {
-            return (
-              <GridColumn
-                key={idx}
-                field={field}
-                title={abbreviations[field]}
-              />
-            );
-          }
-        )} */}
-        {/* <GridColumn cell={EditCell} width="50px" /> */}
-
-        {/* <GridColumn field="name" title="Name"  />
-            <GridColumn field="code" title="Code"  />
-            <GridColumn field="login" title="Login"  /> */}
-        {/* <GridColumn field="code" title="Code"  />
-            <GridColumn field="surname" title="Surname" /> */}
-        {/* <GridColumn cell={EditCell}  width="50px" />
-            <GridColumn cell={DeleteCell}  width="50px" /> */}
+        {columns}
       </Grid>
     );
   };
-  const MemoizedTable = React.memo(smartTable);
+
   // }, [
   //   table,
   //   checkedRow,
@@ -1650,7 +1639,37 @@ const PriceList = (props) => {
       <Button onClick={deleteRows} style={{ marginTop: "20px" }}>
         Удалить выделенные записи
       </Button> */}
-      {<MemoizedTable result={result} dataState={dataState} />}
+      {
+        <Grid
+          className="grid"
+          rowRender={rowRender}
+          // dataItemKey={"id"}
+          // scrollable={"virtual"}
+          style={{
+            height: "700px",
+            marginLeft: "0",
+            // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
+            // width: "2000px",
+          }}
+          data={result}
+          onItemChange={itemChange}
+          // {...dataState}
+          onDataStateChange={dataStateChange}
+          sortable={true}
+          // pageable={true}
+          // pageSize={8}
+
+          // sortable={true}
+          // filterable={true}
+          // groupable={true}
+          // reorderable={true}
+          // pageSize={8}
+          // {...dataState}
+          // onDataStateChange={dataStateChange}
+        >
+          {columns}
+        </Grid>
+      }
       {!withChanges ? (
         <Button
           style={{

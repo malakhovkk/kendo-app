@@ -92,6 +92,10 @@ const NumInput = (props) => {
     // console.log(props.dataItem[props.field]);
   };
   const [val, setVal] = React.useState(0);
+  React.useEffect(() => {
+    console.log("val = ", val);
+  }, [val]);
+
   return (
     <td>
       <NumericTextBox
@@ -99,7 +103,28 @@ const NumInput = (props) => {
         // onChange={handleChange}
         value={val}
         onChange={(e) => {
-          if (e.target.value <= props.dataItem.quant) setVal(e.target.value);
+          // props.itemChange();
+          setVal(Math.min(e.target.value, props.dataItem.quant));
+          props.onChange({
+            dataItem: props.dataItem,
+            field: props.field,
+            syntheticEvent: e.syntheticEvent,
+            value: Math.min(e.target.value, props.dataItem.quant),
+          });
+          // props.itemChange(
+          //   Math.min(e.target.value, props.dataItem.quant),
+          //   props
+          // );
+          console.log(props);
+          console.log({
+            dataItem: props.dataItem,
+            field: props.field,
+            syntheticEvent: e.syntheticEvent,
+            value:
+              e.target.value > props.dataItem.quant
+                ? props.dataItem.quant
+                : e.target.value,
+          });
         }}
         // format={this.props.format}
         max={props.dataItem.quant}
