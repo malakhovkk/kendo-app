@@ -97,7 +97,7 @@ const NumInput = (props) => {
   }, [val]);
 
   return (
-    <td>
+    <td colSpan={props.colSpan}>
       <NumericTextBox
         // value={props.dataItem[props.field]}
         // onChange={handleChange}

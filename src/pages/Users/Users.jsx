@@ -22,6 +22,7 @@ import {
 } from "@progress/kendo-react-notification";
 import { Fade } from "@progress/kendo-react-animation";
 import { useSelector, useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 // Импортируем нужные действия
 
 // import {
@@ -159,34 +160,51 @@ const Users = () => {
     setFormData({ id: "", name: "", login: "", email: "", password: "" });
   };
   const add = () => {
-    if (
-      formData.name &&
-      formData.email &&
-      formData.login &&
-      formData.password
-    ) {
+    if (formData.name && formData.login && formData.password) {
       //formData.id = uid();
       //setInfo([...info, formData]);
       // dispatch(addUser(formData));
       _addUser(formData)
         .unwrap()
         .then((payload) => {
-          if (payload.message === "Server error") {
-            setError(true);
-            setTimeout(() => {
-              setError(false);
-            }, 2000);
-          }
           if (payload.message === "success") {
-            setSuccess(true);
-            setTimeout(() => {
-              setSuccess(false);
-            }, 2000);
+            toast.success(`Успешно пользователь добавлен! `, {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          } else {
+            toast.error(`Ошибка при добавлении пользователя!`, {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
           }
         })
         .catch((error) => console.error("rejected", error));
       setFormData({ name: "", login: "", email: "", password: "" });
       setVisible(0);
+    } else {
+      toast.error(`Ошибка: заполните необходимые поля`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
   console.log(success, error);
@@ -194,9 +212,9 @@ const Users = () => {
   // Возвращает метод store.dispatch() текущего хранилища
   const dispatch = useDispatch();
   return (
-    <div>
+    <div style={{ marginTop: "100px" }}>
       <div className="add_user">
-        <Button onClick={() => addUser1()}>Добавить</Button>
+        <Button onClick={() => addUser1()}>Добавить пользователя</Button>
       </div>
       <Grid
         data={data}
@@ -213,6 +231,7 @@ const Users = () => {
         <GridColumn cell={EditCell} width="50px" />
         <GridColumn cell={DeleteCell} width="50px" />
       </Grid>
+      {/* <Button onClick={() => setVisible(2)}>Добавить пользователя</Button> */}
       {!!visible && (
         <Window title={"User"} onClose={closeDialog} initialHeight={350}>
           <form className="k-form">
@@ -242,7 +261,7 @@ const Users = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="Email"
+                  placeholder="Email(optional)"
                 />
               </label>
               <label className="k-form-field">

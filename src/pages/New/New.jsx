@@ -7,11 +7,11 @@ import { orderBy } from "@progress/kendo-data-query";
 import { defaultHideSecondFilter } from "@progress/kendo-react-grid/dist/npm/filterCommon";
 let numberOfColumns = 100;
 let numberOfRows = 10000;
-let pagerSettings = {
-  info: true,
-  type: "input",
-  previousNext: true,
-};
+// let pagerSettings = {
+//   info: true,
+//   type: "input",
+//   previousNext: true,
+// };
 const CellWithState = (props) => {
   console.log("CellWithState");
   const field = props.field || "";
@@ -53,6 +53,7 @@ const CellWithState = (props) => {
   );
 };
 const getData = (skip, take) => {
+  console.log("getData");
   const page = [];
   for (let r = skip + 1; r <= skip + take && r <= numberOfRows; r++) {
     const row = {
@@ -66,6 +67,7 @@ const getData = (skip, take) => {
   return page;
 };
 const columns = (() => {
+  console.log("columns");
   const cols = [<GridColumn key={0} field={"id"} width={150} />];
   for (let c = 1; c <= numberOfColumns; c++) {
     cols.push(
@@ -89,6 +91,8 @@ const New = () => {
   });
   const [sort, setSort] = React.useState([]);
   const pageChange = (event) => {
+    console.log("pageChange");
+    console.log(event.page);
     setPage(event.page);
   };
   const sortChange = (event) => {
@@ -112,49 +116,47 @@ const New = () => {
     setData(allData);
   };
   return (
-    <React.Fragment>
-      <div className="container" style={{ marginTop: "200px" }}>
-        <div className="row">
-          <div className="col m-3">
-            <Button onClick={loadItems}>Load 100 000 items</Button>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col m-3">
-            Virtual Scrolling{" "}
-            <Switch onChange={handleSwitchChange} onLabel={""} offLabel={""} />{" "}
-            Paging
-          </div>
-        </div>
-        <div className="row">
-          <div className="col m-3">
-            <Grid
-              style={{
-                width: "700px",
-                height: "400px",
-              }}
-              columnVirtualization={true}
-              // scrollable={"virtual"}
-              rowHeight={50}
-              data={data.slice(page.skip, page.take + page.skip)}
-              skip={page.skip}
-              take={page.take}
-              total={numberOfRows}
-              onPageChange={pageChange}
-              sortable={true}
-              onSortChange={sortChange}
-              sort={sort}
-              onItemChange={itemChange}
-              // dataItemKey={"id"}
-              pageable={isPagingOn ? pagerSettings : false}
-              // key={isPagingOn}
-            >
-              {columns}
-            </Grid>
-          </div>
+    <div className="container" style={{ marginTop: "200px" }}>
+      <div className="row">
+        <div className="col m-3">
+          <Button onClick={loadItems}>Load 100 000 items</Button>
         </div>
       </div>
-    </React.Fragment>
+      <div className="row">
+        <div className="col m-3">
+          Virtual Scrolling{" "}
+          <Switch onChange={handleSwitchChange} onLabel={""} offLabel={""} />{" "}
+          Paging
+        </div>
+      </div>
+      <div className="">
+        <div className="">
+          <Grid
+            style={{
+              width: "700px",
+              height: "600px",
+            }}
+            columnVirtualization={true}
+            scrollable={"virtual"}
+            rowHeight={50}
+            data={data}
+            skip={page.skip}
+            take={page.take}
+            total={numberOfRows}
+            onPageChange={(event) => setPage(event.page)}
+            sortable={true}
+            onSortChange={sortChange}
+            sort={sort}
+            onItemChange={itemChange}
+            // dataItemKey={"id"}
+            // pageable={false}
+            // key={isPagingOn}
+          >
+            {columns}
+          </Grid>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -38,6 +38,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { freeze } from "../../features/settings.js";
 import { load } from "@progress/kendo-react-intl";
 import { TextArea } from "@progress/kendo-react-inputs";
+import { sameCharsOnly } from "@progress/kendo-react-dropdowns/dist/npm/common/utils";
 
 // const removeFromOrder = (priceRecordId) => {
 //   // setOrderArr(priceRecordId, null, "deleted");
@@ -54,6 +55,7 @@ const PriceList = (props) => {
   }, []);
 
   const DeleteCell = (props) => {
+    console.log("DeleteCell");
     //console.log(props)
     //console.log(props);
 
@@ -64,7 +66,7 @@ const PriceList = (props) => {
       return null;
     }
     return (
-      <td style={{ overflow: "visible" }}>
+      <td colSpan={props.colSpan} style={{ overflow: "visible" }}>
         <img
           onClick={() => removeFromOrder(props.dataItem.id)}
           src={require("../../assets/remove.png")}
@@ -149,17 +151,26 @@ const PriceList = (props) => {
 
   // const [orderCommentReq] = useOrderCommentMutation();
   const dispatch = useDispatch();
+
+  const DefaultCell = (props) => {
+    const field = props.field || "";
+    return <td colSpan={props.colSpan}>{props.dataItem[field]}</td>;
+  };
+
   const func_fields = (fields) => {
     if (!fields) return;
+    console.time("FUNC_FIELDS");
 
     console.log("Render columns");
     let new_fields;
     let idx = fields.findIndex((el) => el === "quant");
-    new_fields = [
-      ...fields.slice(0, idx + 1),
-      "orderQuant",
-      ...fields.slice(idx + 1, fields.length),
-    ];
+    if (orderId)
+      new_fields = [
+        ...fields.slice(0, idx + 1),
+        "orderQuant",
+        ...fields.slice(idx + 1, fields.length),
+      ];
+    else new_fields = fields;
     console.error(new_fields);
     let cols = new_fields?.map((field, idx) => {
       console.log(field);
@@ -169,27 +180,34 @@ const PriceList = (props) => {
           <GridColumn
             cell={MyCell}
             field="orderQuant"
-            width="150px"
+            width={150}
             title="Order"
             key={field}
           />
         );
       }
-      if (field === "orderQuant") return;
+
       return (
         <GridColumn
-          columnMenu={ColumnMenu}
+          // columnMenu={ColumnMenu}
           key={field}
           field={field}
-          width="150px"
+          width={150}
+          cell={DefaultCell}
           title={field}
         />
       );
     });
     if (orderId) <GridColumn cell={DeleteCell} width="50px" />;
+    console.timeEnd("FUNC_FIELDS");
+    console.log(cols);
     return cols;
   };
-  const columns = React.useMemo(() => func_fields(fields), [fields, orderId]);
+  // const columns = React.useCallback(
+  //   () => func_fields(fields),
+  //   [fields, orderId]
+  // );
+  const columns = func_fields(fields);
 
   React.useEffect(() => {
     if (orderId) {
@@ -580,7 +598,7 @@ const PriceList = (props) => {
   const EditCell = (props) => {
     console.log(props);
     return (
-      <td>
+      <td colSpan={props.colSpan}>
         <img
           onClick={() => openDialog(props.dataItem.id)}
           src={require("../../assets/edit.png")}
@@ -593,7 +611,7 @@ const PriceList = (props) => {
 
   const CheckCell = (props) => {
     return (
-      <td>
+      <td colSpan={props.colSpan}>
         <Checkbox
           checked={checkedRow[props.dataItem.id]}
           onClick={(e) => checked(e, props.dataItem.id)}
@@ -1138,7 +1156,7 @@ const PriceList = (props) => {
     );
     setOrderArr(data.dataItem.id, data.orderQuant);
   };
-  console.log(quantOrderArr);
+  // console.log(quantOrderArr);
   // const OrderCell = (props) => {
   //   console.log("UPDATE2");
 
@@ -1332,48 +1350,66 @@ const PriceList = (props) => {
   React.useEffect(() => {
     console.log(quantOrderArr);
   }, [quantOrderArr]);
+  const [page, setPage] = React.useState({
+    skip: 0,
+    take: 100,
+  });
+  let pagerSettings = {
+    info: true,
+    type: "input",
+    previousNext: true,
+  };
+  const SmartTable = function ({ result }) {
+    console.log("smart");
+    console.log(result);
+    if (result)
+      return (
+        <div className="row">
+          <div className="col m-3">
+            <Grid
+              className="grid"
+              rowRender={rowRender}
+              // dataItemKey={"id"}
+              // scrollable={"virtual"}
+              // style={{
+              //   height: "700px",
+              //   marginLeft: "0",
+              //   // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
+              //   // width: "2000px",
+              // }}
+              style={{
+                width: "700px",
+                height: "600px",
+              }}
+              data={result}
+              scrollable={"virtual"}
+              skip={page.skip}
+              take={page.take}
+              rowHeight={50}
+              total={result.length}
+              columnVirtualization={true}
+              onPageChange={(event) => setPage(event.page)}
+              onItemChange={itemChange}
+              // {...dataState}
+              // onDataStateChange={dataStateChange}
+              sortable={true}
+              // dataItemKey={"id"}
+              // pageable={true}
+              // pageSize={8}
 
-  const smartTable = ({ result, dataState }) => {
-    // let new_fields = [];
-    // if (fields) {
-    //   let idx = fields.findIndex((el) => el === "quant");
-    //   new_fields = [
-    //     ...fields.slice(0, idx + 1),
-    //     "orderQuant",
-    //     ...fields.slice(idx + 1, fields.length),
-    //   ];
-    // }
-    return (
-      <Grid
-        className="grid"
-        rowRender={rowRender}
-        // dataItemKey={"id"}
-        // scrollable={"virtual"}
-        style={{
-          height: "700px",
-          marginLeft: "0",
-          // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
-          // width: "2000px",
-        }}
-        data={result}
-        onItemChange={itemChange}
-        // {...dataState}
-        onDataStateChange={dataStateChange}
-        sortable={true}
-        // pageable={true}
-        // pageSize={8}
-
-        // sortable={true}
-        // filterable={true}
-        // groupable={true}
-        // reorderable={true}
-        // pageSize={8}
-        // {...dataState}
-        // onDataStateChange={dataStateChange}
-      >
-        {columns}
-      </Grid>
-    );
+              // sortable={true}
+              // filterable={true}
+              // groupable={true}
+              // reorderable={true}
+              // pageSize={8}
+              // {...dataState}
+              // onDataStateChange={dataStateChange}
+            >
+              {columns}
+            </Grid>
+          </div>
+        </div>
+      );
   };
 
   // }, [
@@ -1499,7 +1535,9 @@ const PriceList = (props) => {
     setOrderId();
     setVendor();
   };
-
+  React.useEffect(() => {
+    console.log("Changed result");
+  }, [result]);
   return (
     <div
       style={{
@@ -1639,37 +1677,9 @@ const PriceList = (props) => {
       <Button onClick={deleteRows} style={{ marginTop: "20px" }}>
         Удалить выделенные записи
       </Button> */}
-      {
-        <Grid
-          className="grid"
-          rowRender={rowRender}
-          // dataItemKey={"id"}
-          // scrollable={"virtual"}
-          style={{
-            height: "700px",
-            marginLeft: "0",
-            // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
-            // width: "2000px",
-          }}
-          data={result}
-          onItemChange={itemChange}
-          // {...dataState}
-          onDataStateChange={dataStateChange}
-          sortable={true}
-          // pageable={true}
-          // pageSize={8}
 
-          // sortable={true}
-          // filterable={true}
-          // groupable={true}
-          // reorderable={true}
-          // pageSize={8}
-          // {...dataState}
-          // onDataStateChange={dataStateChange}
-        >
-          {columns}
-        </Grid>
-      }
+      <SmartTable result={result} />
+
       {!withChanges ? (
         <Button
           style={{
