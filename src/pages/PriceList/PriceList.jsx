@@ -47,7 +47,7 @@ const MyCell = function (props) {
   // console.log(props);
   console.log("MyCell");
   // return <NumInput itemChange={itemChange} {...props} />;
-  return <NumInput {...props} />;
+  return <td colSpan={props.colSpan}><NumInput {...props} /> </td>;
 };
 const PriceList = (props) => {
   React.useEffect(() => {
@@ -198,7 +198,7 @@ const PriceList = (props) => {
         />
       );
     });
-    if (orderId) <GridColumn cell={DeleteCell} width="50px" />;
+    //if (orderId) <GridColumn cell={DeleteCell} width="50px" />;
     console.timeEnd("FUNC_FIELDS");
     console.log(cols);
     return cols;
@@ -1252,7 +1252,7 @@ const PriceList = (props) => {
     console.log(event);
     let value = event.value;
     const name = event.dataItem.field;
-    if (event.quant < value) value = event.dataItem.quant;
+    // if (event.quant < value) value = event.dataItem.quant;
     let obj = quantOrderArr.find(
       (el) => el.priceRecordId === event.dataItem.id
     );
@@ -1271,7 +1271,7 @@ const PriceList = (props) => {
     console.log("VALUE=", value);
     console.log(event.dataItem.id, value, status, obj?.id);
     setOrderArr(event.dataItem.id, value, status);
-
+    console.log(event.dataItem.id, event.value);
     const state = {
       result: table.map((item) => {
         if (item.id === event.dataItem.id) {
@@ -1352,7 +1352,7 @@ const PriceList = (props) => {
   }, [quantOrderArr]);
   const [page, setPage] = React.useState({
     skip: 0,
-    take: 100,
+    take: 15,
   });
   let pagerSettings = {
     info: true,
@@ -1367,10 +1367,10 @@ const PriceList = (props) => {
         <div className="row">
           <div className="col m-3">
             <Grid
-              className="grid"
-              rowRender={rowRender}
+              // className="grid"
+              
               // dataItemKey={"id"}
-              // scrollable={"virtual"}
+              // scrollable={"virtual"}rowRender={rowRender}
               // style={{
               //   height: "700px",
               //   marginLeft: "0",
@@ -1392,8 +1392,8 @@ const PriceList = (props) => {
               onItemChange={itemChange}
               // {...dataState}
               // onDataStateChange={dataStateChange}
-              sortable={true}
-              // dataItemKey={"id"}
+              // sortable={true}
+              
               // pageable={true}
               // pageSize={8}
 
@@ -1677,8 +1677,56 @@ const PriceList = (props) => {
       <Button onClick={deleteRows} style={{ marginTop: "20px" }}>
         Удалить выделенные записи
       </Button> */}
+{result &&
+(
+        <div className="row">
+          <div className="col m-3">
+            <Grid
+              // className="grid"
+              
+              // dataItemKey={"id"}
+              // scrollable={"virtual"}rowRender={rowRender}
+              // style={{
+              //   height: "700px",
+              //   marginLeft: "0",
+              //   // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
+              //   // width: "2000px",
+              // }}
+              style={{
+                width: "100%",
+                minWidth: "1400px",
+                height: "800px",
+              }}
+              // data={result}
+              data={result.slice(page.skip, page.take + page.skip)}
+              scrollable={"virtual"}
+              skip={page.skip}
+              take={page.take}
+              rowHeight={50}
+              total={result.length}
+              // columnVirtualization={true}
+              onPageChange={(event) => setPage(event.page)}
+              onItemChange={itemChange}
+              // {...dataState}
+              // onDataStateChange={dataStateChange}
+              // sortable={true}
+              dataItemKey={"id"}
+              // pageable={true}
+              // pageSize={8}
 
-      <SmartTable result={result} />
+              // sortable={true}
+              // filterable={true}
+              // groupable={true}
+              // reorderable={true}
+              // pageSize={8}
+              // {...dataState}
+              // onDataStateChange={dataStateChange}
+            >
+              {columns}
+            </Grid>
+          </div>
+        </div>
+      )}
 
       {!withChanges ? (
         <Button

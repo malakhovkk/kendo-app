@@ -46,6 +46,7 @@ import React from "react";
 import { NumericTextBox } from "@progress/kendo-react-inputs";
 
 const NumInput = (props) => {
+  const field = props.field || "";
   const handleChange = (e) => {
     // console.log({
     //   dataItem: props.dataItem,
@@ -91,26 +92,46 @@ const NumInput = (props) => {
 
     // console.log(props.dataItem[props.field]);
   };
-  const [val, setVal] = React.useState(0);
+  const [val, setVal] = React.useState(props.dataItem[field]);
   React.useEffect(() => {
     console.log("val = ", val);
   }, [val]);
 
+
+  // const handleBlur = (e) => {
+    
+
+  // }
   return (
-    <td colSpan={props.colSpan}>
+    
       <NumericTextBox
         // value={props.dataItem[props.field]}
         // onChange={handleChange}
+        // value={val}
+        style={{
+          width: "100%",
+        }}
         value={val}
+        // onBlur={handleBlur}
         onChange={(e) => {
           // props.itemChange();
-          setVal(Math.min(e.target.value, props.dataItem.quant));
           props.onChange({
             dataItem: props.dataItem,
             field: props.field,
             syntheticEvent: e.syntheticEvent,
             value: Math.min(e.target.value, props.dataItem.quant),
           });
+          setVal(Math.min(e.target.value, props.dataItem.quant));
+
+
+          // props.onChange({
+          //   dataItem: props.dataItem,
+          //   field: props.field,
+          //   syntheticEvent: e.syntheticEvent,
+          //   value: Math.min(e.target.value, props.dataItem.quant),
+          // });
+
+
           // props.itemChange(
           //   Math.min(e.target.value, props.dataItem.quant),
           //   props
@@ -130,7 +151,7 @@ const NumInput = (props) => {
         max={props.dataItem.quant}
         min={0}
       />
-    </td>
+   
   );
 };
 

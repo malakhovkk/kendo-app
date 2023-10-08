@@ -19,6 +19,16 @@ const CellWithState = (props) => {
   const [value, setValue] = React.useState(props.dataItem[field]);
   const handleChange = (event) => {
     setValue(event.value);
+    // let e = event;
+    // if (props.onChange) {
+    //   props.onChange({
+    //     dataIndex: 0,
+    //     dataItem: props.dataItem,
+    //     field: props.field,
+    //     syntheticEvent: e.syntheticEvent,
+    //     value: value,
+    //   });
+    // }
   };
   const handleBlur = (e) => {
     setInEdit(false);
@@ -116,7 +126,7 @@ const New = () => {
     setData(allData);
   };
   return (
-    <div className="container" style={{ marginTop: "200px" }}>
+    <div className="" style={{ marginTop: "200px" }}>
       <div className="row">
         <div className="col m-3">
           <Button onClick={loadItems}>Load 100 000 items</Button>
@@ -136,17 +146,17 @@ const New = () => {
               width: "700px",
               height: "600px",
             }}
-            columnVirtualization={true}
+            // columnVirtualization={true}
             scrollable={"virtual"}
-            rowHeight={50}
+            rowHeight={100}
             data={data}
             skip={page.skip}
             take={page.take}
-            total={numberOfRows}
+            total={data.length}
             onPageChange={(event) => setPage(event.page)}
-            sortable={true}
-            onSortChange={sortChange}
-            sort={sort}
+            // sortable={true}
+            // onSortChange={sortChange}
+            // sort={sort}
             onItemChange={itemChange}
             // dataItemKey={"id"}
             // pageable={false}
