@@ -191,7 +191,7 @@ export default function Files(props) {
   }, [dataProfiles]);
 
   return (
-    <div style={{ marginLeft: "10px", marginTop: "15px" }}>
+    <div style={{ marginLeft: "10px", marginTop: "100px" }}>
       {loading && (
         <div
           style={{
@@ -216,7 +216,7 @@ export default function Files(props) {
       <div
         style={{
           width: "300px",
-          marginTop: "80px",
+          marginTop: "10px",
         }}
       >
         <Select
@@ -225,23 +225,54 @@ export default function Files(props) {
           placeholder="Выбрать поставщика"
         />
       </div>
-      <div>Выбрано: {vendors && getVendorById(vendor)}</div>
-      Профиль:
       <div
         style={{
-          width: "300px",
+          marginTop: "10px",
         }}
       >
-        <Select
-          options={optionsProfile}
-          onChange={onSelectProfile}
-          placeholder="Выбрать профиль"
-        />
+        Выбрано: {vendors && getVendorById(vendor)}
       </div>
-      <div>Выбрано: {profiles && getProfileById(profile)}</div>
-      <input type="file" onChange={handleFileChange} />
+      <div
+        style={{
+          marginTop: "10px",
+        }}
+      >
+        Профиль:
+        <div
+          style={{
+            width: "300px",
+            marginTop: "10px",
+          }}
+        >
+          <Select
+            options={optionsProfile}
+            onChange={onSelectProfile}
+            placeholder="Выбрать профиль"
+          />
+        </div>
+      </div>
+      <div
+        style={{
+          marginTop: "10px",
+        }}
+      >
+        Выбрано: {profiles && getProfileById(profile)}
+      </div>
+      <input
+        style={{
+          marginTop: "10px",
+        }}
+        type="file"
+        onChange={handleFileChange}
+      />
       <Button onClick={save}>Загрузить</Button>
-      <div>Выбрано: {fileN}</div>
+      <div
+        style={{
+          marginTop: "10px",
+        }}
+      >
+        Выбрано: {fileN}
+      </div>
       <Grid
         data={info}
         className="grid"

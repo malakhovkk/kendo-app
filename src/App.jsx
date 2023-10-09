@@ -121,7 +121,6 @@ const App = () => {
           {codes?.includes("ORDER") && (
             <Route path="/home/orders" element={<Orders />} />
           )}
-          <Route path="/home/new" element={<New />} />
         </Route>
       </Routes>
     </>
