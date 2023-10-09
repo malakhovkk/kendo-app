@@ -7,7 +7,7 @@ import {
 import { getUserUrl } from "./routes.js";
 
 // Создаем Thunk
-export const fetchUserById = createAsyncThunk(
+const fetchUserById = createAsyncThunk(
   "users/fetchUserById", // отображается в dev tools и должно быть уникально у каждого Thunk
   async (userId) => {
     // Здесь только логика запроса и возврата данных

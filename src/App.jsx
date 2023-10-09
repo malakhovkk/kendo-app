@@ -42,18 +42,18 @@ const App = () => {
   }, [jwtExpired]);
 
   console.log(s);
-  React.useEffect(() => {
-    if (login || localStorage.getItem("login"))
-      getRightsSettings(login || localStorage.getItem("login"))
-        .unwrap()
-        .then((payload) => {
-          setSettings(payload);
-          setCodes(payload.map((el) => el.code));
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-  }, [login]);
+  // React.useEffect(() => {
+  //   if (login || localStorage.getItem("login"))
+  //     getRightsSettings(login || localStorage.getItem("login"))
+  //       .unwrap()
+  //       .then((payload) => {
+  //         setSettings(payload);
+  //         setCodes(payload.map((el) => el.code));
+  //       })
+  //       .catch((err) => {
+  //         console.error(err);
+  //       });
+  // }, [login]);
   React.useEffect(() => {
     console.log(settings);
   });

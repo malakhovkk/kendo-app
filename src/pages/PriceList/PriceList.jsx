@@ -47,7 +47,11 @@ const MyCell = function (props) {
   // console.log(props);
   console.log("MyCell");
   // return <NumInput itemChange={itemChange} {...props} />;
-  return <td colSpan={props.colSpan}><NumInput {...props} /> </td>;
+  return (
+    <td colSpan={props.colSpan}>
+      <NumInput {...props} />{" "}
+    </td>
+  );
 };
 const PriceList = (props) => {
   React.useEffect(() => {
@@ -535,10 +539,10 @@ const PriceList = (props) => {
             quantOrderArr.length === 0 ? 0 : obj[_el.id] ? obj[_el.id] : 0,
           price:
             _el.statistics.price === 0
-              ? _el.quant
+              ? _el.price
               : _el.statistics.price > 0
-              ? `${_el.quant} (+${_el.statistics.price})`
-              : `${_el.quant} (-${_el.statistics.price})`,
+              ? `${_el.price} (+${_el.statistics.price})`
+              : `${_el.price} (-${_el.statistics.price})`,
           quant:
             _el.statistics.quant === 0
               ? _el.quant
@@ -1117,6 +1121,7 @@ const PriceList = (props) => {
           //   id ??
           //   quantOrderArr.find((order) => order.priceRecordId === priceRecordId)
           //     .id,
+          id: id ?? "",
           priceRecordId,
           quant: value ?? 0,
           status,
@@ -1270,7 +1275,7 @@ const PriceList = (props) => {
     }
     console.log("VALUE=", value);
     console.log(event.dataItem.id, value, status, obj?.id);
-    setOrderArr(event.dataItem.id, value, status);
+    setOrderArr(event.dataItem.id, value, status, obj?.id);
     console.log(event.dataItem.id, event.value);
     const state = {
       result: table.map((item) => {
@@ -1358,58 +1363,6 @@ const PriceList = (props) => {
     info: true,
     type: "input",
     previousNext: true,
-  };
-  const SmartTable = function ({ result }) {
-    console.log("smart");
-    console.log(result);
-    if (result)
-      return (
-        <div className="row">
-          <div className="col m-3">
-            <Grid
-              // className="grid"
-              
-              // dataItemKey={"id"}
-              // scrollable={"virtual"}rowRender={rowRender}
-              // style={{
-              //   height: "700px",
-              //   marginLeft: "0",
-              //   // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
-              //   // width: "2000px",
-              // }}
-              style={{
-                width: "700px",
-                height: "600px",
-              }}
-              data={result}
-              scrollable={"virtual"}
-              skip={page.skip}
-              take={page.take}
-              rowHeight={50}
-              total={result.length}
-              columnVirtualization={true}
-              onPageChange={(event) => setPage(event.page)}
-              onItemChange={itemChange}
-              // {...dataState}
-              // onDataStateChange={dataStateChange}
-              // sortable={true}
-              
-              // pageable={true}
-              // pageSize={8}
-
-              // sortable={true}
-              // filterable={true}
-              // groupable={true}
-              // reorderable={true}
-              // pageSize={8}
-              // {...dataState}
-              // onDataStateChange={dataStateChange}
-            >
-              {columns}
-            </Grid>
-          </div>
-        </div>
-      );
   };
 
   // }, [
@@ -1506,7 +1459,8 @@ const PriceList = (props) => {
     })
       .unwrap()
       .then((_) => {
-        if (quantOrderArr.filter((el) => el.status === "edited").length)
+        console.log(quantOrderArr);
+        if (quantOrderArr.filter((el) => el.status === "edited").length) {
           _saveEditOrder({
             // vendorId: vendor,
             body: quantOrderArr
@@ -1523,7 +1477,7 @@ const PriceList = (props) => {
               getOrderRequest();
             })
             .catch((err) => console.error(err));
-        else getOrderRequest();
+        } else getOrderRequest();
       })
       .catch((err) => console.error(err));
   };
@@ -1534,10 +1488,15 @@ const PriceList = (props) => {
     setDocument([]);
     setOrderId();
     setVendor();
+    setComment("");
   };
   React.useEffect(() => {
     console.log("Changed result");
   }, [result]);
+  const smartSlice = (info) => {
+    if (withChanges) return info;
+    return info.slice(page.skip, page.take + page.skip);
+  };
   return (
     <div
       style={{
@@ -1677,13 +1636,13 @@ const PriceList = (props) => {
       <Button onClick={deleteRows} style={{ marginTop: "20px" }}>
         Удалить выделенные записи
       </Button> */}
-{result &&
-(
-        <div className="row">
-          <div className="col m-3">
+      {result && !withChanges && (
+        <div>
+          <div>
             <Grid
+              resizable={true}
               // className="grid"
-              
+
               // dataItemKey={"id"}
               // scrollable={"virtual"}rowRender={rowRender}
               // style={{
@@ -1694,7 +1653,7 @@ const PriceList = (props) => {
               // }}
               style={{
                 width: "100%",
-                minWidth: "1400px",
+                minWidth: "1200px",
                 height: "800px",
               }}
               // data={result}
@@ -1728,6 +1687,58 @@ const PriceList = (props) => {
         </div>
       )}
 
+      {result && withChanges && (
+        <div>
+          <div>
+            <Grid
+              resizable={true}
+              // className="grid"
+
+              // dataItemKey={"id"}
+              // scrollable={"virtual"}rowRender={rowRender}
+              // style={{
+              //   height: "700px",
+              //   marginLeft: "0",
+              //   // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
+              //   // width: "2000px",
+              // }}
+              style={{
+                width: "100%",
+                minWidth: "1200px",
+                height: "800px",
+              }}
+              // data={result}
+              data={result.filter(
+                (row) => row.quantDelta !== 0 || row.priceDelta !== 0
+              )}
+              // scrollable={"virtual"}
+              // skip={page.skip}
+              // take={page.take}
+              // rowHeight={50}
+              // total={result.length}
+              // // columnVirtualization={true}
+              // onPageChange={(event) => setPage(event.page)}
+              onItemChange={itemChange}
+              // {...dataState}
+              // onDataStateChange={dataStateChange}
+              // sortable={true}
+              // dataItemKey={"id"}
+              // pageable={true}
+              // pageSize={8}
+
+              // sortable={true}
+              // filterable={true}
+              // groupable={true}
+              // reorderable={true}
+              // pageSize={8}
+              // {...dataState}
+              // onDataStateChange={dataStateChange}
+            >
+              {columns}
+            </Grid>
+          </div>
+        </div>
+      )}
       {!withChanges ? (
         <Button
           style={{
@@ -1739,17 +1750,17 @@ const PriceList = (props) => {
             // // console.warn(updatedState.result);
             // setDataState(updatedState.dataState);
 
-            const state = {
-              result: process(
-                table.filter(
-                  (row) => row.quantDelta !== 0 || row.priceDelta !== 0
-                )
-                // { ...dataState, skip: 0 }
-              ),
-              // dataState: { ...dataState, skip: 0 },
-            };
-            setResult(state.result);
-            setDataState(state.dataState);
+            // const state = {
+            //   // result: process(
+            //   result: table.filter(
+            //     (row) => row.quantDelta !== 0 || row.priceDelta !== 0
+            //   ),
+            //   // { ...dataState, skip: 0 }
+            //   // ),
+            //   // dataState: { ...dataState, skip: 0 },
+            // };
+            // setResult(state.result);
+            //setDataState(state.dataState);
             // addToStock("174fdd5b-74ad-3340-b230-836b3e4cdf12");
           }}
         >
@@ -1763,12 +1774,13 @@ const PriceList = (props) => {
           onClick={() => {
             setWithChanges(false);
 
-            const state = {
-              result: process(table.slice(0), dataState),
-              dataState: dataState,
-            };
-            setResult(state.result);
-            setDataState(state.dataState);
+            // const state = {
+            //   // result: process(table.slice(0), dataState),
+            //   // dataState: dataState,
+            //   result: table,
+            // };
+            // setResult(state.result);
+            // setDataState(state.dataState);
             // addToStock("174fdd5b-74ad-3340-b230-836b3e4cdf12");
           }}
         >

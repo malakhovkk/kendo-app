@@ -13,7 +13,7 @@ import Select from "react-select";
 import { Button } from "@progress/kendo-react-buttons";
 import axios from "axios";
 import { Loader } from "@progress/kendo-react-indicators";
-
+import "./Files.css";
 export default function Files(props) {
   const { data: files, refetch } = useGetFilesQuery();
   const [info, setInfo] = React.useState([]);
@@ -212,60 +212,68 @@ export default function Files(props) {
           <Loader size="large" type="infinite-spinner" />{" "}
         </div>
       )}
-      Поставщик:
-      <div
-        style={{
-          width: "300px",
-          marginTop: "10px",
-        }}
-      >
-        <Select
-          options={options}
-          onChange={onSelectVendor}
-          placeholder="Выбрать поставщика"
-        />
-      </div>
-      <div
-        style={{
-          marginTop: "10px",
-        }}
-      >
-        Выбрано: {vendors && getVendorById(vendor)}
-      </div>
-      <div
-        style={{
-          marginTop: "10px",
-        }}
-      >
-        Профиль:
-        <div
-          style={{
-            width: "300px",
-            marginTop: "10px",
-          }}
-        >
-          <Select
-            options={optionsProfile}
-            onChange={onSelectProfile}
-            placeholder="Выбрать профиль"
-          />
+      <div style={{ display: "flex" }}>
+        <div>
+          Поставщик:
+          <div
+            style={{
+              width: "300px",
+              marginTop: "10px",
+            }}
+          >
+            <Select
+              options={options}
+              onChange={onSelectVendor}
+              placeholder="Выбрать поставщика"
+            />
+          </div>
+          <div
+            style={{
+              marginTop: "10px",
+            }}
+          >
+            Выбрано: {vendors && getVendorById(vendor)}
+          </div>
+        </div>
+        <div style={{ marginLeft: "15px" }}>
+          Профиль:
+          <div
+            style={{
+              width: "300px",
+              marginTop: "10px",
+            }}
+          >
+            <Select
+              options={optionsProfile}
+              onChange={onSelectProfile}
+              placeholder="Выбрать профиль"
+            />
+          </div>
+          <div
+            style={{
+              marginTop: "10px",
+            }}
+          >
+            Выбрано: {profiles && getProfileById(profile)}
+          </div>
         </div>
       </div>
-      <div
+      <label
+        class="custom-file-upload"
         style={{
           marginTop: "10px",
         }}
       >
-        Выбрано: {profiles && getProfileById(profile)}
-      </div>
-      <input
-        style={{
-          marginTop: "10px",
-        }}
-        type="file"
-        onChange={handleFileChange}
-      />
-      <Button onClick={save}>Загрузить</Button>
+        <input
+          style={{
+            marginTop: "10px",
+          }}
+          type="file"
+          onChange={handleFileChange}
+        />
+        Выбрать файл
+      </label>
+
       <div
         style={{
           marginTop: "10px",
@@ -273,6 +281,20 @@ export default function Files(props) {
       >
         Выбрано: {fileN}
       </div>
+      {/* <Button
+        
+      >
+        Загрузить
+      </Button> */}
+      <img
+        style={{
+          marginTop: "10px",
+          width: "35px",
+        }}
+        onClick={save}
+        src={require("../../assets/upload.png")}
+        alt="Удалить"
+      />
       <Grid
         data={info}
         className="grid"
