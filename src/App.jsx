@@ -42,18 +42,19 @@ const App = () => {
   }, [jwtExpired]);
 
   console.log(s);
-  // React.useEffect(() => {
-  //   if (login || localStorage.getItem("login"))
-  //     getRightsSettings(login || localStorage.getItem("login"))
-  //       .unwrap()
-  //       .then((payload) => {
-  //         setSettings(payload);
-  //         setCodes(payload.map((el) => el.code));
-  //       })
-  //       .catch((err) => {
-  //         console.error(err);
-  //       });
-  // }, [login]);
+  React.useEffect(() => {
+    if (login || localStorage.getItem("login"))
+      getRightsSettings(login || localStorage.getItem("login"))
+        .unwrap()
+        .then((payload) => {
+          setSettings(payload);
+          setCodes(payload.map((el) => el.code));
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    else navigate("/");
+  }, [login]);
   React.useEffect(() => {
     console.log(settings);
   });
@@ -67,6 +68,7 @@ const App = () => {
     setCodes(rights);
     setIsLoading(false);
   }, [rights]);
+  console.warn("CODES", codes.join(" "));
   if (isLoading)
     return (
       <div
@@ -88,7 +90,7 @@ const App = () => {
         <Loader size="large" type="infinite-spinner" />{" "}
       </div>
     );
-  console.warn("CODES", codes.join(" "));
+  console.warn("AAA");
   return (
     <>
       <ToastContainer />

@@ -1406,7 +1406,13 @@ const PriceList = (props) => {
 
   const [_saveOrder] = useSaveOrderMutation();
   const [_saveEditOrder] = useSaveEditOrderMutation();
-
+  // React.useEffect(() => {
+  //   console.log(vendors);
+  //   if (vendors === undefined) return;
+  //   setOptionsVendor(
+  //     vendors.map((vendor) => ({ value: vendor.id, label: vendor.name }))
+  //   );
+  // }, [vendors]);
   const getOrderRequest = () => {
     getOrder(orderId)
       .unwrap()

@@ -23,6 +23,8 @@ import {
 import { Fade } from "@progress/kendo-react-animation";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
+import { useGetVendorsQuery } from "../../features/apiSlice";
+import Select from "react-select";
 // Импортируем нужные действия
 
 // import {
@@ -73,7 +75,8 @@ const Users = () => {
     );
   };
 
-  const { data, error: err, isLoading, refetch } = useGetAllUsersQuery();
+  const [data, setData] = React.useState();
+  const { data: users, error: err, isLoading, refetch } = useGetAllUsersQuery();
   const [edit] = useEditUserMutation();
   const [_addUser] = useCreateUserMutation();
   const [_deleteUser] = useDeleteUserMutation();
@@ -81,7 +84,24 @@ const Users = () => {
   const [id, setId] = React.useState(null);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState(false);
-
+  const { data: vendors } = useGetVendorsQuery();
+  const [optionsVendor, setOptionsVendor] = React.useState([]);
+  React.useEffect(() => {
+    if (!users || !vendors) return;
+    setData(
+      users.map((user) => ({
+        ...user,
+        companyName:
+          vendors.find((vendor) => vendor.id === user.companyId)?.name ?? "",
+      }))
+    );
+    setOptionsVendor(
+      vendors.map((vendor) => ({ value: vendor.id, label: vendor.name }))
+    );
+  }, [users, vendors]);
+  const onSelectVendor = (vendor) => {
+    setFormData({ ...formData, companyId: vendor.value });
+  };
   // const [info, setInfo] = React.useState(users);
   // const info = useSelector((state) => state.info.users);
   // React.useEffect(() =>{
@@ -159,6 +179,7 @@ const Users = () => {
     setVisible(2);
     setFormData({ id: "", name: "", login: "", email: "", password: "" });
   };
+
   const add = () => {
     if (formData.name && formData.login && formData.password) {
       //formData.id = uid();
@@ -211,6 +232,7 @@ const Users = () => {
   const count = useSelector((state) => state.settings.value);
   // Возвращает метод store.dispatch() текущего хранилища
   const dispatch = useDispatch();
+
   return (
     <div style={{ marginTop: "100px" }}>
       <div className="add_user">
@@ -226,6 +248,7 @@ const Users = () => {
         <GridColumn field="name" title="Name" />
         <GridColumn field="email" title="Email" />
         <GridColumn field="login" title="Login" />
+        <GridColumn field="companyName" title="CompanyName" />
         {/* <GridColumn field="code" title="Code"  />
       <GridColumn field="surname" title="Surname" /> */}
         <GridColumn cell={EditCell} width="50px" />
@@ -275,6 +298,15 @@ const Users = () => {
                   placeholder="Login"
                 />
               </label>
+              <label className="k-form-field">
+                <span>Login</span>
+                <Select
+                  options={optionsVendor}
+                  onChange={onSelectVendor}
+                  placeholder="Выбрать компанию"
+                />
+              </label>
+
               {visible === 2 ? (
                 <label className="k-form-field">
                   <span>Password</span>

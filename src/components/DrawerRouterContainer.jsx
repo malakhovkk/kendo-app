@@ -92,6 +92,7 @@ const DrawerRouterContainer = (props) => {
   const login = useSelector((state) => state.settings.login);
   const rights = useSelector((state) => state.settings.rights);
 
+  console.log(rights);
   const initial = () => {
     let pathName = location.pathname;
     console.log("pathName: " + pathName);
