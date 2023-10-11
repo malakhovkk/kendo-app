@@ -26,6 +26,7 @@ const settings = createSlice({
     jwtExpired: (state, action) => {
       state.jwtExpired = action.payload;
     },
+
     // increment: (state) => {
     //   state.value += 1;
     // },

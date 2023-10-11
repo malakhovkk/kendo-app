@@ -445,6 +445,12 @@ export const userApi = createApi({
         method: "DELETE",
       }),
     }),
+    getShops: builder.mutation({
+      query: (companyId) => ({
+        url: `shop/${companyId}`,
+        method: "GET",
+      }),
+    }),
     // orderComment: builder.mutation({
     //   query: (body) => ({
     //     url: `ordercomment/`,
@@ -509,4 +515,5 @@ export const {
   useOrderCommentMutation,
   useDeleteAllZerosMutation,
   useDeleteOrderMutation,
+  useGetShopsMutation,
 } = userApi;

@@ -5,6 +5,7 @@ import {
   useDeleteAllZerosMutation,
   useDeleteOrderMutation,
   useGetOrdersMutation,
+  useGetShopsMutation,
   useGetVendorContactsMutation,
   useGetVendorsQuery,
   useSendOrderMutation,
@@ -15,6 +16,8 @@ import { Checkbox } from "@progress/kendo-react-inputs";
 import { Button } from "@progress/kendo-react-buttons";
 import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 const Orders = () => {
   const [getOrders] = useGetOrdersMutation();
   const [vendorId, setVendorId] = React.useState();
@@ -28,6 +31,8 @@ const Orders = () => {
   const [ToChange, setToChange] = React.useState();
   const [deleteAllZerosReq] = useDeleteAllZerosMutation();
   const [deleteOrderReq] = useDeleteOrderMutation();
+  const [getShopsReq] = useGetShopsMutation();
+  const [companyId, setCompanyId] = React.useState();
   const navigate = useNavigate();
   // const [sendOrder] = useSendOrderMutation();
   const sendOrder = (body) => {
@@ -57,19 +62,57 @@ const Orders = () => {
     // }
     axios
       .put(url, formData, config)
-      .then((response) => {
+      .then((data) => {
         //console.log(response.data);
-        console.log(response);
+        console.log(data);
         getContactsAndOrders();
+        if (data.data.code === 0) {
+          toast.success(`Успешно оптравлено`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        } else {
+          toast.error(`Не удалось отправить`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       })
       .catch((err) => {
         if (err.response.status === 401) navigate("/");
+        else {
+          toast.error(`Не удалось отправить`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
         console.log(err);
       })
       .finally(() => {});
   };
   const onSelectVendor = (vendor) => {
     setVendorId(vendor.value);
+  };
+  const onSelectCompany = (company) => {
+    setCompanyId(company.value);
   };
   React.useEffect(() => {
     console.log(vendors);
@@ -175,7 +218,23 @@ const Orders = () => {
       </td>
     );
   };
-
+  const [companies, setCompanies] = React.useState();
+  React.useEffect(() => {
+    if (localStorage.getItem("companyId")) {
+      getShopsReq(localStorage.getItem("companyId"))
+        .unwrap()
+        .then((data) => {
+          console.error(data);
+          setCompanies(
+            data.map((row) => ({
+              value: row.id,
+              label: row.address ? row.address : row.name,
+            }))
+          );
+        })
+        .catch((err) => console.error);
+    }
+  }, []);
   const closeDialog = () => {
     setOrderId(null);
     setCheckedRow({});
@@ -242,6 +301,20 @@ const Orders = () => {
       alert("Произошла ошибка");
       return;
     }
+    console.log(checkedRow);
+    if (Object.keys(checkedRow).length === 0 || !companyId) {
+      toast.error(`Выберите почту и магазин`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
     console.log(contacts.filter((contact) => checkedRow[contact.id]));
     sendOrder({
       orderId,
@@ -249,6 +322,7 @@ const Orders = () => {
         .filter((contact) => checkedRow[contact.id])
         .map((c) => c.contact)
         .join(","),
+      shop: companyId,
     });
   };
   console.log(orders);
@@ -304,6 +378,13 @@ const Orders = () => {
             <GridColumn field="name" width="150px" title="Имя" />
             <GridColumn field="contact" width="150px" title="Почта" />
           </Grid>
+          <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+            <Select
+              options={companies}
+              onChange={onSelectCompany}
+              placeholder="Выбрать магазин"
+            />
+          </div>
           <Button onClick={send}>Отправить</Button>
         </Window>
       )}

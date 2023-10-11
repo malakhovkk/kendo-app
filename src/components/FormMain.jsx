@@ -40,6 +40,7 @@ const FormMain = () => {
     localStorage.setItem("token", loginData.data.result);
     localStorage.setItem("login", login);
     localStorage.setItem("name", loginData.data.user.name);
+    localStorage.setItem("companyId", loginData.data.user.companyId);
     dispatch(jwtExpired(false));
     navigate("/home/profile");
     dispatch(addToRights(loginData.data.rights));
