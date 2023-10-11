@@ -172,7 +172,7 @@ const Orders = () => {
           style={{ width: "20px", height: "20px" }}
           onClick={() => pickContacts(props.dataItem.id)}
           src={require("../../assets/mail.png")}
-          alt="Удалить"
+          // alt="Удалить"
         />
       </td>
     );
@@ -186,7 +186,18 @@ const Orders = () => {
 
     return (
       <td>
-        <p style={{ whiteSpace: "pre-wrap" }}>{props.dataItem.comment}</p>
+        <p style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+          {props.dataItem.comment}
+        </p>
+      </td>
+    );
+  };
+  const EmailContactCell = (props) => {
+    return (
+      <td>
+        <p style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+          {props.dataItem.contact}
+        </p>
       </td>
     );
   };
@@ -256,6 +267,27 @@ const Orders = () => {
       </td>
     );
   };
+
+  const EmailCell = (props) => {
+    return (
+      <td>
+        <Checkbox
+          checked={checkedRow[props.dataItem.id]}
+          onClick={(e) => checked(e, props.dataItem.id)}
+        />
+      </td>
+    );
+  };
+  // const ContactCell = (props) => {
+  //   return (
+  //     <td>
+  //       <Checkbox
+  //         checked={checkedRow[props.dataItem.id]}
+  //         onClick={(e) => checked(e, props.dataItem.id)}
+  //       />
+  //     </td>
+  //   );
+  // };
   const deleteAllZeros = () => {
     if (
       window.confirm(
@@ -350,7 +382,7 @@ const Orders = () => {
               title="Дата создания"
             />
             <GridColumn field="dateSend" width="150px" title="Дата отправки" />
-            <GridColumn field="eMailSend" width="150px" title="Почта" />
+
             <GridColumn
               field="orderPositions"
               width="150px"
@@ -370,13 +402,18 @@ const Orders = () => {
           title={"Contacts"}
           onClose={closeDialog}
           initialHeight={350}
-          initialWidth={450}
+          initialWidth={600}
         >
           <Grid data={contacts} style={{}}>
             <GridColumn cell={CheckCell} width="50px" />
             {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
             <GridColumn field="name" width="150px" title="Имя" />
-            <GridColumn field="contact" width="150px" title="Почта" />
+            <GridColumn
+              //  field="contact"
+              cell={EmailContactCell}
+              width="250px"
+              title="Почта"
+            />
           </Grid>
           <div style={{ marginTop: "15px", marginBottom: "15px" }}>
             <Select
