@@ -1660,7 +1660,8 @@ const PriceList = (props) => {
               style={{
                 width: "100%",
                 minWidth: "1200px",
-                height: "800px",
+                height: "70vh",
+                minHeight: "500px",
               }}
               // data={result}
               data={result.slice(page.skip, page.take + page.skip)}

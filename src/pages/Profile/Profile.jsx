@@ -262,6 +262,21 @@ const Profile = () => {
               placeholder="Выбрать профиль"
             />
           </div>
+
+          <Button
+            onClick={() => {
+              setShow(true);
+              setTable(
+                profile.map((row) => ({
+                  field: row.code,
+                  name: row.name,
+                  colNum: row.position,
+                }))
+              );
+            }}
+          >
+            Редактировать
+          </Button>
           <div className="list">
             {selectedId &&
               profile?.map((el, idx) => (
@@ -359,7 +374,9 @@ const Profile = () => {
                 <GridColumn field="colNum" title="Номер столбца" />
                 {/* <GridColumn field="code" title="Code"  />
       <GridColumn field="surname" title="Surname" /> */}
-                <GridColumn cell={EditCell} width="50px" />
+
+                {/* <GridColumn cell={EditCell} width="50px" /> */}
+
                 <GridColumn cell={DeleteCell} width="50px" />
               </Grid>
               <Button onClick={saveChanges} style={{ marginTop: "15px" }}>

@@ -46,7 +46,7 @@ import Select from "react-select";
 //   );
 // };
 // const MyCustomCell = (props) => <CustomCell {...props} color={"red"} />;
-
+import PopUpContactVendors from "../../components/PopUpContactVendors";
 const UserGroup = () => {
   const { data, error: err, isLoading, refetch } = useGetVendorsQuery();
 
@@ -71,6 +71,9 @@ const UserGroup = () => {
   const [showContactVisibility, setShowContactVisibility] = React.useState(0);
   const [idContact, setIdContact] = React.useState();
   const [addContact] = useAddContactMutation();
+  function f() {
+    return;
+  }
   // console.log("error: ", err);
   // const navigate = useNavigate();
   // if (err?.status === 401) navigate("/");
@@ -123,6 +126,7 @@ const UserGroup = () => {
   };
   const EditContactCell = (props) => {
     //console.log(props)
+    console.log();
     return (
       <td>
         <img
@@ -521,82 +525,13 @@ const UserGroup = () => {
         <GridColumn cell={DeleteContactCell} width="50px" />
       </Grid>
       <div className="tables"></div>
-      {(showContactVisibility === 1 || showContactVisibility === 3) && (
-        <Window title={"User"} onClose={closeDialogContact} initialHeight={350}>
-          <form className="k-form">
-            <fieldset>
-              <legend>Edit contact</legend>
-
-              <label className="k-form-field">
-                <span>Имя</span>
-                <input
-                  className="k-input"
-                  value={editContactData.name}
-                  onChange={(e) =>
-                    setEditContactData({
-                      ...editContactData,
-                      name: e.target.value,
-                    })
-                  }
-                  placeholder="Name"
-                />
-              </label>
-              <label className="k-form-field">
-                <span>Контакт</span>
-                <input
-                  className="k-input"
-                  value={editContactData.contact}
-                  onChange={(e) =>
-                    setEditContactData({
-                      ...editContactData,
-                      contact: e.target.value,
-                    })
-                  }
-                  placeholder="Contact"
-                />
-              </label>
-              <Select
-                options={contactType}
-                onChange={(e) => {
-                  console.log(e.value);
-                  // onSelectFilter(e, idx);
-                  setEditContactData({ ...editContactData, type: e.value });
-                }}
-                placeholder={"Тип"}
-              />
-            </fieldset>
-
-            <div className="text-right">
-              <button
-                type="button"
-                className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
-                onClick={closeEditDialog}
-              >
-                Cancel
-              </button>
-              {showContactVisibility === 1 && (
-                <button
-                  type="button"
-                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-                  onClick={saveEdit}
-                >
-                  Submit
-                </button>
-              )}
-              {showContactVisibility === 3 && (
-                <button
-                  type="button"
-                  className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-                  onClick={saveContact}
-                >
-                  Submit
-                </button>
-              )}
-            </div>
-          </form>
-        </Window>
-      )}
-
+      <PopUpContactVendors
+        showContactVisibility={showContactVisibility}
+        closeEditDialog={closeEditDialog}
+        idContact={idContact}
+        contactType={contactType}
+        initialValue={editContactData}
+      />
       {!!visible && (
         <Window title={"Group"} onClose={closeDialog} initialHeight={350}>
           <form className="k-form">
