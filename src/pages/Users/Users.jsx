@@ -236,7 +236,15 @@ const Users = () => {
   return (
     <div style={{ marginTop: "100px" }}>
       <div className="add_user">
-        <Button onClick={() => addUser1()}>Добавить пользователя</Button>
+        <img
+          style={{
+            marginTop: "10px",
+            width: "35px",
+          }}
+          onClick={addUser1}
+          src={require("../../assets/add_btn.png")}
+          alt="Удалить"
+        />
       </div>
       <Grid
         data={data}

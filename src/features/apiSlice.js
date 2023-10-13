@@ -451,6 +451,14 @@ export const userApi = createApi({
         method: "GET",
       }),
     }),
+    saveProfileEdit: builder.mutation({
+      query: (profile) => ({
+        url: "Profile",
+        method: "PUT",
+        body: profile,
+      }),
+      invalidatesTags: [{ type: "Profiles", id: "LIST" }],
+    }),
     // orderComment: builder.mutation({
     //   query: (body) => ({
     //     url: `ordercomment/`,
@@ -516,4 +524,5 @@ export const {
   useDeleteAllZerosMutation,
   useDeleteOrderMutation,
   useGetShopsMutation,
+  useSaveProfileEditMutation,
 } = userApi;

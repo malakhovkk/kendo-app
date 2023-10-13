@@ -11,6 +11,8 @@ import Select from "react-select";
 import { useGetDictionaryQuery } from "../../features/apiSlice";
 import { Grid, GridColumn } from "@progress/kendo-react-grid";
 import { Input } from "@progress/kendo-react-inputs";
+import { useSaveProfileEditMutation } from "../../features/apiSlice";
+import { toast } from "react-toastify";
 const abbreviations = {
   colCode: "Код",
   colName: "Название",
@@ -56,7 +58,7 @@ const Profile = () => {
   const [_addProfile] = useAddProfileMutation();
   const { data } = useGetProfilesQuery();
   const [options, setOptions] = React.useState([]);
-  const [profile, setProfile] = React.useState({});
+  const [profile, setProfile] = React.useState([]);
   const [fields, setFields] = React.useState([]);
   const [optionsFields, setOptionsFields] = React.useState([]);
   const [selectedFields, setSelectedFields] = React.useState([]);
@@ -69,6 +71,7 @@ const Profile = () => {
   const [editName, setEditName] = React.useState("");
   const [table, setTable] = React.useState([]);
   const [profileName, setProfileName] = React.useState("");
+  const [saveProfileEditReq] = useSaveProfileEditMutation();
   const [optionsColNum, setOptionsColNum] = React.useState(
     (() => {
       let res = [];
@@ -145,11 +148,22 @@ const Profile = () => {
   const close = () => {
     setShow(false);
   };
+  const id = React.useRef("");
   const onSelectProfile = (select) => {
     console.log(select.value);
     console.log();
     setSelectedId(select.value);
-    setProfile(data.find((el) => el.id === select.value).columns);
+    let profile = data.find((el) => el.id === select.value);
+    id.current = profile.id;
+    setProfile(profile.columns);
+    setProfileName(profile.name);
+    setSelectedFields(profile.columns.map((column) => column.code));
+    setSelectedColNum(
+      profile.columns.map((column) => {
+        console.log(column);
+        return column.position;
+      })
+    );
   };
   const deleteField = ({ field, colNum, name }) => {
     setTable(
@@ -160,6 +174,18 @@ const Profile = () => {
     );
     setSelectedColNum(selectedColNum.filter((col) => col !== colNum));
     setSelectedFields(selectedFields.filter((_field) => field !== _field));
+  };
+  const saveProfileEdit = () => {
+    saveProfileEditReq({
+      name: profileName,
+      id: id.current,
+      columns: table.map((row) => ({
+        position: row.colNum,
+        code: row.field,
+        name: row.name,
+      })),
+    });
+    setShow(false);
   };
   const openDialog = ({ field, colNum, name }) => {
     setVisible(true);
@@ -197,6 +223,7 @@ const Profile = () => {
         position: row.colNum,
       })),
     });
+    setShow(false);
   };
   const DeleteCell = (props) => {
     //console.log(props)
@@ -241,13 +268,29 @@ const Profile = () => {
       }}
     >
       {!show ? (
-        <Button className="add" onClick={() => addProfile()}>
-          Добавить
-        </Button>
+        // <Button className="add" onClick={() => addProfile()}>
+        //   Добавить
+        // </Button>
+        <img
+          style={{
+            marginTop: "10px",
+            width: "35px",
+          }}
+          onClick={addProfile}
+          src={require("../../assets/add_btn.png")}
+        />
       ) : (
-        <Button themeColor="error" onClick={() => close()}>
-          Закрыть
-        </Button>
+        // <Button themeColor="error" onClick={() => close()}>
+        //   Закрыть
+        // </Button>
+        <img
+          style={{
+            marginTop: "10px",
+            width: "35px",
+          }}
+          onClick={close}
+          src={require("../../assets/remove_btn.png")}
+        />
       )}
       {!show && (
         <>
@@ -265,7 +308,21 @@ const Profile = () => {
 
           <Button
             onClick={() => {
-              setShow(true);
+              console.log(profile);
+              if (profile.length === 0) {
+                toast.error(`Выберите профиль `, {
+                  position: "top-right",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "light",
+                });
+                return;
+              }
+              setShow(3);
               setTable(
                 profile.map((row) => ({
                   field: row.code,
@@ -328,6 +385,7 @@ const Profile = () => {
                     onChange={(e) => {
                       setField(e.value);
                       setName(e.label);
+                      console.log(selectedFields);
                       // onSelectFilter(e, idx);
                     }}
                     placeholder="Выбрать поле"
@@ -347,12 +405,14 @@ const Profile = () => {
                     )}
                     onChange={(e) => {
                       setColNum(e.value);
+                      console.log(optionsColNum);
+                      console.log(selectedColNum);
                       // onSelectFilter(e, idx);
                     }}
                     placeholder="Выбрать номер столбца"
                   />
                 </div>
-                <Button
+                {/* <Button
                   style={{
                     marginTop: "5px",
                     marginLeft: "15px",
@@ -360,7 +420,16 @@ const Profile = () => {
                   onClick={save}
                 >
                   Добавить
-                </Button>
+                </Button> */}
+                <img
+                  style={{
+                    // marginTop: "10px",
+                    marginLeft: "10px",
+                    width: "35px",
+                  }}
+                  onClick={save}
+                  src={require("../../assets/add_btn.png")}
+                />
               </div>
               <Grid
                 data={table}
@@ -379,7 +448,10 @@ const Profile = () => {
 
                 <GridColumn cell={DeleteCell} width="50px" />
               </Grid>
-              <Button onClick={saveChanges} style={{ marginTop: "15px" }}>
+              <Button
+                onClick={show === 3 ? saveProfileEdit : saveChanges}
+                style={{ marginTop: "15px" }}
+              >
                 Сохранить все изменения
               </Button>
             </>
