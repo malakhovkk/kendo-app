@@ -40,7 +40,9 @@ const App = () => {
       console.log("jwtExpired", jwtExpired);
     }
   }, [jwtExpired]);
-
+  React.useEffect(() => {
+    console.log(isLoading);
+  }, [isLoading]);
   console.log(s);
   React.useEffect(() => {
     if (login || localStorage.getItem("login"))
@@ -49,6 +51,7 @@ const App = () => {
         .then((payload) => {
           setSettings(payload);
           setCodes(payload.map((el) => el.code));
+          setIsLoading(false);
         })
         .catch((err) => {
           console.error(err);
@@ -62,12 +65,13 @@ const App = () => {
   //   if(!codes) return;
 
   // }, [codes]);
-  React.useEffect(() => {
-    console.log(rights);
-    if (!rights) return;
-    setCodes(rights);
-    setIsLoading(false);
-  }, [rights]);
+  // React.useEffect(() => {
+  //   console.log(rights);
+  //   if (!rights || rights.length === 0) return;
+  //   alert(1);
+  //   setCodes(rights);
+  //   setIsLoading(false);
+  // }, [rights]);
   console.warn("CODES", codes.join(" "));
   if (isLoading)
     return (
