@@ -51,7 +51,7 @@ import { Fade } from "@progress/kendo-react-animation";
 const UserGroup = () => {
   const { data, error: err, isLoading, refetch } = useGetAllGroupsQuery();
   const [edit] = useEditGroupMutation();
-  const [_addGroup] = useCreateGroupMutation();
+  const [addGroupReq] = useCreateGroupMutation();
   const [_deleteGroup] = useDeleteGroupMutation();
   const [addUserToGroup] = useAddUserToGroupMutation();
   const [getUsersByGroup] = useGetUsersByGroupMutation();
@@ -282,7 +282,7 @@ const UserGroup = () => {
     //setInfo(arr);
     closeDialog();
   };
-  const addGroup1 = () => {
+  const addGroup = () => {
     setVisible(2);
     setFormData({ id: "", name: "" });
   };
@@ -291,7 +291,7 @@ const UserGroup = () => {
       //formData.id = uid();
       //setInfo([...info, formData]);
       // dispatch(addUser(formData));
-      _addGroup(formData)
+      addGroupReq(formData)
         .unwrap()
         .then((payload) => {
           if (payload.message === "Server error") {
@@ -321,9 +321,26 @@ const UserGroup = () => {
   };
 
   return (
-    <div>
-      <div className="add_user">
-        <Button onClick={() => addGroup1()}>Добавить</Button>
+    <div style={{ marginTop: "100px" }}>
+      <div
+        className="add_group"
+        style={{
+          marginTop: "10px",
+          width: "35px",
+          textAlign: "right",
+          width: "100%",
+        }}
+      >
+        <img
+          style={{
+            marginTop: "10px",
+            width: "35px",
+            textAlign: "right",
+            marginRight: "50px",
+          }}
+          onClick={addGroup}
+          src={require("../../assets/add_btn.png")}
+        />
       </div>
 
       <Grid
@@ -356,7 +373,6 @@ const UserGroup = () => {
               className="grid"
               style={{
                 height: "400px",
-                width: "45%",
               }}
             >
               <GridColumn field="name" title="Name" />
@@ -380,7 +396,6 @@ const UserGroup = () => {
               className="grid"
               style={{
                 height: "400px",
-                width: "45%",
               }}
             >
               <GridColumn field="name" title="Name" />

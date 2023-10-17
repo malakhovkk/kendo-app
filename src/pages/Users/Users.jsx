@@ -65,9 +65,8 @@ const Users = () => {
   };
 
   const openDialog = (id) => {
-    setVisible(1);
-    console.log(getById(id));
     setInitialValue(getById(id));
+    setVisible(1);
   };
 
   const deleteUser = (id) => {

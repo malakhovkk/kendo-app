@@ -60,10 +60,7 @@ const PriceList = (props) => {
 
   const DeleteCell = (props) => {
     console.log("DeleteCell");
-    //console.log(props)
-    //console.log(props);
 
-    //console.log(row);
     if (props.rowType === "groupHeader") {
       console.error(props);
       // alert(1);
@@ -184,8 +181,8 @@ const PriceList = (props) => {
           <GridColumn
             cell={MyCell}
             field="orderQuant"
-            width={150}
             title="Order"
+            width={100}
             key={field}
           />
         );
@@ -196,7 +193,7 @@ const PriceList = (props) => {
           // columnMenu={ColumnMenu}
           key={field}
           field={field}
-          width={150}
+          width={100}
           cell={DefaultCell}
           title={field}
         />
@@ -750,15 +747,6 @@ const PriceList = (props) => {
       code: editValue.code,
       values: modifyToSend(editValue),
     };
-    // if (
-    //   isNaN(editValue.alcohol) ||
-    //   isNaN(editValue.value) ||
-    //   isNaN(editValue.price) ||
-    //   Number.parseInt(editValue.quant) != editValue.quant ||
-    //   Number.parseInt(editValue.year) != editValue.year
-    // )
-    //   alert("Необходимо ввести валидное число");
-    // else
     editRecord([body])
       .unwrap()
       .then(() =>
@@ -1293,65 +1281,6 @@ const PriceList = (props) => {
     // setDataState(state.dataState);
   }
 
-  // function itemChange(value, event) {
-
-  //   console.log(event);
-  //   // let value = event.value;
-  //   const name = event.field;
-  //   if (event.quant < value) value = event.quant;
-  //   let obj = quantOrderArr.find((el) => el.priceRecordId === event.id);
-
-  //   let status;
-  //   if (obj) {
-  //     status = obj.status;
-  //     if (status === "toEdit") {
-  //       status = "edited";
-  //     }
-  //   } else {
-  //     status = "new";
-  //     console.log(quantOrderArr);
-  //     console.log("status = new");
-  //   }
-  //   console.log("VALUE=", value);
-  //   console.log(event.id, value, status, obj?.id);
-  //    setOrderArr(event.id, value, status);
-  //   if (!name) {
-  //     return;
-  //   }
-
-  // }
-  // React.useEffect(() => {
-  //   console.log("TABLE ", table);
-  // }, [table]);
-
-  // React.useEffect(() => {
-  //   console.log("RESULT ", result);
-  // }, [result]);
-  // function update(data, item, remove) {
-  //   let updated;
-  //   console.log(data, item, remove);
-  //   let index = data.findIndex(
-  //     (p) => p === item || (item.id && p.id === item.id)
-  //   );
-  //   if (index >= 0) {
-  //     updated = Object.assign({}, item);
-  //     data[index] = updated;
-  //   } else {
-  //     let id = 1;
-  //     data.forEach((p) => {
-  //       id = Math.max(p.id + 1, id);
-  //     });
-  //     updated = Object.assign({}, item, { id: id });
-  //     data.unshift(updated);
-  //     index = 0;
-  //   }
-
-  //   if (remove) {
-  //     return data.splice(index, 1)[0];
-  //   }
-
-  //   return data[index];
-  // }
   React.useEffect(() => {
     console.log(quantOrderArr);
   }, [quantOrderArr]);
@@ -1552,8 +1481,15 @@ const PriceList = (props) => {
             marginLeft: "20px",
           }}
         >
-          <TextArea
-            style={{ height: "100px" }}
+          <textarea
+            style={{
+              maxHeight: "100px",
+              maxWidth: "200px",
+              minHeight: "40px",
+              minWidth: "120px",
+              padding: "5px",
+              border: "1px solid grey",
+            }}
             placeholder="Комментарий"
             value={comment}
             onChange={(e) => {
@@ -1562,189 +1498,43 @@ const PriceList = (props) => {
           />
         </div>
       </div>
-      {/* Профиль:
-      <Select
-        options={optionsProfile}
-        onChange={onSelectProfile}
-        placeholder="Выбрать профиль"
-      />
-      <div>Выбрано: {getProfileById(profile)}</div>
-      <input type="file" onChange={handleFileChange} />
-      <Button onClick={save}>Загрузить</Button>
-      <div>Выбрано: {fileN}</div> */}
-      <br />
-      {/* Фильтры:
-      <br />
-      {filters.map((filter, idx) => (
-        <div key={idx}>
-          {dictionaryAll[idx + 1]}
-          <Select
-            options={filter}
-            onChange={(e) => {
-              onSelectFilter(e, idx);
-            }}
-            placeholder={dictionaryAll[idx + 1]}
-          />
-          <Button
-            onClick={() => {
-              applyChanges(idx);
-            }}
-          >
-            Применить
-          </Button>
-        </div>
-      ))} */}
-      {/* <div>
-        <div>Год</div>
-        <Input
-          type="text"
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-        />
-        <Button
-          onClick={() => {
-            changeYear();
-          }}
-        >
-          Применить
-        </Button>
-      </div>
-      <div>
-        <div>Процент</div>
-        <Input
-          type="text"
-          value={percent}
-          onChange={(e) => setPercent(e.target.value)}
-        />
-        <Button
-          onClick={() => {
-            changePercent();
-          }}
-        >
-          Применить
-        </Button>
-      </div>
-      <div>
-        <div>Объём</div>
-        <Input
-          type="text"
-          value={volume}
-          onChange={(e) => setVolume(e.target.value)}
-        />
-        <Button
-          onClick={() => {
-            changeVolume();
-          }}
-        >
-          Применить
-        </Button>
-      </div>
-      <Button onClick={deleteRows} style={{ marginTop: "20px" }}>
-        Удалить выделенные записи
-      </Button> */}
+
       {result && !withChanges && (
-        <div>
-          <div>
-            <Grid
-              resizable={true}
-              // className="grid"
-
-              // dataItemKey={"id"}
-              // scrollable={"virtual"}rowRender={rowRender}
-              // style={{
-              //   height: "700px",
-              //   marginLeft: "0",
-              //   // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
-              //   // width: "2000px",
-              // }}
-              style={{
-                width: "100%",
-                minWidth: "1200px",
-                height: "70vh",
-                minHeight: "500px",
-              }}
-              // data={result}
-              data={result.slice(page.skip, page.take + page.skip)}
-              scrollable={"virtual"}
-              skip={page.skip}
-              take={page.take}
-              rowHeight={50}
-              total={result.length}
-              // columnVirtualization={true}
-              onPageChange={(event) => setPage(event.page)}
-              onItemChange={itemChange}
-              // {...dataState}
-              // onDataStateChange={dataStateChange}
-              // sortable={true}
-              dataItemKey={"id"}
-              // pageable={true}
-              // pageSize={8}
-
-              // sortable={true}
-              // filterable={true}
-              // groupable={true}
-              // reorderable={true}
-              // pageSize={8}
-              // {...dataState}
-              // onDataStateChange={dataStateChange}
-            >
-              {columns}
-            </Grid>
-          </div>
-        </div>
+        <Grid
+          resizable={true}
+          style={{
+            height: "500px",
+            marginTop: "10px",
+          }}
+          data={result.slice(page.skip, page.take + page.skip)}
+          scrollable={"virtual"}
+          skip={page.skip}
+          take={page.take}
+          rowHeight={50}
+          total={result.length}
+          onPageChange={(event) => setPage(event.page)}
+          onItemChange={itemChange}
+          dataItemKey={"id"}
+        >
+          {columns}
+        </Grid>
       )}
 
       {result && withChanges && (
-        <div>
-          <div>
-            <Grid
-              resizable={true}
-              // className="grid"
-
-              // dataItemKey={"id"}
-              // scrollable={"virtual"}rowRender={rowRender}
-              // style={{
-              //   height: "700px",
-              //   marginLeft: "0",
-              //   // width: `${(fields.length + 3 + +!!orderId) * 150 + !!orderId * 50}px`,
-              //   // width: "2000px",
-              // }}
-              style={{
-                width: "100%",
-                minWidth: "1200px",
-                height: "800px",
-              }}
-              // data={result}
-              data={result.filter(
-                (row) => row.quantDelta !== 0 || row.priceDelta !== 0
-              )}
-              // scrollable={"virtual"}
-              // skip={page.skip}
-              // take={page.take}
-              // rowHeight={50}
-              // total={result.length}
-              // // columnVirtualization={true}
-              // onPageChange={(event) => setPage(event.page)}
-              onItemChange={itemChange}
-              // {...dataState}
-              // onDataStateChange={dataStateChange}
-              // sortable={true}
-              // dataItemKey={"id"}
-              // pageable={true}
-              // pageSize={8}
-
-              // sortable={true}
-              // filterable={true}
-              // groupable={true}
-              // reorderable={true}
-              // pageSize={8}
-              // {...dataState}
-              // onDataStateChange={dataStateChange}
-            >
-              {columns}
-            </Grid>
-          </div>
-        </div>
+        <Grid
+          resizable={true}
+          style={{
+            width: "100%",
+            height: "500px",
+            marginTop: "10px",
+          }}
+          data={result.filter(
+            (row) => row.quantDelta !== 0 || row.priceDelta !== 0
+          )}
+          onItemChange={itemChange}
+        >
+          {columns}
+        </Grid>
       )}
       {!withChanges ? (
         <Button
@@ -1753,22 +1543,6 @@ const PriceList = (props) => {
           }}
           onClick={() => {
             setWithChanges(true);
-            // setResult(updatedState.result);
-            // // console.warn(updatedState.result);
-            // setDataState(updatedState.dataState);
-
-            // const state = {
-            //   // result: process(
-            //   result: table.filter(
-            //     (row) => row.quantDelta !== 0 || row.priceDelta !== 0
-            //   ),
-            //   // { ...dataState, skip: 0 }
-            //   // ),
-            //   // dataState: { ...dataState, skip: 0 },
-            // };
-            // setResult(state.result);
-            //setDataState(state.dataState);
-            // addToStock("174fdd5b-74ad-3340-b230-836b3e4cdf12");
           }}
         >
           Показать изменения
@@ -1780,15 +1554,6 @@ const PriceList = (props) => {
           }}
           onClick={() => {
             setWithChanges(false);
-
-            // const state = {
-            //   // result: process(table.slice(0), dataState),
-            //   // dataState: dataState,
-            //   result: table,
-            // };
-            // setResult(state.result);
-            // setDataState(state.dataState);
-            // addToStock("174fdd5b-74ad-3340-b230-836b3e4cdf12");
           }}
         >
           Показать всю таблицу
@@ -1812,7 +1577,6 @@ const PriceList = (props) => {
                 return (
                   <label key={idx} className="k-form-field">
                     <span>{field}</span>
-                    {/* {getFieldByConf(conf[idx], idx)} */}
                     <input
                       className="k-input"
                       value={editValue[field]}
@@ -1827,39 +1591,6 @@ const PriceList = (props) => {
                   </label>
                 );
               })}
-              {/* <label className="k-form-field">
-                <span>Name</span>
-                <input
-                  className="k-input"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Name"
-                />
-              </label>
-              <label className="k-form-field">
-                <span>Email</span>
-                <input
-                  className="k-input"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="Email"
-                />
-              </label>
-              <label className="k-form-field">
-                <span>Login</span>
-                <input
-                  className="k-input"
-                  value={formData.login}
-                  onChange={(e) =>
-                    setFormData({ ...formData, login: e.target.value })
-                  }
-                  placeholder="Login"
-                />
-              </label> */}
               {visible === 2 ? (
                 <label className="k-form-field">
                   <span>Password</span>
@@ -1886,13 +1617,6 @@ const PriceList = (props) => {
               >
                 Cancel
               </button>
-              {/* <button
-              type="button"
-              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-               onClick={save}
-            >
-              Submit
-            </button> */}
 
               {visible === 1 ? (
                 <button
@@ -1906,7 +1630,6 @@ const PriceList = (props) => {
                 <button
                   type="button"
                   className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"
-                  //   onClick={add}
                 >
                   Submit
                 </button>

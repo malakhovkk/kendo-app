@@ -11,8 +11,24 @@ const WindowUser = ({
   optionsVendor,
   initialValue,
 }) => {
+  console.log({
+    visible,
+    closeDialog,
+    save,
+    add,
+    optionsVendor,
+    initialValue,
+  });
   console.log(initialValue);
-  const [formData, setFormData] = React.useState();
+  const [formData, setFormData] = React.useState(
+    initialValue ?? {
+      id: "",
+      name: "",
+      login: "",
+      email: "",
+      password: "",
+    }
+  );
   React.useEffect(() => {
     console.log(initialValue);
     setFormData(
@@ -80,7 +96,7 @@ const WindowUser = ({
             />
           </label>
           <label className="k-form-field">
-            <span>Login</span>
+            <span>Company</span>
             <Select
               options={optionsVendor}
               onChange={onSelectVendor}

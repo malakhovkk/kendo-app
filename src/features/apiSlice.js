@@ -459,6 +459,14 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Profiles", id: "LIST" }],
     }),
+    addGroup: builder.mutation({
+      query: (group) => ({
+        url: "groups",
+        method: "POST",
+        body: group,
+      }),
+      invalidatesTags: [{ type: "Groups", id: "LIST" }],
+    }),
     // orderComment: builder.mutation({
     //   query: (body) => ({
     //     url: `ordercomment/`,
@@ -525,4 +533,5 @@ export const {
   useDeleteOrderMutation,
   useGetShopsMutation,
   useSaveProfileEditMutation,
+  useAddGroupMutation,
 } = userApi;

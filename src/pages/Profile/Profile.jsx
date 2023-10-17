@@ -130,6 +130,8 @@ const Profile = () => {
   };
   const addProfile = () => {
     setShow(true);
+    setTable();
+    setProfileName("");
   };
   // const optionsColNum = (() => {
   //   let res = [];
@@ -271,14 +273,73 @@ const Profile = () => {
         // <Button className="add" onClick={() => addProfile()}>
         //   Добавить
         // </Button>
-        <img
-          style={{
-            marginTop: "10px",
-            width: "35px",
-          }}
-          onClick={addProfile}
-          src={require("../../assets/add_btn.png")}
-        />
+        <>
+          <div style={{ display: "flex" }}>
+            <div
+              style={{
+                width: "300px",
+              }}
+            >
+              <Select
+                options={options}
+                onChange={onSelectProfile}
+                placeholder="Выбрать профиль"
+              />
+            </div>
+            <img
+              style={{
+                marginTop: "10px",
+                width: "18px",
+                height: "18px",
+                marginLeft: "10px",
+              }}
+              onClick={() => {
+                console.log(profile);
+                if (profile.length === 0) {
+                  toast.error(`Выберите профиль `, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                  return;
+                }
+                setShow(3);
+                setTable(
+                  profile.map((row) => ({
+                    field: row.code,
+                    name: row.name,
+                    colNum: row.position,
+                  }))
+                );
+              }}
+              src={require("../../assets/edit.png")}
+            />
+            <img
+              style={{
+                marginTop: "10px",
+                width: "18px",
+                height: "18px",
+                marginLeft: "10px",
+              }}
+              onClick={addProfile}
+              src={require("../../assets/add_btn.png")}
+            />
+          </div>
+          <div className="list">
+            {selectedId &&
+              profile?.map((el, idx) => (
+                <div key={idx}>
+                  <div className="name_field">{el.name}</div>
+                  <div className="value">{el.position}</div>
+                </div>
+              ))}
+          </div>
+        </>
       ) : (
         // <Button themeColor="error" onClick={() => close()}>
         //   Закрыть
@@ -292,59 +353,7 @@ const Profile = () => {
           src={require("../../assets/remove_btn.png")}
         />
       )}
-      {!show && (
-        <>
-          <div
-            style={{
-              width: "300px",
-            }}
-          >
-            <Select
-              options={options}
-              onChange={onSelectProfile}
-              placeholder="Выбрать профиль"
-            />
-          </div>
-
-          <Button
-            onClick={() => {
-              console.log(profile);
-              if (profile.length === 0) {
-                toast.error(`Выберите профиль `, {
-                  position: "top-right",
-                  autoClose: 5000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "light",
-                });
-                return;
-              }
-              setShow(3);
-              setTable(
-                profile.map((row) => ({
-                  field: row.code,
-                  name: row.name,
-                  colNum: row.position,
-                }))
-              );
-            }}
-          >
-            Редактировать
-          </Button>
-          <div className="list">
-            {selectedId &&
-              profile?.map((el, idx) => (
-                <div key={idx}>
-                  <div className="name_field">{el.name}</div>
-                  <div className="value">{el.position}</div>
-                </div>
-              ))}
-          </div>
-        </>
-      )}
+      {/* {!show && <></>} */}
       {show && (
         <>
           {optionsFields && (

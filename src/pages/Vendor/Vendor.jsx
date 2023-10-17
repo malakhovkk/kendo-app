@@ -333,6 +333,7 @@ const UserGroup = () => {
     console.log("click row");
     console.log(e);
     const id_group = e.dataItem.id;
+    showContact(id_group);
     // setIdGroup(id_group);
     // getUsersByGroup({id:id_group})
     // .unwrap()
@@ -479,7 +480,7 @@ const UserGroup = () => {
   };
   return (
     <div>
-      <div className="add_user">
+      <div className="add_user" style={{ marginTop: "100px" }}>
         <Button onClick={() => addGroup1()}>Добавить</Button>
       </div>
 
@@ -504,6 +505,11 @@ const UserGroup = () => {
         <GridColumn cell={ContactCell} width="50px" />
         <GridColumn cell={AddCell} width="50px" />
       </Grid>
+      <div style={{ marginLeft: "50px", marginTop: "20px" }}>
+        {idContact && (
+          <div> Компания: {data?.find((el) => el.id === idContact).name}</div>
+        )}
+      </div>
       <Grid
         data={contacts}
         className="grid"
