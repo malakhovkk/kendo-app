@@ -410,6 +410,14 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Orders", id: "LIST" }],
     }),
+    deleteRecordOrder: builder.mutation({
+      query: ({ body }) => ({
+        url: `orderContent/`,
+        method: "DELETE",
+        body,
+      }),
+      invalidatesTags: [{ type: "Orders", id: "LIST" }],
+    }),
     addContact: builder.mutation({
       query: ({ body }) => ({
         url: `vendorcontact/`,
@@ -534,4 +542,5 @@ export const {
   useGetShopsMutation,
   useSaveProfileEditMutation,
   useAddGroupMutation,
+  useDeleteRecordOrderMutation,
 } = userApi;

@@ -4,6 +4,7 @@ import { Button } from "@progress/kendo-react-buttons";
 import {
   useAddToStockMutation,
   useCreateOrderMutation,
+  useDeleteRecordOrderMutation,
   useDeleteRecordsMutation,
   useGetDictionaryByIdMutation,
   useGetDocumentMutation,
@@ -1098,8 +1099,8 @@ const PriceList = (props) => {
 
   const setOrderArr = (priceRecordId, value, status, id) => {
     console.log(id, value);
-    setQuantOrderArr(
-      [
+    if (value !== 0)
+      setQuantOrderArr([
         ...quantOrderArr.filter(
           (order) => order.priceRecordId !== priceRecordId
         ),
@@ -1114,8 +1115,24 @@ const PriceList = (props) => {
           quant: value ?? 0,
           status,
         },
-      ].filter((el) => el.quant !== 0)
-    );
+      ]);
+    else
+      setQuantOrderArr([
+        ...quantOrderArr.filter(
+          (order) => order.priceRecordId !== priceRecordId
+        ),
+        {
+          // ...quantOrderArr.find((order) => order.priceRecordId === id),
+          // id:
+          //   id ??
+          //   quantOrderArr.find((order) => order.priceRecordId === priceRecordId)
+          //     .id,
+          id: id ?? "",
+          priceRecordId,
+          quant: value ?? 0,
+          status: "deleted",
+        },
+      ]);
   };
 
   const removeFromOrder = (priceRecordId) => {
@@ -1358,7 +1375,7 @@ const PriceList = (props) => {
       })
       .catch((err) => console.error(err));
   };
-
+  const [deleteRecordOrder] = useDeleteRecordOrderMutation();
   const saveOrder = () => {
     console.log(comment);
     const url = "http://194.87.239.231:55555/api/ordercomment";
@@ -1380,6 +1397,11 @@ const PriceList = (props) => {
     //     VendorId: 'Поставщик 1'
     // }
     axios.put(url, formData, config).catch((err) => console.error(err));
+    console.log(
+      quantOrderArr
+        .filter((el) => el.status === "deleted")
+        .map((row) => ({ id: row.id }))
+    );
 
     _saveOrder({
       // vendorId: vendor,
@@ -1409,10 +1431,55 @@ const PriceList = (props) => {
           })
             .unwrap()
             .then((_) => {
-              getOrderRequest();
+              console.log(
+                quantOrderArr
+                  .filter((el) => el.status === "deleted")
+                  .map((row) => ({ id: row.id }))
+              );
+              deleteRecordOrder({
+                body: quantOrderArr
+                  .filter((el) => el.status === "deleted")
+                  .map((row) => ({ id: row.id })),
+              })
+                .unwrap()
+                .then((_) => {
+                  getOrderRequest();
+                });
             })
             .catch((err) => console.error(err));
-        } else getOrderRequest();
+        } else {
+          console.log(
+            quantOrderArr
+              .filter((el) => el.status === "deleted")
+              .map((row) => ({ id: row.id }))
+          );
+          if (
+            quantOrderArr
+              .filter((el) => el.status === "deleted")
+              .map((row) => ({ id: row.id })).length
+          ) {
+            let len = quantOrderArr.filter(
+              (el) => el.status === "deleted"
+            ).length;
+            let i = 0;
+            quantOrderArr
+              .filter((el) => el.status === "deleted")
+              .forEach((el) => {
+                deleteRecordOrder({
+                  body: { id: el.id },
+                })
+                  .unwrap()
+                  .then((_) => {
+                    if (i++ === len) getOrderRequest();
+                  });
+              });
+            // deleteRecordOrder({
+            //   body: quantOrderArr
+            //     .filter((el) => el.status === "deleted")
+            //     .map((row) => ({ id: row.id })),
+            // })
+          }
+        }
       })
       .catch((err) => console.error(err));
   };
