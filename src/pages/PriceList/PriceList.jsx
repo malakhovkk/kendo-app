@@ -49,7 +49,7 @@ const MyCell = function (props) {
   console.log("MyCell");
   // return <NumInput itemChange={itemChange} {...props} />;
   return (
-    <td colSpan={props.colSpan}>
+    <td style={{height: "150px"}} colSpan={props.colSpan}>
       <NumInput {...props} />{" "}
     </td>
   );
@@ -156,7 +156,7 @@ const PriceList = (props) => {
 
   const DefaultCell = (props) => {
     const field = props.field || "";
-    return <td colSpan={props.colSpan}>{props.dataItem[field]}</td>;
+    return <td style={{height: "150px"}} colSpan={props.colSpan}>{props.dataItem[field]}</td>;
   };
 
   const func_fields = (fields) => {
@@ -1434,51 +1434,34 @@ const PriceList = (props) => {
               console.log(
                 quantOrderArr
                   .filter((el) => el.status === "deleted")
-                  .map((row) => ({ id: row.id }))
+                  
               );
               deleteRecordOrder({
                 body: quantOrderArr
                   .filter((el) => el.status === "deleted")
-                  .map((row) => ({ id: row.id })),
+                  .map((row) => ({ id: row.id, orderId, priceRecordId: row.priceRecordId })),
               })
                 .unwrap()
                 .then((_) => {
                   getOrderRequest();
-                });
+                }).catch((err) => console.error(err));
             })
             .catch((err) => console.error(err));
         } else {
           console.log(
             quantOrderArr
               .filter((el) => el.status === "deleted")
-              .map((row) => ({ id: row.id }))
+              
           );
-          if (
-            quantOrderArr
+          deleteRecordOrder({
+            body: quantOrderArr
               .filter((el) => el.status === "deleted")
-              .map((row) => ({ id: row.id })).length
-          ) {
-            let len = quantOrderArr.filter(
-              (el) => el.status === "deleted"
-            ).length;
-            let i = 0;
-            quantOrderArr
-              .filter((el) => el.status === "deleted")
-              .forEach((el) => {
-                deleteRecordOrder({
-                  body: { id: el.id },
-                })
-                  .unwrap()
-                  .then((_) => {
-                    if (i++ === len) getOrderRequest();
-                  });
-              });
-            // deleteRecordOrder({
-            //   body: quantOrderArr
-            //     .filter((el) => el.status === "deleted")
-            //     .map((row) => ({ id: row.id })),
-            // })
-          }
+              .map((row) => ({ id: row.id, orderId, priceRecordId: row.priceRecordId })),
+          })
+            .unwrap()
+            .then((_) => {
+              getOrderRequest();
+            }).catch((err) => console.error(err));
         }
       })
       .catch((err) => console.error(err));
@@ -1577,9 +1560,9 @@ const PriceList = (props) => {
           scrollable={"virtual"}
           skip={page.skip}
           take={page.take}
-          rowHeight={50}
+          rowHeight={166}
           total={result.length}
-          onPageChange={(event) => setPage(event.page)}
+          onPageChange={(event) => { console.log(event.page); setPage(event.page)}}
           onItemChange={itemChange}
           dataItemKey={"id"}
         >
