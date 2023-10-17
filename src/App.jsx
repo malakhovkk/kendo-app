@@ -22,6 +22,8 @@ import { Loader } from "@progress/kendo-react-indicators";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { justLoggedIn } from "./features/settings";
 import "react-toastify/dist/ReactToastify.css";
 const App = () => {
   const [settings, setSettings] = React.useState([]);
@@ -29,10 +31,12 @@ const App = () => {
   const [codes, setCodes] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const rights = useSelector((state) => state.settings.rights);
-  const s = useSelector((state) => state);
   const login = useSelector((state) => state.settings.login);
   const navigate = useNavigate();
   const jwtExpired = useSelector((state) => state.settings.jwtExpired);
+  const isJustLoggedIn = useSelector((state) => state.settings.isJustLoggedIn);
+
+  const dispatch = useDispatch();
 
   React.useEffect(() => {
     if (jwtExpired) {
@@ -43,7 +47,7 @@ const App = () => {
   React.useEffect(() => {
     console.log(isLoading);
   }, [isLoading]);
-  console.log(s);
+
   React.useEffect(() => {
     if (login || localStorage.getItem("login"))
       getRightsSettings(login || localStorage.getItem("login"))
@@ -56,6 +60,7 @@ const App = () => {
           console.error(err);
         }).finally( () => {
           setIsLoading(false);
+          dispatch(justLoggedIn(false));
         });
     else {
       navigate("/");

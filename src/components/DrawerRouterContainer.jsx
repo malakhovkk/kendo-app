@@ -138,6 +138,7 @@ const DrawerRouterContainer = (props) => {
       setRights2(rights);
     }
   }, []);
+
   // React.useEffect(() => {
   //   if (!rights) return;
   //   getRightsSettings(localStorage.getItem("login"))
@@ -235,7 +236,7 @@ const DrawerRouterContainer = (props) => {
             </Button>
           </Link>
         </div>
-
+                {console.log(rights)}
         {rights2 && (
           <Drawer
             expanded={expanded}

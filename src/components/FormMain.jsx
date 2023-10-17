@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { loginSlice } from "../features/login";
 // Импортируем нужные действия
-import { addToRights, jwtExpired, logon } from "../features/settings.js";
+import { addToRights, jwtExpired, logon, justLoggedIn } from "../features/settings.js";
 import { logonUser } from "../features/actions";
 // import { logon } from "../features/settings.js";
 const emailRegex = new RegExp(/\S+@\S+\.\S+/);
@@ -79,6 +79,7 @@ const FormMain = () => {
     //   });
     console.log(dataItem);
     dispatch(logon(dataItem.login));
+    dispatch(justLoggedIn(true));
     dispatch(logonUser(dataItem));
   };
   return (
