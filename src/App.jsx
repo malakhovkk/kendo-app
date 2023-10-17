@@ -51,13 +51,16 @@ const App = () => {
         .then((payload) => {
           setSettings(payload);
           setCodes(payload.map((el) => el.code));
-          setIsLoading(false);
         })
         .catch((err) => {
           console.error(err);
+        }).finally( () => {
           setIsLoading(false);
         });
-    else navigate("/");
+    else {
+      navigate("/");
+      setIsLoading(false);
+    };
   }, [login]);
   React.useEffect(() => {
     console.log(settings);
