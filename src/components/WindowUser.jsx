@@ -12,13 +12,7 @@ const WindowUser = ({
   initialValue,
 }) => {
   console.log(initialValue);
-  const [formData, setFormData] = React.useState({
-    id: "",
-    name: "",
-    login: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = React.useState();
   React.useEffect(() => {
     console.log(initialValue);
     setFormData(

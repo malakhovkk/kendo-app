@@ -55,6 +55,7 @@ const App = () => {
         })
         .catch((err) => {
           console.error(err);
+          setIsLoading(false);
         });
     else navigate("/");
   }, [login]);
