@@ -273,7 +273,11 @@ export default function Files(props) {
         />
         Выбрать файл
       </label>
-
+      {vendors && vendor && (
+        <div style={{ marginTop: "15px" }}>
+          Код: {vendors?.find((v) => v.id === vendor)?.code}
+        </div>
+      )}
       <div
         style={{
           marginTop: "10px",
@@ -293,8 +297,8 @@ export default function Files(props) {
         }}
         onClick={save}
         src={require("../../assets/upload.png")}
-        alt="Удалить"
       />
+
       <Grid
         data={info}
         className="grid"

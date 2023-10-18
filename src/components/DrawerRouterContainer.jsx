@@ -126,17 +126,13 @@ const DrawerRouterContainer = (props) => {
   });
   React.useEffect(() => {
     console.log(rights);
-    if (!rights.length) {
-      // alert(1);
-      getRightsSettings(localStorage.getItem("login"))
-        .unwrap()
-        .then((payload) => {
-          setRights2(payload.map((el) => el.code));
-        })
-        .catch((err) => console.error(err));
-    } else {
-      setRights2(rights);
-    }
+
+    getRightsSettings(localStorage.getItem("login"))
+      .unwrap()
+      .then((payload) => {
+        setRights2(payload.map((el) => el.code));
+      })
+      .catch((err) => console.error(err));
   }, []);
 
   // React.useEffect(() => {
@@ -229,6 +225,7 @@ const DrawerRouterContainer = (props) => {
                 localStorage.removeItem("login");
                 localStorage.removeItem("name");
                 localStorage.removeItem("token");
+                localStorage.removeItem("companyId");
               }}
               className="user-button k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
             >
@@ -236,7 +233,7 @@ const DrawerRouterContainer = (props) => {
             </Button>
           </Link>
         </div>
-                {console.log(rights)}
+        {console.log(rights)}
         {rights2 && (
           <Drawer
             expanded={expanded}

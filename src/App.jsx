@@ -49,24 +49,55 @@ const App = () => {
   }, [isLoading]);
 
   React.useEffect(() => {
-    if (login || localStorage.getItem("login"))
-      getRightsSettings(login || localStorage.getItem("login"))
-        .unwrap()
-        .then((payload) => {
-          setSettings(payload);
-          setCodes(payload.map((el) => el.code));
-        })
-        .catch((err) => {
-          console.error(err);
-        }).finally( () => {
-          setIsLoading(false);
-          dispatch(justLoggedIn(false));
-        });
-    else {
-      navigate("/");
-      setIsLoading(false);
+    function checkUserData() {
+      if (localStorage.getItem("login"))
+        getRightsSettings(localStorage.getItem("login"))
+          .unwrap()
+          .then((payload) => {
+            setSettings(payload);
+            setCodes(payload.map((el) => el.code));
+          })
+          .catch((err) => {
+            console.error(err);
+            localStorage.removeItem("login");
+            localStorage.removeItem("name");
+            localStorage.removeItem("token");
+            localStorage.removeItem("companyId");
+            navigate("/");
+          })
+          .finally(() => {
+            setIsLoading(false);
+            dispatch(justLoggedIn(false));
+          });
+    }
+    checkUserData();
+    window.addEventListener("storage", checkUserData);
+
+    return () => {
+      window.removeEventListener("storage", checkUserData);
     };
-  }, [login]);
+  }, []);
+
+  // React.useEffect(() => {
+  //   if (login || localStorage.getItem("login"))
+  //     getRightsSettings(login || localStorage.getItem("login"))
+  //       .unwrap()
+  //       .then((payload) => {
+  //         setSettings(payload);
+  //         setCodes(payload.map((el) => el.code));
+  //       })
+  //       .catch((err) => {
+  //         console.error(err);
+  //       })
+  //       .finally(() => {
+  //         setIsLoading(false);
+  //         dispatch(justLoggedIn(false));
+  //       });
+  //   else {
+  //     navigate("/");
+  //     setIsLoading(false);
+  //   }
+  // }, [login]);
   React.useEffect(() => {
     console.log(settings);
   });
