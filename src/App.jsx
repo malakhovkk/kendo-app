@@ -69,6 +69,10 @@ const App = () => {
             setIsLoading(false);
             dispatch(justLoggedIn(false));
           });
+      else {
+        navigate("/");
+        setIsLoading(false);
+      }
     }
     checkUserData();
     window.addEventListener("storage", checkUserData);
