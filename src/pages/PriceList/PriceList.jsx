@@ -116,7 +116,8 @@ const PriceList = (props) => {
   const [file, setFile] = React.useState();
   const [options, setOptions] = React.useState([]);
   const [optionsProfile, setOptionsProfile] = React.useState([]);
-  const [vendor, setVendor] = React.useState(null);
+  // const [vendor, setVendor] = React.useState(null);
+  const vendor = React.useRef(null);
   const [profile, setProfile] = React.useState(null);
   const [fileN, setFileN] = React.useState(null);
   const [showTable, setShowTable] = React.useState(false);
@@ -338,8 +339,10 @@ const PriceList = (props) => {
 
     let idVendor = state.idVendor;
     let idOrder = state.idOrder;
+
     setComment(state.comment);
-    setVendor(idVendor);
+    //setVendor(idVendor);
+    vendor.current = idVendor;
     getDocument({ id: idVendor })
       .unwrap()
       .then((payload) => {
@@ -398,7 +401,9 @@ const PriceList = (props) => {
   };
   const onSelectVendor = (select) => {
     //console.log(select.value);
-    setVendor(select.value);
+    //setVendor(select.value);
+    vendor.current = select.value;
+    showPriceList();
   };
   const onSelectProfile = (select) => {
     //console.log(select.value);
@@ -479,9 +484,10 @@ const PriceList = (props) => {
 
   React.useEffect(() => {
     // alert(loadingOrder);
-
+    console.log(mapDict, document);
     if (
-      (mapDict === undefined || !document === undefined || !document.length) &&
+      // (mapDict === undefined || !document === undefined || !document.length) &&
+      (mapDict === undefined || !document === undefined) &&
       loadingOrder !== 3
     )
       return;
@@ -681,7 +687,7 @@ const PriceList = (props) => {
     formData.append("Document", file);
     formData.append("ProfileId", profile);
     formData.append("UserLogin", localStorage.getItem("login"));
-    formData.append("VendorId", vendor);
+    formData.append("VendorId", vendor.current);
     // formData.append('fileName', file.name);
     const config = {
       headers: {
@@ -828,7 +834,7 @@ const PriceList = (props) => {
       });
   };
   const getVendorById = (id) => {
-    if (!vendor || !options) return "Не выбрано";
+    if (!vendor.current || !options) return "Не выбрано";
     let res = options.find((option) => option.value === id)?.label;
     return res ?? "Не выбрано";
   };
@@ -1321,9 +1327,18 @@ const PriceList = (props) => {
   //   metaId,
   //   quantOrderArr,
   // ]);
-
+  const frozen = useSelector((state) => state.settings.frozen);
   const showPriceList = () => {
-    getDocument({ id: vendor })
+    if(frozen) 
+    if(!window.confirm(
+      "Ваш заказ не будет сохранен, уверены, что хотите поменять поставщика?"
+    )) return;
+    dispatch(freeze(false));
+    setQuantOrderArr([]);
+    setTable([]);
+    setDocument([]);
+    setOrderId();
+    getDocument({ id: vendor.current })
       .unwrap()
       .then((payload) => {
         setDocument(payload);
@@ -1342,7 +1357,7 @@ const PriceList = (props) => {
   //   console.log("DOCUMENT", document);
   // }, [document]);
   const createOrder = () => {
-    _createOrder(vendor)
+    _createOrder(vendor.current)
       .unwrap()
       .then((payload) => {
         setOrderId(payload.id);
@@ -1472,7 +1487,8 @@ const PriceList = (props) => {
     setTable([]);
     setDocument([]);
     setOrderId();
-    setVendor();
+    // setVendor();
+    vendor.current = "";
     setComment("");
   };
   React.useEffect(() => {
@@ -1504,14 +1520,14 @@ const PriceList = (props) => {
           </div>
 
           <div style={{ marginBottom: "10px" }}>
-            Выбрано: {getVendorById(vendor)}
+            Выбрано: {getVendorById(vendor.current)}
           </div>
-          {vendor && !table?.length && (
+          {/* {vendor.current && !table?.length && (
             <Button style={{ marginRight: "10px" }} onClick={showPriceList}>
               Показать прайс-лист
             </Button>
-          )}
-          {!orderId && vendor && !!table?.length && (
+          )} */}
+          {!orderId && vendor.current && !!table?.length && (
             <>
               <Button onClick={createOrder}>Создать заказ</Button>
             </>
@@ -1534,7 +1550,7 @@ const PriceList = (props) => {
           <textarea
             style={{
               maxHeight: "100px",
-              maxWidth: "200px",
+              maxWidth: "500px",
               minHeight: "40px",
               minWidth: "120px",
               padding: "5px",
@@ -1556,7 +1572,7 @@ const PriceList = (props) => {
             height: "500px",
             marginTop: "10px",
           }}
-          data={result.slice(page.skip, page.take + page.skip)}
+          data={(document === undefined || document.length === 0) ? []: result.slice(page.skip, page.take + page.skip)}
           scrollable={"virtual"}
           skip={page.skip}
           take={page.take}
