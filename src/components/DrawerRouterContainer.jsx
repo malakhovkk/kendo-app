@@ -9,6 +9,7 @@ import {
   useGetDictionaryByIdMutation,
   useGetRightsSettingsMutation,
 } from "../features/apiSlice.js";
+import { loginSlice } from "../features/login";
 const items = [
   // {
   //   text: "Зарегистрироваться",
@@ -226,6 +227,8 @@ const DrawerRouterContainer = (props) => {
                 localStorage.removeItem("name");
                 localStorage.removeItem("token");
                 localStorage.removeItem("companyId");
+
+                dispatch(loginSlice.actions.delete());
               }}
               className="user-button k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
             >

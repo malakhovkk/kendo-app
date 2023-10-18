@@ -32,6 +32,7 @@ const App = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const rights = useSelector((state) => state.settings.rights);
   const login = useSelector((state) => state.settings.login);
+  const log_in = useSelector((state) => state.login);
   const navigate = useNavigate();
   const jwtExpired = useSelector((state) => state.settings.jwtExpired);
   const isJustLoggedIn = useSelector((state) => state.settings.isJustLoggedIn);
@@ -50,7 +51,10 @@ const App = () => {
 
   React.useEffect(() => {
     function checkUserData() {
-      if (localStorage.getItem("login"))
+      console.log(localStorage.getItem("login"));
+      // alert(localStorage.getItem("login"));
+      if (localStorage.getItem("login")) {
+        // alert(1);
         getRightsSettings(localStorage.getItem("login"))
           .unwrap()
           .then((payload) => {
@@ -69,18 +73,20 @@ const App = () => {
             setIsLoading(false);
             dispatch(justLoggedIn(false));
           });
-      else {
+      } else {
+        // alert("else");
         navigate("/");
         setIsLoading(false);
       }
     }
+    // alert(0);
     checkUserData();
     window.addEventListener("storage", checkUserData);
 
     return () => {
       window.removeEventListener("storage", checkUserData);
     };
-  }, []);
+  }, [log_in]);
 
   // React.useEffect(() => {
   //   if (login || localStorage.getItem("login"))

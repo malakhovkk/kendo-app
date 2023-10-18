@@ -113,6 +113,11 @@ const Profile = () => {
   };
   const save = () => {
     if (colNum === "" || field === "") return;
+    console.log(...table, {
+      field,
+      name,
+      colNum,
+    });
     setTable([
       ...table,
       {
@@ -130,8 +135,10 @@ const Profile = () => {
   };
   const addProfile = () => {
     setShow(true);
-    setTable();
+    setTable([]);
     setProfileName("");
+    setSelectedColNum([]);
+    setSelectedFields([]);
   };
   // const optionsColNum = (() => {
   //   let res = [];
@@ -149,6 +156,8 @@ const Profile = () => {
   };
   const close = () => {
     setShow(false);
+    setSelectedColNum([]);
+    setSelectedFields([]);
   };
   const id = React.useRef("");
   const onSelectProfile = (select) => {
