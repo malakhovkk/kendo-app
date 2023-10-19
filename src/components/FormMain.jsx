@@ -6,7 +6,8 @@ import { Input } from "@progress/kendo-react-inputs";
 import { useLogonMutation } from "../features/apiSlice";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { loginSlice } from "../features/login";
+// import { loginSlice } from "../features/login";
+// dispatch(loginSlice.actions.delete());
 // Импортируем нужные действия
 import {
   addToRights,
@@ -49,7 +50,7 @@ const FormMain = () => {
     dispatch(jwtExpired(false));
     navigate("/home/profile");
     dispatch(addToRights(loginData.data.rights));
-    //dispatch(loginSlice.actions.delete());
+    // dispatch(loginSlice.actions.delete());
   }, [loginData]);
   //console.log(error);
   //if(error) navigate('/');

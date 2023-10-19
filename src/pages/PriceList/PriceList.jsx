@@ -40,7 +40,8 @@ import { freeze } from "../../features/settings.js";
 import { load } from "@progress/kendo-react-intl";
 import { TextArea } from "@progress/kendo-react-inputs";
 import { sameCharsOnly } from "@progress/kendo-react-dropdowns/dist/npm/common/utils";
-
+import { Loader } from "@progress/kendo-react-indicators";
+import { clearAllListeners } from "@reduxjs/toolkit";
 // const removeFromOrder = (priceRecordId) => {
 //   // setOrderArr(priceRecordId, null, "deleted");
 // };
@@ -49,7 +50,7 @@ const MyCell = function (props) {
   console.log("MyCell");
   // return <NumInput itemChange={itemChange} {...props} />;
   return (
-    <td style={{height: "150px"}} colSpan={props.colSpan}>
+    <td style={{ height: "150px" }} colSpan={props.colSpan}>
       <NumInput {...props} />{" "}
     </td>
   );
@@ -149,7 +150,8 @@ const PriceList = (props) => {
   const [orderId, setOrderId] = React.useState();
   const [getOrder] = useGetOrderMutation();
   const [comment, setComment] = React.useState("");
-
+  const [loading, setLoading] = React.useState(false);
+  const [margin, setMargin] = React.useState(false);
   // setTimeout(() => setQuantOrderArr([]), 25000);
 
   // const [orderCommentReq] = useOrderCommentMutation();
@@ -157,7 +159,11 @@ const PriceList = (props) => {
 
   const DefaultCell = (props) => {
     const field = props.field || "";
-    return <td style={{height: "150px"}} colSpan={props.colSpan}>{props.dataItem[field]}</td>;
+    return (
+      <td style={{ height: "150px" }} colSpan={props.colSpan}>
+        {props.dataItem[field]}
+      </td>
+    );
   };
 
   const func_fields = (fields) => {
@@ -1328,24 +1334,39 @@ const PriceList = (props) => {
   //   quantOrderArr,
   // ]);
   const frozen = useSelector((state) => state.settings.frozen);
+  const promise = React.useRef();
+  const counter = React.useRef(0);
   const showPriceList = () => {
-    if(frozen) 
-    if(!window.confirm(
-      "Ваш заказ не будет сохранен, уверены, что хотите поменять поставщика?"
-    )) return;
+    if (frozen)
+      if (
+        !window.confirm(
+          "Ваш заказ не будет сохранен, уверены, что хотите поменять поставщика?"
+        )
+      )
+        return;
     dispatch(freeze(false));
     setQuantOrderArr([]);
     setTable([]);
     setDocument([]);
     setOrderId();
-    getDocument({ id: vendor.current })
+    //getDocument()?.abort();
+    //alert(1);
+    // dispatch(clearAllListeners());
+    counter.current++;
+    console.log("counter=", counter.current);
+    promise.current?.abort();
+    // if (counter.current !== 5) promise.current?.abort();
+    promise.current = getDocument({ id: vendor.current });
+    promise.current
       .unwrap()
       .then((payload) => {
         setDocument(payload);
-        getDictionaryById({ id: 7 })
-          .unwrap()
-          .then((payload) => {})
-          .catch((err) => console.error(err));
+
+        // getDictionaryById({ id: 7 })
+        //   .unwrap()
+        //   .then((payload) => {})
+        //   .catch((err) => console.error(err));
+
         //console.log(payload);
       })
       .catch((err) => console.log(err));
@@ -1447,36 +1468,40 @@ const PriceList = (props) => {
             .unwrap()
             .then((_) => {
               console.log(
-                quantOrderArr
-                  .filter((el) => el.status === "deleted")
-                  
+                quantOrderArr.filter((el) => el.status === "deleted")
               );
               deleteRecordOrder({
                 body: quantOrderArr
                   .filter((el) => el.status === "deleted")
-                  .map((row) => ({ id: row.id, orderId, priceRecordId: row.priceRecordId })),
+                  .map((row) => ({
+                    id: row.id,
+                    orderId,
+                    priceRecordId: row.priceRecordId,
+                  })),
               })
                 .unwrap()
                 .then((_) => {
                   getOrderRequest();
-                }).catch((err) => console.error(err));
+                })
+                .catch((err) => console.error(err));
             })
             .catch((err) => console.error(err));
         } else {
-          console.log(
-            quantOrderArr
-              .filter((el) => el.status === "deleted")
-              
-          );
+          console.log(quantOrderArr.filter((el) => el.status === "deleted"));
           deleteRecordOrder({
             body: quantOrderArr
               .filter((el) => el.status === "deleted")
-              .map((row) => ({ id: row.id, orderId, priceRecordId: row.priceRecordId })),
+              .map((row) => ({
+                id: row.id,
+                orderId,
+                priceRecordId: row.priceRecordId,
+              })),
           })
             .unwrap()
             .then((_) => {
               getOrderRequest();
-            }).catch((err) => console.error(err));
+            })
+            .catch((err) => console.error(err));
         }
       })
       .catch((err) => console.error(err));
@@ -1498,6 +1523,8 @@ const PriceList = (props) => {
     if (withChanges) return info;
     return info.slice(page.skip, page.take + page.skip);
   };
+
+  console.log("margin=", margin);
   return (
     <div
       style={{
@@ -1507,14 +1534,50 @@ const PriceList = (props) => {
         marginLeft: "20px",
       }}
     >
-      <div style={{ display: "flex" }}>
+      {loading && (
+        <div
+          style={{
+            content: "",
+            position: "absolute",
+            top: "-179px",
+            left: 0,
+            background: "rgba(0,0,0,.5)",
+            zIndex: "1000",
+            height: "100vh",
+            display: "flex",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Loader size="large" type="infinite-spinner" />{" "}
+        </div>
+      )}
+      <div style={{ display: "flex", marginBottom: `${margin ? "220px" : 0}` }}>
         <div>
           <div style={{ width: "500px", marginBottom: "10px" }}>
             <div style={{ marginBottom: "10px" }}>Поставщик:</div>
 
             <Select
               options={options}
-              onChange={onSelectVendor}
+              onChange={(e) => {
+                onSelectVendor(e);
+                setMargin(false);
+                //alert("onChange");
+                console.log("onChange");
+              }}
+              onFocus={() => {
+                setMargin(true);
+                console.log(true);
+                console.log("onFocus");
+                //alert("onFocus");
+              }}
+              onBlur={() => {
+                setMargin(false);
+                //alert("onBlur");
+                console.log("onBlur");
+              }}
               placeholder="Выбрать поставщика"
             />
           </div>
@@ -1572,13 +1635,20 @@ const PriceList = (props) => {
             height: "500px",
             marginTop: "10px",
           }}
-          data={(document === undefined || document.length === 0) ? []: result.slice(page.skip, page.take + page.skip)}
+          data={
+            document === undefined || document.length === 0
+              ? []
+              : result.slice(page.skip, page.take + page.skip)
+          }
           scrollable={"virtual"}
           skip={page.skip}
           take={page.take}
           rowHeight={166}
           total={result.length}
-          onPageChange={(event) => { console.log(event.page); setPage(event.page)}}
+          onPageChange={(event) => {
+            console.log(event.page);
+            setPage(event.page);
+          }}
           onItemChange={itemChange}
           dataItemKey={"id"}
         >
