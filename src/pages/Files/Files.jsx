@@ -225,6 +225,12 @@ export default function Files(props) {
               options={options}
               onChange={onSelectVendor}
               placeholder="Выбрать поставщика"
+              styles={{
+                control: (baseStyles, state) => ({
+                  ...baseStyles,
+                  zIndex: 1000,
+                }),
+              }}
             />
           </div>
           <div
@@ -247,6 +253,12 @@ export default function Files(props) {
               options={optionsProfile}
               onChange={onSelectProfile}
               placeholder="Выбрать профиль"
+              styles={{
+                control: (baseStyles, state) => ({
+                  ...baseStyles,
+                  // zIndex: 1000,
+                }),
+              }}
             />
           </div>
           <div

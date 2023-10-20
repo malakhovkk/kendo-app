@@ -15,6 +15,7 @@ import {
   useCreateRightMutation,
   useDeleteRightMutation,
 } from "../../features/apiSlice";
+import { groupBy } from "@progress/kendo-data-query";
 
 const Rights = () => {
   const { data, error: err, isLoading, refetch } = useGetAllRightsQuery();
@@ -27,20 +28,26 @@ const Rights = () => {
   const [error, setError] = React.useState(false);
 
   return (
-    <div style={{ marginTop: "100px" }}>
-      <Grid
-        data={data}
-        className="grid"
-        style={{
-          height: "400px",
-        }}
-      >
-        <GridColumn field="name" title="Name" />
-        <GridColumn field="code" title="Code" />
-        {/* <GridColumn cell={EditCell} width="50px" />
+    data && (
+      <div style={{ marginTop: "100px" }}>
+        <Grid
+          //groupable={true}
+          group={[{ field: "groupId" }]}
+          data={groupBy(data, [{ field: "groupId" }])}
+          //data={data}
+          className="grid"
+          style={{
+            height: "400px",
+          }}
+        >
+          <GridColumn field="name" title="Name" />
+          <GridColumn field="code" title="Code" />
+          {/* <GridColumn field="groupId" title="GroupId" /> */}
+          {/* <GridColumn cell={EditCell} width="50px" />
         <GridColumn cell={DeleteCell} width="50px" /> */}
-      </Grid>
-    </div>
+        </Grid>
+      </div>
+    )
   );
 };
 export default Rights;

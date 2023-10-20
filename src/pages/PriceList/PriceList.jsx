@@ -50,7 +50,7 @@ const MyCell = function (props) {
   console.log("MyCell");
   // return <NumInput itemChange={itemChange} {...props} />;
   return (
-    <td style={{ height: "150px" }} colSpan={props.colSpan}>
+    <td style={{ height: "80px" }} colSpan={props.colSpan}>
       <NumInput {...props} />{" "}
     </td>
   );
@@ -552,13 +552,13 @@ const PriceList = (props) => {
               ? _el.price
               : _el.statistics.price > 0
               ? `${_el.price} (+${_el.statistics.price})`
-              : `${_el.price} (-${_el.statistics.price})`,
+              : `${_el.price} (${_el.statistics.price})`,
           quant:
             _el.statistics.quant === 0
               ? _el.quant
               : _el.statistics.quant > 0
               ? `${_el.quant} (+${_el.statistics.quant})`
-              : `${_el.quant} (-${_el.statistics.quant})`,
+              : `${_el.quant} (${_el.statistics.quant})`,
           id: _el.id,
           // ..._el.meta,
           // orderQuant: 0,
@@ -1554,35 +1554,44 @@ const PriceList = (props) => {
           <Loader size="large" type="infinite-spinner" />{" "}
         </div>
       )}
-      <div style={{ display: "flex", marginBottom: `${margin ? "220px" : 0}` }}>
+      <div style={{ display: "flex" }}>
         <div>
           <div style={{ width: "500px", marginBottom: "10px" }}>
             <div style={{ marginBottom: "10px" }}>Поставщик:</div>
-
-            <Select
-              options={options}
-              onChange={(e) => {
-                onSelectVendor(e);
-                setMargin(false);
-                //alert("onChange");
-                console.log("onChange");
-              }}
-              onFocus={() => {
-                setMargin(true);
-                console.log(true);
-                console.log("onFocus");
-                //alert("onFocus");
-              }}
-              onBlur={() => {
-                setMargin(false);
-                //alert("onBlur");
-                console.log("onBlur");
-              }}
-              placeholder="Выбрать поставщика"
-            />
+            <div>
+              <Select
+                // menuPlacement="top"
+                // styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                options={options}
+                onChange={(e) => {
+                  onSelectVendor(e);
+                  // setMargin(false);
+                  //alert("onChange");
+                  console.log("onChange");
+                }}
+                // onFocus={() => {
+                //   setMargin(true);
+                //   console.log(true);
+                //   console.log("onFocus");
+                //   //alert("onFocus");
+                // }}
+                // onBlur={() => {
+                //   setMargin(false);
+                //   //alert("onBlur");
+                //   console.log("onBlur");
+                // }}
+                styles={{
+                  control: (baseStyles, state) => ({
+                    ...baseStyles,
+                    zIndex: 10000,
+                  }),
+                }}
+                placeholder="Выбрать поставщика"
+              />
+            </div>
           </div>
 
-          <div style={{ marginBottom: "10px" }}>
+          <div style={{ marginBottom: "100px" }}>
             Выбрано: {getVendorById(vendor.current)}
           </div>
           {/* {vendor.current && !table?.length && (
@@ -1634,6 +1643,7 @@ const PriceList = (props) => {
           style={{
             height: "500px",
             marginTop: "10px",
+            zIndex: 10,
           }}
           data={
             document === undefined || document.length === 0
