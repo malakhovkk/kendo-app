@@ -42,6 +42,7 @@ import { TextArea } from "@progress/kendo-react-inputs";
 import { sameCharsOnly } from "@progress/kendo-react-dropdowns/dist/npm/common/utils";
 import { Loader } from "@progress/kendo-react-indicators";
 import { clearAllListeners } from "@reduxjs/toolkit";
+import ContentLoader from 'react-content-loader'
 // const removeFromOrder = (priceRecordId) => {
 //   // setOrderArr(priceRecordId, null, "deleted");
 // };
@@ -130,7 +131,7 @@ const PriceList = (props) => {
   const { data: dataProfiles } = useGetProfilesQuery();
   const { data: dict } = useGetDictionaryQuery();
   const [mapDict, setMapDict] = React.useState({});
-  const [table, setTable] = React.useState([]);
+  const [table, setTable] = React.useState();
   const [getDocument] = useGetDocumentMutation();
   const [visible, setVisible] = React.useState(false);
   const [editRecord] = useEditRecordMutation();
@@ -335,7 +336,7 @@ const PriceList = (props) => {
   const [addToStock] = useAddToStockMutation();
   const { state } = useLocation();
   const [loadingOrder, setLoadingOrder] = React.useState(0);
-
+  const [loadingDocument, setLoadingDocument] = React.useState(false);
   // React.useEffect(() => {
   //   setLoadingOrder(true);
   // }, [quantOrderArr]);
@@ -349,6 +350,7 @@ const PriceList = (props) => {
     setComment(state.comment);
     //setVendor(idVendor);
     vendor.current = idVendor;
+    setLoadingDocument(true);
     getDocument({ id: idVendor })
       .unwrap()
       .then((payload) => {
@@ -359,7 +361,7 @@ const PriceList = (props) => {
           .catch((err) => console.error(err));
         //console.log(payload);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
 
     getOrder(idOrder)
       .unwrap()
@@ -429,13 +431,14 @@ const PriceList = (props) => {
 
   React.useEffect(() => {
     if (docId === undefined) return;
+    setLoadingDocument(true);
     getDocument({ id: docId })
       .unwrap()
       .then((payload) => {
         setDocument(payload);
         //console.log(payload);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
   }, [docId]);
 
   React.useEffect(() => {
@@ -588,7 +591,7 @@ const PriceList = (props) => {
       setLoadingOrder(0);
     } catch (err) {
       console.log(err);
-      setTable([]);
+      setTable();
       // alert("Произошла ошибка");
     }
     //console.log("BBB");
@@ -763,6 +766,8 @@ const PriceList = (props) => {
     editRecord([body])
       .unwrap()
       .then(() =>
+      {
+      setLoadingDocument(true);
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
@@ -770,8 +775,9 @@ const PriceList = (props) => {
             //console.log(payload);
             //console.log(2);
           })
-          .catch((err) => console.log(err))
-      )
+          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false))
+        }
+        )
       .catch((err) => console.log);
   };
   const onSelectFilter = (e, idx) => {
@@ -805,12 +811,13 @@ const PriceList = (props) => {
       .then((_) => {
         //num++;
         //if (num === res.length)
+        setLoadingDocument(true);
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
 
         console.log(1, idx);
       })
@@ -831,12 +838,13 @@ const PriceList = (props) => {
     deleteRecords(request)
       .unwrap()
       .then((_) => {
+        setLoadingDocument(true);
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
       });
   };
   const getVendorById = (id) => {
@@ -913,12 +921,13 @@ const PriceList = (props) => {
       .then((_) => {
         //num++;
         //if (num === res.length)
+        setLoadingDocument(true);
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
       })
       .catch((err) => {
         console.log(err);
@@ -951,12 +960,13 @@ const PriceList = (props) => {
       .then((_) => {
         //num++;
         //if (num === res.length)
+        setLoadingDocument(false);
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
       })
       .catch((err) => {
         console.log(err);
@@ -987,12 +997,13 @@ const PriceList = (props) => {
       .then((_) => {
         //num++;
         //if (num === res.length)
+        setLoadingDocument(true);
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
       })
       .catch((err) => {
         console.log(err);
@@ -1346,7 +1357,7 @@ const PriceList = (props) => {
         return;
     dispatch(freeze(false));
     setQuantOrderArr([]);
-    setTable([]);
+    setTable();
     setDocument([]);
     setOrderId();
     //getDocument()?.abort();
@@ -1357,6 +1368,7 @@ const PriceList = (props) => {
     promise.current?.abort();
     // if (counter.current !== 5) promise.current?.abort();
     promise.current = getDocument({ id: vendor.current });
+    setLoadingDocument(true);
     promise.current
       .unwrap()
       .then((payload) => {
@@ -1369,7 +1381,7 @@ const PriceList = (props) => {
 
         //console.log(payload);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
   };
   // React.useEffect(() => {
   //   console.log("TABLE", table);
@@ -1509,7 +1521,7 @@ const PriceList = (props) => {
 
   const reset = () => {
     setQuantOrderArr([]);
-    setTable([]);
+    setTable();
     setDocument([]);
     setOrderId();
     // setVendor();
@@ -1580,18 +1592,33 @@ const PriceList = (props) => {
                 //   //alert("onBlur");
                 //   console.log("onBlur");
                 // }}
-                styles={{
-                  control: (baseStyles, state) => ({
-                    ...baseStyles,
-                    zIndex: 10000,
-                  }),
-                }}
+                // styles={{
+                //   control: (baseStyles, state) => ({
+                //     ...baseStyles,
+                //     zIndex: 10000,
+                //   }),
+                // }}
                 placeholder="Выбрать поставщика"
               />
             </div>
+            {/* <select class="select-css" style={{height:"100px"}}> 
+<option>This is a native select element</option> 
+<option>Apples</option> 
+<option>Bananas</option> 
+<option>Grapes</option> 
+<option>Oranges</option>
+<option>Apples</option> 
+<option>Bananas</option> 
+<option>Grapes</option> 
+<option>Oranges</option> 
+<option>Apples</option> 
+<option>Bananas</option> 
+<option>Grapes</option> 
+<option>Oranges</option>  
+</select> */}
           </div>
 
-          <div style={{ marginBottom: "100px" }}>
+          <div style={{ marginBottom: "200px" }}>
             Выбрано: {getVendorById(vendor.current)}
           </div>
           {/* {vendor.current && !table?.length && (
@@ -1636,14 +1663,77 @@ const PriceList = (props) => {
           />
         </div>
       </div>
+      {loadingDocument && <>
+      <ContentLoader
+    width={1000}
+    height={550}
+    viewBox="0 0 1000 550"
+    backgroundColor="#dee6e7"
+    foregroundColor="#cfcece"
+    speed={2}
+  >
+    <rect x="51" y="45" rx="3" ry="3" width="906" height="17" />
+    <circle cx="879" cy="123" r="11" />
+    <circle cx="914" cy="123" r="11" />
+    <rect x="104" y="115" rx="3" ry="3" width="141" height="15" />
+    <rect x="305" y="114" rx="3" ry="3" width="299" height="15" />
+    <rect x="661" y="114" rx="3" ry="3" width="141" height="15" />
+    <rect x="55" y="155" rx="3" ry="3" width="897" height="2" />
+    <circle cx="880" cy="184" r="11" />
+    <circle cx="915" cy="184" r="11" />
+    <rect x="105" y="176" rx="3" ry="3" width="141" height="15" />
+    <rect x="306" y="175" rx="3" ry="3" width="299" height="15" />
+    <rect x="662" y="175" rx="3" ry="3" width="141" height="15" />
+    <rect x="56" y="216" rx="3" ry="3" width="897" height="2" />
+    <circle cx="881" cy="242" r="11" />
+    <circle cx="916" cy="242" r="11" />
+    <rect x="106" y="234" rx="3" ry="3" width="141" height="15" />
+    <rect x="307" y="233" rx="3" ry="3" width="299" height="15" />
+    <rect x="663" y="233" rx="3" ry="3" width="141" height="15" />
+    <rect x="57" y="274" rx="3" ry="3" width="897" height="2" />
+    <circle cx="882" cy="303" r="11" />
+    <circle cx="917" cy="303" r="11" />
+    <rect x="107" y="295" rx="3" ry="3" width="141" height="15" />
+    <rect x="308" y="294" rx="3" ry="3" width="299" height="15" />
+    <rect x="664" y="294" rx="3" ry="3" width="141" height="15" />
+    <rect x="58" y="335" rx="3" ry="3" width="897" height="2" />
+    <circle cx="881" cy="363" r="11" />
+    <circle cx="916" cy="363" r="11" />
+    <rect x="106" y="355" rx="3" ry="3" width="141" height="15" />
+    <rect x="307" y="354" rx="3" ry="3" width="299" height="15" />
+    <rect x="663" y="354" rx="3" ry="3" width="141" height="15" />
+    <rect x="57" y="395" rx="3" ry="3" width="897" height="2" />
+    <circle cx="882" cy="424" r="11" />
+    <circle cx="917" cy="424" r="11" />
+    <rect x="107" y="416" rx="3" ry="3" width="141" height="15" />
+    <rect x="308" y="415" rx="3" ry="3" width="299" height="15" />
+    <rect x="664" y="415" rx="3" ry="3" width="141" height="15" />
+    <rect x="55" y="453" rx="3" ry="3" width="897" height="2" />
+    <rect x="51" y="49" rx="3" ry="3" width="2" height="465" />
+    <rect x="955" y="49" rx="3" ry="3" width="2" height="465" />
+    <circle cx="882" cy="484" r="11" />
+    <circle cx="917" cy="484" r="11" />
+    <rect x="107" y="476" rx="3" ry="3" width="141" height="15" />
+    <rect x="308" y="475" rx="3" ry="3" width="299" height="15" />
+    <rect x="664" y="475" rx="3" ry="3" width="141" height="15" />
+    <rect x="55" y="513" rx="3" ry="3" width="897" height="2" />
+    <rect x="52" y="80" rx="3" ry="3" width="906" height="17" />
+    <rect x="53" y="57" rx="3" ry="3" width="68" height="33" />
+    <rect x="222" y="54" rx="3" ry="3" width="149" height="33" />
+    <rect x="544" y="55" rx="3" ry="3" width="137" height="33" />
+    <rect x="782" y="56" rx="3" ry="3" width="72" height="33" />
+    <rect x="933" y="54" rx="3" ry="3" width="24" height="33" />
+  </ContentLoader>
+  </>
+  }
+      {table && result &&  !withChanges && (
+       
 
-      {result && !withChanges && (
         <Grid
           resizable={true}
           style={{
             height: "500px",
             marginTop: "10px",
-            zIndex: 10,
           }}
           data={
             document === undefined || document.length === 0
@@ -1666,7 +1756,7 @@ const PriceList = (props) => {
         </Grid>
       )}
 
-      {result && withChanges && (
+      {table && result && withChanges && (
         <Grid
           resizable={true}
           style={{
@@ -1682,7 +1772,7 @@ const PriceList = (props) => {
           {columns}
         </Grid>
       )}
-      {!withChanges ? (
+      {table && result && ( !withChanges ? (
         <Button
           style={{
             marginTop: "10px",
@@ -1704,7 +1794,7 @@ const PriceList = (props) => {
         >
           Показать всю таблицу
         </Button>
-      )}
+      ))}
       {!!visible && (
         <Window
           title={"Document record"}
