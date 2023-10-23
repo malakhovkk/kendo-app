@@ -77,35 +77,44 @@ const Users = () => {
     setVisible(0);
   };
 
+  const showSuccess = (msg) => {
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+
+  const showError = (msg) => {
+    toast.error(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+  }
+
   const save = (formData) => {
     edit(formData)
       .unwrap()
       .then((payload) => {
         if (payload.message === "success") {
-          toast.success(`Успешно пользователь добавлен! `, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
+          showSuccess(`Успешно пользователь добавлен! `);
         } else {
-          toast.error(`Ошибка при добавлении пользователя!`, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
+          showError(`Ошибка при добавлении пользователя!`)
         }
       })
-      .catch((error) => console.error("rejected", error));
+      .catch((error) =>  console.error("rejected", error));
     closeDialog();
   };
   const addUser = () => {
@@ -118,45 +127,18 @@ const Users = () => {
         .unwrap()
         .then((payload) => {
           if (payload.message === "success") {
-            toast.success(`Успешно пользователь добавлен! `, {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
+            showSuccess(`Успешно пользователь добавлен! `);
           } else {
-            toast.error(`Ошибка при добавлении пользователя!`, {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
+            showError(`Ошибка при добавлении пользователя!`)
           }
         })
         .catch((error) => console.error("rejected", error));
       setVisible(0);
     } else {
-      toast.error(`Ошибка: заполните необходимые поля`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      showError(`Ошибка: заполните необходимые поля`);
     }
   };
-  const count = useSelector((state) => state.settings.value);
+
 
   return (
     <div style={{ marginTop: "100px" }}>

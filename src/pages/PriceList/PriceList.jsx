@@ -42,7 +42,7 @@ import { TextArea } from "@progress/kendo-react-inputs";
 import { sameCharsOnly } from "@progress/kendo-react-dropdowns/dist/npm/common/utils";
 import { Loader } from "@progress/kendo-react-indicators";
 import { clearAllListeners } from "@reduxjs/toolkit";
-import ContentLoader from 'react-content-loader'
+import ContentLoader from "react-content-loader";
 // const removeFromOrder = (priceRecordId) => {
 //   // setOrderArr(priceRecordId, null, "deleted");
 // };
@@ -361,7 +361,8 @@ const PriceList = (props) => {
           .catch((err) => console.error(err));
         //console.log(payload);
       })
-      .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+      .catch((err) => console.log(err))
+      .finally(() => setLoadingDocument(false));
 
     getOrder(idOrder)
       .unwrap()
@@ -438,7 +439,8 @@ const PriceList = (props) => {
         setDocument(payload);
         //console.log(payload);
       })
-      .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+      .catch((err) => console.log(err))
+      .finally(() => setLoadingDocument(false));
   }, [docId]);
 
   React.useEffect(() => {
@@ -765,9 +767,8 @@ const PriceList = (props) => {
     };
     editRecord([body])
       .unwrap()
-      .then(() =>
-      {
-      setLoadingDocument(true);
+      .then(() => {
+        setLoadingDocument(true);
         getDocument({ id: docId })
           .unwrap()
           .then((payload) => {
@@ -775,9 +776,9 @@ const PriceList = (props) => {
             //console.log(payload);
             //console.log(2);
           })
-          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false))
-        }
-        )
+          .catch((err) => console.log(err))
+          .finally(() => setLoadingDocument(false));
+      })
       .catch((err) => console.log);
   };
   const onSelectFilter = (e, idx) => {
@@ -817,7 +818,8 @@ const PriceList = (props) => {
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+          .catch((err) => console.log(err))
+          .finally(() => setLoadingDocument(false));
 
         console.log(1, idx);
       })
@@ -844,7 +846,8 @@ const PriceList = (props) => {
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+          .catch((err) => console.log(err))
+          .finally(() => setLoadingDocument(false));
       });
   };
   const getVendorById = (id) => {
@@ -927,7 +930,8 @@ const PriceList = (props) => {
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+          .catch((err) => console.log(err))
+          .finally(() => setLoadingDocument(false));
       })
       .catch((err) => {
         console.log(err);
@@ -966,7 +970,8 @@ const PriceList = (props) => {
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+          .catch((err) => console.log(err))
+          .finally(() => setLoadingDocument(false));
       })
       .catch((err) => {
         console.log(err);
@@ -1003,7 +1008,8 @@ const PriceList = (props) => {
           .then((payload) => {
             setDocument(payload);
           })
-          .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+          .catch((err) => console.log(err))
+          .finally(() => setLoadingDocument(false));
       })
       .catch((err) => {
         console.log(err);
@@ -1033,20 +1039,18 @@ const PriceList = (props) => {
   const rowRender = (trElement, props) => {
     const available = props.dataItem.keyCount;
     // if (available === undefined) return;
-    const green = {};
+    // const blue = { border: "1px solid blue" };
+    const blue = { backgroundColor: "#d9d9e3" };
     const red = {
-      backgroundColor: "rgb(243, 23, 0, 0.32)",
+      // backgroundColor: "rgb(243, 23, 0, 0.32)",
     };
     // alert(available);
     // const trProps = {
     //   style: available <= 1 || available === undefined ? green : red,
     // };
+    console.log(active, "  ", props.dataItem.id);
     const trProps = {
-      style:
-        quantOrderArr.find((item) => item.priceRecordId === props.dataItem.id)
-          ?.status !== "deleted"
-          ? green
-          : red,
+      style: active === props.dataItem.id ? blue : red,
     };
     return React.cloneElement(
       trElement,
@@ -1280,6 +1284,28 @@ const PriceList = (props) => {
   //   currency: "RUB",
   //   currencyDisplay: "name",
   // };
+  const clickGroup = (e) => {
+    console.log("click row");
+    console.log(e);
+    const id_group = e.dataItem.id;
+    // setIdGroup(id_group);
+    // getUsersByGroup({id:id_group})
+    // .unwrap()
+    // .then(payload =>{
+    //   setUsersByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
+
+    // getRightsByGroup({id:id_group})
+    // .unwrap()
+    // .then(payload =>{
+    //   setRightsByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
+    e.target.style.color = "green";
+  };
 
   function itemChange(event) {
     console.log(event);
@@ -1381,7 +1407,8 @@ const PriceList = (props) => {
 
         //console.log(payload);
       })
-      .catch((err) => console.log(err)).finally(() => setLoadingDocument(false));
+      .catch((err) => console.log(err))
+      .finally(() => setLoadingDocument(false));
   };
   // React.useEffect(() => {
   //   console.log("TABLE", table);
@@ -1535,7 +1562,56 @@ const PriceList = (props) => {
     if (withChanges) return info;
     return info.slice(page.skip, page.take + page.skip);
   };
+  const [active, setActive] = React.useState();
+  const clickVendor = (e) => {
+    console.log("click row");
+    console.log(e);
+    const id_vendor = e.dataItem.id;
+    setActive(id_vendor);
+    // showContact(id_group);
+    // setIdGroup(id_group);
+    // getUsersByGroup({id:id_group})
+    // .unwrap()
+    // .then(payload =>{
+    //   setUsersByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
 
+    // getRightsByGroup({id:id_group})
+    // .unwrap()
+    // .then(payload =>{
+    //   setRightsByGroup(payload);
+    //   console.log(payload);
+    // })
+    // .catch(err => console.log(err));
+    console.log(e.target.style);
+    // e.target.style.color = "red";
+  };
+
+  // const rowRender = (row, props) => {
+  //   let color = '#fff';
+  //   let level = props.level.length;
+  //   let rowIndexEven = props.ariaRowIndex % 2;
+  //   switch (level) {
+  //     case 1:
+  //       color = rowIndexEven ? '#999' : '#888';
+  //       break;
+  //     case 2:
+  //       color = rowIndexEven ? '#aaa' : '#bbb';
+  //       break;
+  //     case 3:
+  //       color = rowIndexEven ? '#ccc' : '#ddd';
+  //       break;
+  //     case 4:
+  //       color = rowIndexEven ? '#eee' : '#fff';
+  //       break;
+  //     default:
+  //       color = '#fff';
+  //   }
+  //   let style = { ...row.props.style, backgroundColor: color };
+  //   return <tr {...row.props} style={style}></tr>;
+  // };
   console.log("margin=", margin);
   return (
     <div
@@ -1663,78 +1739,79 @@ const PriceList = (props) => {
           />
         </div>
       </div>
-      {loadingDocument && <>
-      <ContentLoader
-    width={1000}
-    height={550}
-    viewBox="0 0 1000 550"
-    backgroundColor="#dee6e7"
-    foregroundColor="#cfcece"
-    speed={2}
-  >
-    <rect x="51" y="45" rx="3" ry="3" width="906" height="17" />
-    <circle cx="879" cy="123" r="11" />
-    <circle cx="914" cy="123" r="11" />
-    <rect x="104" y="115" rx="3" ry="3" width="141" height="15" />
-    <rect x="305" y="114" rx="3" ry="3" width="299" height="15" />
-    <rect x="661" y="114" rx="3" ry="3" width="141" height="15" />
-    <rect x="55" y="155" rx="3" ry="3" width="897" height="2" />
-    <circle cx="880" cy="184" r="11" />
-    <circle cx="915" cy="184" r="11" />
-    <rect x="105" y="176" rx="3" ry="3" width="141" height="15" />
-    <rect x="306" y="175" rx="3" ry="3" width="299" height="15" />
-    <rect x="662" y="175" rx="3" ry="3" width="141" height="15" />
-    <rect x="56" y="216" rx="3" ry="3" width="897" height="2" />
-    <circle cx="881" cy="242" r="11" />
-    <circle cx="916" cy="242" r="11" />
-    <rect x="106" y="234" rx="3" ry="3" width="141" height="15" />
-    <rect x="307" y="233" rx="3" ry="3" width="299" height="15" />
-    <rect x="663" y="233" rx="3" ry="3" width="141" height="15" />
-    <rect x="57" y="274" rx="3" ry="3" width="897" height="2" />
-    <circle cx="882" cy="303" r="11" />
-    <circle cx="917" cy="303" r="11" />
-    <rect x="107" y="295" rx="3" ry="3" width="141" height="15" />
-    <rect x="308" y="294" rx="3" ry="3" width="299" height="15" />
-    <rect x="664" y="294" rx="3" ry="3" width="141" height="15" />
-    <rect x="58" y="335" rx="3" ry="3" width="897" height="2" />
-    <circle cx="881" cy="363" r="11" />
-    <circle cx="916" cy="363" r="11" />
-    <rect x="106" y="355" rx="3" ry="3" width="141" height="15" />
-    <rect x="307" y="354" rx="3" ry="3" width="299" height="15" />
-    <rect x="663" y="354" rx="3" ry="3" width="141" height="15" />
-    <rect x="57" y="395" rx="3" ry="3" width="897" height="2" />
-    <circle cx="882" cy="424" r="11" />
-    <circle cx="917" cy="424" r="11" />
-    <rect x="107" y="416" rx="3" ry="3" width="141" height="15" />
-    <rect x="308" y="415" rx="3" ry="3" width="299" height="15" />
-    <rect x="664" y="415" rx="3" ry="3" width="141" height="15" />
-    <rect x="55" y="453" rx="3" ry="3" width="897" height="2" />
-    <rect x="51" y="49" rx="3" ry="3" width="2" height="465" />
-    <rect x="955" y="49" rx="3" ry="3" width="2" height="465" />
-    <circle cx="882" cy="484" r="11" />
-    <circle cx="917" cy="484" r="11" />
-    <rect x="107" y="476" rx="3" ry="3" width="141" height="15" />
-    <rect x="308" y="475" rx="3" ry="3" width="299" height="15" />
-    <rect x="664" y="475" rx="3" ry="3" width="141" height="15" />
-    <rect x="55" y="513" rx="3" ry="3" width="897" height="2" />
-    <rect x="52" y="80" rx="3" ry="3" width="906" height="17" />
-    <rect x="53" y="57" rx="3" ry="3" width="68" height="33" />
-    <rect x="222" y="54" rx="3" ry="3" width="149" height="33" />
-    <rect x="544" y="55" rx="3" ry="3" width="137" height="33" />
-    <rect x="782" y="56" rx="3" ry="3" width="72" height="33" />
-    <rect x="933" y="54" rx="3" ry="3" width="24" height="33" />
-  </ContentLoader>
-  </>
-  }
-      {table && result &&  !withChanges && (
-       
-
+      {loadingDocument && (
+        <>
+          <ContentLoader
+            width={1000}
+            height={550}
+            viewBox="0 0 1000 550"
+            backgroundColor="#dee6e7"
+            foregroundColor="#cfcece"
+            speed={2}
+          >
+            <rect x="51" y="45" rx="3" ry="3" width="906" height="17" />
+            <circle cx="879" cy="123" r="11" />
+            <circle cx="914" cy="123" r="11" />
+            <rect x="104" y="115" rx="3" ry="3" width="141" height="15" />
+            <rect x="305" y="114" rx="3" ry="3" width="299" height="15" />
+            <rect x="661" y="114" rx="3" ry="3" width="141" height="15" />
+            <rect x="55" y="155" rx="3" ry="3" width="897" height="2" />
+            <circle cx="880" cy="184" r="11" />
+            <circle cx="915" cy="184" r="11" />
+            <rect x="105" y="176" rx="3" ry="3" width="141" height="15" />
+            <rect x="306" y="175" rx="3" ry="3" width="299" height="15" />
+            <rect x="662" y="175" rx="3" ry="3" width="141" height="15" />
+            <rect x="56" y="216" rx="3" ry="3" width="897" height="2" />
+            <circle cx="881" cy="242" r="11" />
+            <circle cx="916" cy="242" r="11" />
+            <rect x="106" y="234" rx="3" ry="3" width="141" height="15" />
+            <rect x="307" y="233" rx="3" ry="3" width="299" height="15" />
+            <rect x="663" y="233" rx="3" ry="3" width="141" height="15" />
+            <rect x="57" y="274" rx="3" ry="3" width="897" height="2" />
+            <circle cx="882" cy="303" r="11" />
+            <circle cx="917" cy="303" r="11" />
+            <rect x="107" y="295" rx="3" ry="3" width="141" height="15" />
+            <rect x="308" y="294" rx="3" ry="3" width="299" height="15" />
+            <rect x="664" y="294" rx="3" ry="3" width="141" height="15" />
+            <rect x="58" y="335" rx="3" ry="3" width="897" height="2" />
+            <circle cx="881" cy="363" r="11" />
+            <circle cx="916" cy="363" r="11" />
+            <rect x="106" y="355" rx="3" ry="3" width="141" height="15" />
+            <rect x="307" y="354" rx="3" ry="3" width="299" height="15" />
+            <rect x="663" y="354" rx="3" ry="3" width="141" height="15" />
+            <rect x="57" y="395" rx="3" ry="3" width="897" height="2" />
+            <circle cx="882" cy="424" r="11" />
+            <circle cx="917" cy="424" r="11" />
+            <rect x="107" y="416" rx="3" ry="3" width="141" height="15" />
+            <rect x="308" y="415" rx="3" ry="3" width="299" height="15" />
+            <rect x="664" y="415" rx="3" ry="3" width="141" height="15" />
+            <rect x="55" y="453" rx="3" ry="3" width="897" height="2" />
+            <rect x="51" y="49" rx="3" ry="3" width="2" height="465" />
+            <rect x="955" y="49" rx="3" ry="3" width="2" height="465" />
+            <circle cx="882" cy="484" r="11" />
+            <circle cx="917" cy="484" r="11" />
+            <rect x="107" y="476" rx="3" ry="3" width="141" height="15" />
+            <rect x="308" y="475" rx="3" ry="3" width="299" height="15" />
+            <rect x="664" y="475" rx="3" ry="3" width="141" height="15" />
+            <rect x="55" y="513" rx="3" ry="3" width="897" height="2" />
+            <rect x="52" y="80" rx="3" ry="3" width="906" height="17" />
+            <rect x="53" y="57" rx="3" ry="3" width="68" height="33" />
+            <rect x="222" y="54" rx="3" ry="3" width="149" height="33" />
+            <rect x="544" y="55" rx="3" ry="3" width="137" height="33" />
+            <rect x="782" y="56" rx="3" ry="3" width="72" height="33" />
+            <rect x="933" y="54" rx="3" ry="3" width="24" height="33" />
+          </ContentLoader>
+        </>
+      )}
+      {table && result && !withChanges && (
         <Grid
           resizable={true}
           style={{
             height: "500px",
             marginTop: "10px",
           }}
+          rowRender={rowRender}
+          onRowClick={clickVendor}
           data={
             document === undefined || document.length === 0
               ? []
@@ -1758,12 +1835,14 @@ const PriceList = (props) => {
 
       {table && result && withChanges && (
         <Grid
+          rowRender={rowRender}
           resizable={true}
           style={{
             width: "100%",
             height: "500px",
             marginTop: "10px",
           }}
+          onRowClick={clickVendor}
           data={result.filter(
             (row) => row.quantDelta !== 0 || row.priceDelta !== 0
           )}
@@ -1772,29 +1851,31 @@ const PriceList = (props) => {
           {columns}
         </Grid>
       )}
-      {table && result && ( !withChanges ? (
-        <Button
-          style={{
-            marginTop: "10px",
-          }}
-          onClick={() => {
-            setWithChanges(true);
-          }}
-        >
-          Показать изменения
-        </Button>
-      ) : (
-        <Button
-          style={{
-            marginTop: "10px",
-          }}
-          onClick={() => {
-            setWithChanges(false);
-          }}
-        >
-          Показать всю таблицу
-        </Button>
-      ))}
+      {table &&
+        result &&
+        (!withChanges ? (
+          <Button
+            style={{
+              marginTop: "10px",
+            }}
+            onClick={() => {
+              setWithChanges(true);
+            }}
+          >
+            Показать изменения
+          </Button>
+        ) : (
+          <Button
+            style={{
+              marginTop: "10px",
+            }}
+            onClick={() => {
+              setWithChanges(false);
+            }}
+          >
+            Показать всю таблицу
+          </Button>
+        ))}
       {!!visible && (
         <Window
           title={"Document record"}
