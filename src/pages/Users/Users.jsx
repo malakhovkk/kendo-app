@@ -88,7 +88,7 @@ const Users = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
 
   const showError = (msg) => {
     toast.error(msg, {
@@ -101,8 +101,7 @@ const Users = () => {
       progress: undefined,
       theme: "light",
     });
-  }
-  }
+  };
 
   const save = (formData) => {
     edit(formData)
@@ -111,10 +110,10 @@ const Users = () => {
         if (payload.message === "success") {
           showSuccess(`Успешно пользователь добавлен! `);
         } else {
-          showError(`Ошибка при добавлении пользователя!`)
+          showError(`Ошибка при добавлении пользователя!`);
         }
       })
-      .catch((error) =>  console.error("rejected", error));
+      .catch((error) => console.error("rejected", error));
     closeDialog();
   };
   const addUser = () => {
@@ -129,7 +128,7 @@ const Users = () => {
           if (payload.message === "success") {
             showSuccess(`Успешно пользователь добавлен! `);
           } else {
-            showError(`Ошибка при добавлении пользователя!`)
+            showError(`Ошибка при добавлении пользователя!`);
           }
         })
         .catch((error) => console.error("rejected", error));
@@ -138,7 +137,6 @@ const Users = () => {
       showError(`Ошибка: заполните необходимые поля`);
     }
   };
-
 
   return (
     <div style={{ marginTop: "100px" }}>
