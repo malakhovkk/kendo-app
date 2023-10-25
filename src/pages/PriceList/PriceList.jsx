@@ -31,9 +31,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { freeze } from "../../features/settings.js";
 import { Loader } from "@progress/kendo-react-indicators";
 import TableSkeleton from "../../components/TableSkeleton";
-
+import { Checkbox } from "@progress/kendo-react-inputs";
 const MyCell = function (props) {
-  console.log("MyCell");
+  // console.log("MyCell");
   return (
     <td style={{ height: "80px" }} colSpan={props.colSpan}>
       <NumInput {...props} />{" "}
@@ -129,7 +129,26 @@ const PriceList = (props) => {
       </td>
     );
   };
-
+  const LinkCell = (props) => {
+    //console.log(props)
+    return (
+      <td>
+        {props.dataItem.linkId ? (
+          <img
+            style={{ width: "20px", height: "20px" }}
+            onClick={() => setLink(props.dataItem.id)}
+            src={require("../../assets/grc.png")}
+          />
+        ) : (
+          <img
+            style={{ width: "20px", height: "20px" }}
+            onClick={() => setLink(props.dataItem.id)}
+            src={require("../../assets/redc.png")}
+          />
+        )}
+      </td>
+    );
+  };
   const func_fields = (fields) => {
     if (!fields) return;
     let new_fields;
@@ -140,11 +159,15 @@ const PriceList = (props) => {
         "orderQuant",
         ...fields.slice(idx + 1, fields.length),
       ];
-    else new_fields = fields;
-    console.error(new_fields);
+    else new_fields = [...fields];
+    new_fields = ["link", ...fields];
+    // console.error(new_fields);
     let cols = new_fields?.map((field, idx) => {
       console.log(field);
       if (field === "quantDelta" || field === "priceDelta") return;
+      if (field === "link") {
+        return <GridColumn cell={LinkCell} width="50px" />;
+      }
       if (field === "orderQuant" && orderId) {
         return (
           <GridColumn
@@ -167,7 +190,7 @@ const PriceList = (props) => {
         />
       );
     });
-    console.timeEnd("FUNC_FIELDS");
+    // console.timeEnd("FUNC_FIELDS");
     console.log(cols);
     return cols;
   };
@@ -360,6 +383,7 @@ const PriceList = (props) => {
           quantDelta: _el.statistics.quant,
           name: _el.name,
           sku: _el.sku,
+          linkId: _el.linkId,
           orderQuant:
             quantOrderArr.length === 0 ? 0 : obj[_el.id] ? obj[_el.id] : 0,
           price:
@@ -436,7 +460,7 @@ const PriceList = (props) => {
   const rowRender = (trElement, props) => {
     const blue = { backgroundColor: "#d9d9e3" };
     const red = {};
-    console.log(active, "  ", props.dataItem.id);
+    // console.log(active, "  ", props.dataItem.id);
     const trProps = {
       style: active === props.dataItem.id ? blue : red,
     };
@@ -550,16 +574,20 @@ const PriceList = (props) => {
       .catch((err) => console.error(err));
   };
 
-  const [_saveOrder] = useSaveOrderMutation();
-  const [_saveEditOrder] = useSaveEditOrderMutation();
+  const [saveOrderReq] = useSaveOrderMutation();
+  const [saveEditOrderReq] = useSaveEditOrderMutation();
   const getOrderRequest = async () => {
     let payload = await getOrder(orderId).unwrap();
+    console.log(payload);
+    console.log(quantOrderArr);
     setQuantOrderArr(
-      quantOrderArr.map((item) => ({
-        ...item,
-        status: "toEdit",
-        id: payload.find((el) => el.priceRecordId === item.priceRecordId).id,
-      }))
+      quantOrderArr
+        .filter((item) => item.status !== "deleted")
+        .map((item) => ({
+          ...item,
+          status: "toEdit",
+          id: payload.find((el) => el.priceRecordId === item.priceRecordId).id,
+        }))
     );
   };
   const [deleteRecordOrder] = useDeleteRecordOrderMutation();
@@ -567,7 +595,7 @@ const PriceList = (props) => {
     return quantOrderArr
       .filter((el) => el.status === status)
       .map((el) => ({
-        id: "",
+        id: el.id,
         priceRecordId: el.priceRecordId,
         quant: el.quant,
         orderId: orderId,
@@ -600,9 +628,11 @@ const PriceList = (props) => {
       axios.put(url, formData, config).catch((err) => console.error(err));
     }
 
-    await _saveOrder({ body: orderContentMutationArray("new") }).unwrap();
+    await saveOrderReq({ body: orderContentMutationArray("new") }).unwrap();
     if (quantOrderArr.filter((el) => el.status === "edited").length)
-      await _saveOrder({ body: orderContentMutationArray("edited") }).unwrap();
+      await saveEditOrderReq({
+        body: orderContentMutationArray("edited"),
+      }).unwrap();
     await deleteRecordOrder({ body: orderContentDeleteArray() }).unwrap();
     await getOrderRequest();
   };
@@ -620,6 +650,18 @@ const PriceList = (props) => {
     const id_vendor = e.dataItem.id;
     setActive(id_vendor);
   };
+  const [link, setLink] = React.useState();
+  console.log(result?.findIndex((el) => el.sku === "УТ000006206"));
+  const CheckCell = (props) => {
+    return (
+      <td>
+        <Checkbox
+          checked={checkedRow[props.dataItem.id]}
+          // onClick={(e) => checked(e, props.dataItem.id)}
+        />
+      </td>
+    );
+  };
   return (
     <div
       style={{
@@ -628,6 +670,34 @@ const PriceList = (props) => {
         marginLeft: "20px",
       }}
     >
+      {link && (
+        <Window
+          title={"Link"}
+          onClose={closeDialog}
+          initialHeight={350}
+          initialWidth={600}
+        >
+          <Grid data={[]} style={{}}>
+            <GridColumn cell={CheckCell} width="50px" />
+            {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
+            <GridColumn field="name" width="150px" title="Имя" />
+            <GridColumn
+              //  field="contact"
+              // cell={EmailContactCell}
+              width="250px"
+              title="Почта"
+            />
+          </Grid>
+          {/* <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+            <Select
+              options={companies}
+              onChange={onSelectCompany}
+              placeholder="Выбрать магазин"
+            />
+          </div> */}
+          <Button onClick={() => {}}>Отправить</Button>
+        </Window>
+      )}
       {loading && (
         <div
           style={{
