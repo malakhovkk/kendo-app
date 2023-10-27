@@ -15,7 +15,14 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
     searchWord: searchWord ? searchWord : "getAll",
   });
   const p = React.useRef();
-
+  //const [itemsWithLink, setItemsWithLink] = React.useState([]);
+  const itemsWithLink = React.useRef([]);
+  React.useEffect(() => {
+    //onsole.log
+    itemsWithLink.current = linksArr?.map((el) => el.linkId);
+    console.log(linksArr);
+  }, [linksArr]);
+  console.log(itemsWithLink);
   React.useEffect(() => {
     if (isFetching) {
       setSearchWord(oldSearchWord);
@@ -35,7 +42,7 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
     return (
       <td>
         <Checkbox
-          checked={checkedRow[props.dataItem.id]}
+          checked={itemsWithLink.current?.includes(props.dataItem.linkId)}
           // onClick={(e) => checked(e, props.dataItem.id)}
         />
       </td>
