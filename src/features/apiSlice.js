@@ -13,7 +13,7 @@ export const userApi = createApi({
       return headers;
     },
   }),
-
+  keepUnusedDataFor: 20,
   endpoints: (builder) => ({
     getAllUsers: builder.query({
       query: () => ({
@@ -475,6 +475,10 @@ export const userApi = createApi({
       }),
       invalidatesTags: [{ type: "Groups", id: "LIST" }],
     }),
+    getInitialLinks: builder.query({
+      query: ({ priceRecordId, searchWord }) =>
+        `link/${priceRecordId}/${searchWord}`,
+    }),
     // orderComment: builder.mutation({
     //   query: (body) => ({
     //     url: `ordercomment/`,
@@ -543,4 +547,5 @@ export const {
   useSaveProfileEditMutation,
   useAddGroupMutation,
   useDeleteRecordOrderMutation,
+  useGetInitialLinksQuery,
 } = userApi;

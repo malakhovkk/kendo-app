@@ -32,6 +32,7 @@ import { freeze } from "../../features/settings.js";
 import { Loader } from "@progress/kendo-react-indicators";
 import TableSkeleton from "../../components/TableSkeleton";
 import { Checkbox } from "@progress/kendo-react-inputs";
+import WindowLink from "../../components/WindowLink";
 const MyCell = function (props) {
   // console.log("MyCell");
   return (
@@ -135,13 +136,13 @@ const PriceList = (props) => {
       <td>
         {props.dataItem.linkId ? (
           <img
-            style={{ width: "20px", height: "20px" }}
+            style={{ width: "20px", height: "20px", cursor: "pointer" }}
             onClick={() => setLink(props.dataItem.id)}
             src={require("../../assets/grc.png")}
           />
         ) : (
           <img
-            style={{ width: "20px", height: "20px" }}
+            style={{ width: "20px", height: "20px", cursor: "pointer" }}
             onClick={() => setLink(props.dataItem.id)}
             src={require("../../assets/redc.png")}
           />
@@ -421,7 +422,7 @@ const PriceList = (props) => {
   };
 
   const closeDialog = () => {
-    setFormData(emptyObject);
+    setLink(false);
   };
   const modifyToSend = (obj) => {
     let res = [];
@@ -652,16 +653,7 @@ const PriceList = (props) => {
   };
   const [link, setLink] = React.useState();
   console.log(result?.findIndex((el) => el.sku === "УТ000006206"));
-  const CheckCell = (props) => {
-    return (
-      <td>
-        <Checkbox
-          checked={checkedRow[props.dataItem.id]}
-          // onClick={(e) => checked(e, props.dataItem.id)}
-        />
-      </td>
-    );
-  };
+
   return (
     <div
       style={{
@@ -671,32 +663,33 @@ const PriceList = (props) => {
       }}
     >
       {link && (
-        <Window
-          title={"Link"}
-          onClose={closeDialog}
-          initialHeight={350}
-          initialWidth={600}
-        >
-          <Grid data={[]} style={{}}>
-            <GridColumn cell={CheckCell} width="50px" />
-            {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
-            <GridColumn field="name" width="150px" title="Имя" />
-            <GridColumn
-              //  field="contact"
-              // cell={EmailContactCell}
-              width="250px"
-              title="Почта"
-            />
-          </Grid>
-          {/* <div style={{ marginTop: "15px", marginBottom: "15px" }}>
-            <Select
-              options={companies}
-              onChange={onSelectCompany}
-              placeholder="Выбрать магазин"
-            />
-          </div> */}
-          <Button onClick={() => {}}>Отправить</Button>
-        </Window>
+        <WindowLink priceRecordId={link} closeDialog={closeDialog} />
+        // <Window
+        //   title={"Link"}
+        //   onClose={closeDialog}
+        //   initialHeight={350}
+        //   initialWidth={600}
+        // >
+        //   <Grid data={[]} style={{}}>
+        //     <GridColumn cell={CheckCell} width="50px" />
+        //     {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
+        //     <GridColumn field="name" width="150px" title="Имя" />
+        //     <GridColumn
+        //       //  field="contact"
+        //       // cell={EmailContactCell}
+        //       width="250px"
+        //       title="Почта"
+        //     />
+        //   </Grid>
+        //   {/* <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+        //     <Select
+        //       options={companies}
+        //       onChange={onSelectCompany}
+        //       placeholder="Выбрать магазин"
+        //     />
+        //   </div> */}
+        //   <Button onClick={() => {}}>Отправить</Button>
+        // </Window>
       )}
       {loading && (
         <div
