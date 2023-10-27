@@ -10,20 +10,23 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
   const [checkedRow, setCheckedRow] = React.useState([]);
   const [searchWord, setSearchWord] = React.useState("");
   const [oldSearchWord, setOldSearchWord] = React.useState("");
-  const { data: linksArr } = useGetInitialLinksQuery({
+  const { data: linksArr, isFetching } = useGetInitialLinksQuery({
     priceRecordId,
     searchWord: searchWord ? searchWord : "getAll",
   });
+  const p = React.useRef();
+
   React.useEffect(() => {
-    let t;
-    if (oldSearchWord.length === 3) setSearchWord(oldSearchWord);
-    else {
-      if (oldSearchWord.length > 3)
-        t = setTimeout(() => {
-          setSearchWord(oldSearchWord);
-        }, 2000);
-      else setSearchWord("");
+    if (isFetching) {
+      setSearchWord(oldSearchWord);
+      console.log("Loading...");
     }
+    let t;
+    if (oldSearchWord.length >= 3)
+      t = setTimeout(() => {
+        setSearchWord(oldSearchWord);
+      }, 2000);
+    else setSearchWord("");
     return () => {
       clearTimeout(t);
     };
