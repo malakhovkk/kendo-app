@@ -161,7 +161,7 @@ const PriceList = (props) => {
         ...fields.slice(idx + 1, fields.length),
       ];
     else new_fields = [...fields];
-    new_fields = ["link", ...fields];
+    new_fields = ["link", ...new_fields];
     // console.error(new_fields);
     let cols = new_fields?.map((field, idx) => {
       console.log(field);
