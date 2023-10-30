@@ -479,6 +479,26 @@ export const userApi = createApi({
       query: ({ priceRecordId, searchWord }) =>
         `link/${priceRecordId}/${searchWord}`,
     }),
+    setLink: builder.mutation({
+      query: (link) => ({
+        url: "link",
+        method: "POST",
+        body: link,
+      }),
+    }),
+    deleteSingle: builder.mutation({
+      query: (link) => ({
+        url: `link/${link}`,
+        method: "DELETE",
+      }),
+    }),
+    deleteMultiple: builder.mutation({
+      query: (arrayOfLinks) => ({
+        url: "link",
+        method: "DELETE",
+        body: arrayOfLinks,
+      }),
+    }),
     // orderComment: builder.mutation({
     //   query: (body) => ({
     //     url: `ordercomment/`,
@@ -548,4 +568,7 @@ export const {
   useAddGroupMutation,
   useDeleteRecordOrderMutation,
   useGetInitialLinksQuery,
+  useSetLinkMutation,
+  useDeleteSingleMutation,
+  useDeleteMultipleMutation,
 } = userApi;

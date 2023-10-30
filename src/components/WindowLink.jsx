@@ -4,17 +4,26 @@ import { Window } from "@progress/kendo-react-dialogs";
 import { Button } from "@progress/kendo-react-buttons";
 import { Checkbox } from "@progress/kendo-react-inputs";
 import { Input } from "@progress/kendo-react-inputs";
-import { useGetInitialLinksQuery } from "../features/apiSlice";
+import {
+  useDeleteMultipleMutation,
+  useDeleteSingleMutation,
+  useGetInitialLinksQuery,
+  useSetLinkMutation,
+} from "../features/apiSlice";
 
 const WindowLink = ({ closeDialog, priceRecordId }) => {
   const [checkedRow, setCheckedRow] = React.useState([]);
   const [searchWord, setSearchWord] = React.useState("");
   const [oldSearchWord, setOldSearchWord] = React.useState("");
+  const [removeSingle] = useDeleteSingleMutation();
+  const [removeMultiple] = useDeleteMultipleMutation();
   const { data: linksArr, isFetching } = useGetInitialLinksQuery({
     priceRecordId,
     searchWord: searchWord ? searchWord : "getAll",
   });
+  const [setLinksReq] = useSetLinkMutation();
   const p = React.useRef();
+  const new_arr = React.useRef(true);
   //const [itemsWithLink, setItemsWithLink] = React.useState([]);
   // const itemsWithLink = React.useRef([]);
   React.useEffect(() => {
@@ -22,7 +31,19 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
     // itemsWithLink.current = linksArr?.map((el) => el.linkId);
     console.log(linksArr);
   }, [linksArr]);
-
+  React.useEffect(() => {
+    if (!linksArr) return;
+    if (new_arr.current) {
+      console.error(linksArr);
+      setInitialLinksArr(
+        linksArr.filter((el) => el.linkId !== "").map((el) => el.linkId)
+      );
+      setCurrentLinksArr(
+        linksArr.filter((el) => el.linkId !== "").map((el) => el.linkId)
+      );
+      new_arr.current = false;
+    }
+  }, [linksArr]);
   React.useEffect(() => {
     if (isFetching) {
       setSearchWord(oldSearchWord);
@@ -38,17 +59,64 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
       clearTimeout(t);
     };
   }, [oldSearchWord]);
+
+  const [initialLinksArr, setInitialLinksArr] = React.useState([]);
+  const [currentLinksArr, setCurrentLinksArr] = React.useState([]);
+
   const CheckCell = (props) => {
-    console.log(linksArr?.map((el) => el.linkId),props.dataItem.linkId )
+    console.log(
+      linksArr?.map((el) => el.linkId),
+      props.dataItem.linkId
+    );
     return (
       <td>
         <Checkbox
-          checked={props.dataItem.linkId && linksArr?.map((el) => el.linkId)?.includes(props.dataItem.linkId)}
+          checked={
+            currentLinksArr?.includes(props.dataItem.linkId)
+            // props.dataItem.linkId &&
+            // linksArr?.map((el) => el.linkId)?.includes(props.dataItem.linkId)
+          }
+          onChange={(e) => {
+            alert(e.value);
+            if (e.value) {
+              console.log(e);
+              setLinksReq({
+                id: "",
+                ProductScu: priceRecordId,
+                Product1c: props.dataItem.uid,
+              })
+                .unwrap()
+                .then((_) => {
+                  console.log([...currentLinksArr, props.dataItem.linkId]);
+                  setCurrentLinksArr([
+                    ...currentLinksArr,
+                    props.dataItem.linkId,
+                  ]);
+                })
+                .catch(console.log);
+            } else {
+              console.log(e);
+              removeSingle(props.dataItem.linkId)
+                .unwrap()
+                .then((_) => {
+                  setCurrentLinksArr(
+                    currentLinksArr.filter(
+                      (item) => item !== props.dataItem.linkId
+                    )
+                  );
+                })
+                .catch(console.log);
+            }
+          }}
           // onClick={(e) => checked(e, props.dataItem.id)}
         />
       </td>
     );
   };
+  const send = (ProductScu, Product1c) => {
+    setLinksReq({ id: "", ProductScu, Product1c });
+  };
+  const cancel = () => {};
   return (
     <Window
       title={"Link"}
@@ -60,6 +128,7 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
         onChange={(e) => setOldSearchWord(e.target.value)}
         style={{ width: "400px" }}
       />
+      <Button onClick={cancel}>Отменить изменения</Button>
       <Grid data={linksArr} style={{ height: "500px" }}>
         <GridColumn cell={CheckCell} width="50px" />
         {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
@@ -78,7 +147,7 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
               placeholder="Выбрать магазин"
             />
           </div> */}
-      <Button onClick={() => {}}>Отправить</Button>
+      {/* <Button onClick={send}>Отправить</Button> */}
     </Window>
   );
 };
