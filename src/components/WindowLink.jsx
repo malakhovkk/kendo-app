@@ -36,10 +36,10 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
     if (new_arr.current) {
       console.error(linksArr);
       setInitialLinksArr(
-        linksArr.filter((el) => el.linkId !== "").map((el) => el.linkId)
+        linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
       );
       setCurrentLinksArr(
-        linksArr.filter((el) => el.linkId !== "").map((el) => el.linkId)
+        linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
       );
       new_arr.current = false;
     }
@@ -64,20 +64,20 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
   const [currentLinksArr, setCurrentLinksArr] = React.useState([]);
 
   const CheckCell = (props) => {
-    console.log(
+    /*console.log(
       linksArr?.map((el) => el.linkId),
       props.dataItem.linkId
-    );
+    );*/
     return (
       <td>
         <Checkbox
           checked={
-            currentLinksArr?.includes(props.dataItem.linkId)
+            currentLinksArr?.includes(props.dataItem.uid)
             // props.dataItem.linkId &&
             // linksArr?.map((el) => el.linkId)?.includes(props.dataItem.linkId)
           }
           onChange={(e) => {
-            alert(e.value);
+            // alert(e.value);
             if (e.value) {
               console.log(e);
               setLinksReq({
@@ -87,10 +87,10 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
               })
                 .unwrap()
                 .then((_) => {
-                  console.log([...currentLinksArr, props.dataItem.linkId]);
+                  console.log([...currentLinksArr, props.dataItem.uid]);
                   setCurrentLinksArr([
                     ...currentLinksArr,
-                    props.dataItem.linkId,
+                    props.dataItem.uid,
                   ]);
                 })
                 .catch(console.log);
@@ -101,7 +101,7 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
                 .then((_) => {
                   setCurrentLinksArr(
                     currentLinksArr.filter(
-                      (item) => item !== props.dataItem.linkId
+                      (item) => item !== props.dataItem.uid
                     )
                   );
                 })
