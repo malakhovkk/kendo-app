@@ -7,7 +7,7 @@ import { Input } from "@progress/kendo-react-inputs";
 import {
   useDeleteMultipleMutation,
   useDeleteSingleMutation,
-  useGetInitialLinksQuery,
+  useGetLinksMutation,
   useSetLinkMutation,
 } from "../features/apiSlice";
 
@@ -17,19 +17,39 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
   const [oldSearchWord, setOldSearchWord] = React.useState("");
   const [removeSingle] = useDeleteSingleMutation();
   const [removeMultiple] = useDeleteMultipleMutation();
-  const { data: linksArr, isFetching } = useGetInitialLinksQuery({
-    priceRecordId,
-    searchWord: searchWord ? searchWord : "getAll",
-  });
+  const [queryInfo, setQueryInfo] = React.useState({});
+  const [linksArr, setLinksArr] = React.useState([]);
+  const isFetching = React.useRef(false);
+  // const [isFetching, setIsFetching] = React.useState(false);
+  // const []
+  // { data: linksArr, isFetching }
+  const [getLinksQueryReq] = useGetLinksMutation();
+  async function exec() {
+    isFetching.current = true;
+    console.log({
+      priceRecordId,
+      searchWord: searchWord ? searchWord : "getAll",
+    });
+    let res = await getLinksQueryReq({
+      priceRecordId,
+      searchWord: searchWord ? searchWord : "getAll",
+    }).unwrap();
+    isFetching.current = false;
+    setLinksArr(res);
+  }
+  React.useEffect(() => {
+    exec();
+  }, [priceRecordId, searchWord]);
+  const modifiedLinksArr = React.useRef(null);
   const [setLinksReq] = useSetLinkMutation();
   const p = React.useRef();
   const new_arr = React.useRef(true);
-  //const [itemsWithLink, setItemsWithLink] = React.useState([]);
-  // const itemsWithLink = React.useRef([]);
   React.useEffect(() => {
-    //onsole.log
-    // itemsWithLink.current = linksArr?.map((el) => el.linkId);
     console.log(linksArr);
+    if (!linksArr) return;
+    setCurrentLinksArr(
+      linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
+    );
   }, [linksArr]);
   React.useEffect(() => {
     if (!linksArr) return;
@@ -59,41 +79,27 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
       clearTimeout(t);
     };
   }, [oldSearchWord]);
-
+  React.useEffect(() => {
+    console.error(linksArr);
+  }, [linksArr]);
   const [initialLinksArr, setInitialLinksArr] = React.useState([]);
   const [currentLinksArr, setCurrentLinksArr] = React.useState([]);
 
   const CheckCell = (props) => {
-    /*console.log(
-      linksArr?.map((el) => el.linkId),
-      props.dataItem.linkId
-    );*/
     return (
       <td>
         <Checkbox
-          checked={
-            currentLinksArr?.includes(props.dataItem.uid)
-            // props.dataItem.linkId &&
-            // linksArr?.map((el) => el.linkId)?.includes(props.dataItem.linkId)
-          }
-          onChange={(e) => {
-            // alert(e.value);
+          checked={currentLinksArr?.includes(props.dataItem.uid)}
+          onChange={async (e) => {
             if (e.value) {
               console.log(e);
-              setLinksReq({
+              await setLinksReq({
                 id: "",
                 ProductScu: priceRecordId,
                 Product1c: props.dataItem.uid,
-              })
-                .unwrap()
-                .then((_) => {
-                  console.log([...currentLinksArr, props.dataItem.uid]);
-                  setCurrentLinksArr([
-                    ...currentLinksArr,
-                    props.dataItem.uid,
-                  ]);
-                })
-                .catch(console.log);
+              }).unwrap();
+              setCurrentLinksArr([...currentLinksArr, props.dataItem.uid]);
+              // exec();
             } else {
               console.log(e);
               removeSingle(props.dataItem.linkId)
@@ -104,11 +110,11 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
                       (item) => item !== props.dataItem.uid
                     )
                   );
+                  if (linksArr) setQueryInfo(queryInfo);
                 })
                 .catch(console.log);
             }
           }}
-          // onClick={(e) => checked(e, props.dataItem.id)}
         />
       </td>
     );
@@ -131,23 +137,9 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
       <Button onClick={cancel}>Отменить изменения</Button>
       <Grid data={linksArr} style={{ height: "500px" }}>
         <GridColumn cell={CheckCell} width="50px" />
-        {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
         <GridColumn field="name" width="150px" title="Имя" />
-        <GridColumn
-          field="code"
-          // cell={EmailContactCell}
-          width="250px"
-          title="Код"
-        />
+        <GridColumn field="code" width="250px" title="Код" />
       </Grid>
-      {/* <div style={{ marginTop: "15px", marginBottom: "15px" }}>
-            <Select
-              options={companies}
-              onChange={onSelectCompany}
-              placeholder="Выбрать магазин"
-            />
-          </div> */}
-      {/* <Button onClick={send}>Отправить</Button> */}
     </Window>
   );
 };

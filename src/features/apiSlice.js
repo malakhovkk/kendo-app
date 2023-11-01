@@ -499,6 +499,12 @@ export const userApi = createApi({
         body: arrayOfLinks,
       }),
     }),
+    getLinks: builder.mutation({
+      query: (body) => ({
+        url: `link/${body.priceRecordId}/${body.searchWord}`,
+        method: "GET",
+      }),
+    }),
     // orderComment: builder.mutation({
     //   query: (body) => ({
     //     url: `ordercomment/`,
@@ -571,4 +577,5 @@ export const {
   useSetLinkMutation,
   useDeleteSingleMutation,
   useDeleteMultipleMutation,
+  useGetLinksMutation,
 } = userApi;
