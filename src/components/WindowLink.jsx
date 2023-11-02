@@ -10,6 +10,7 @@ import {
   useGetLinksMutation,
   useSetLinkMutation,
 } from "../features/apiSlice";
+import CheckInput from "./CheckInput";
 
 const WindowLink = ({ closeDialog, priceRecordId }) => {
   const [checkedRow, setCheckedRow] = React.useState([]);
@@ -88,34 +89,7 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
   const CheckCell = (props) => {
     return (
       <td>
-        <Checkbox
-          checked={currentLinksArr?.includes(props.dataItem.uid)}
-          onChange={async (e) => {
-            if (e.value) {
-              console.log(e);
-              await setLinksReq({
-                id: "",
-                ProductScu: priceRecordId,
-                Product1c: props.dataItem.uid,
-              }).unwrap();
-              setCurrentLinksArr([...currentLinksArr, props.dataItem.uid]);
-              // exec();
-            } else {
-              console.log(e);
-              removeSingle(props.dataItem.linkId)
-                .unwrap()
-                .then((_) => {
-                  setCurrentLinksArr(
-                    currentLinksArr.filter(
-                      (item) => item !== props.dataItem.uid
-                    )
-                  );
-                  if (linksArr) setQueryInfo(queryInfo);
-                })
-                .catch(console.log);
-            }
-          }}
-        />
+        <CheckInput {...props} />
       </td>
     );
   };
