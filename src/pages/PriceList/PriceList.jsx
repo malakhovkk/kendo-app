@@ -34,10 +34,9 @@ import TableSkeleton from "../../components/TableSkeleton";
 import { Checkbox } from "@progress/kendo-react-inputs";
 import WindowLink from "../../components/WindowLink";
 const MyCell = function (props) {
-  // console.log("MyCell");
   return (
     <td style={{ height: "80px" }} colSpan={props.colSpan}>
-      <NumInput {...props} />{" "}
+      <NumInput {...props} />
     </td>
   );
 };
@@ -163,7 +162,7 @@ const PriceList = (props) => {
     else new_fields = [...fields];
     new_fields = ["link", ...new_fields];
     // console.error(new_fields);
-    
+
     let cols = new_fields?.map((field, idx) => {
       console.log(field);
       if (field === "quantDelta" || field === "priceDelta") return;
