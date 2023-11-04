@@ -21,7 +21,7 @@ const CheckCell = (props) => {
   );
 };
 
-const WindowLink = ({ closeDialog, priceRecordId }) => {
+const WindowLink = ({ closeDialog, priceRecordId, title }) => {
   const [checkedRow, setCheckedRow] = React.useState([]);
   const [searchWord, setSearchWord] = React.useState("");
   const [oldSearchWord, setOldSearchWord] = React.useState("");
@@ -197,22 +197,28 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
   };
   return (
     <Window
-      title={"Link"}
+      title={title}
       onClose={closeDialog}
       initialHeight={850}
       initialWidth={600}
     >
-      <div style={{   marginBottom: "20px" }}>
+      <div style={{   marginBottom: "20px", width: "400px" }}>
+        <div>
       Поиск:
       <Input
         onChange={(e) => setOldSearchWord(e.target.value)}
-        style={{ width: "300px", marginLeft: "20px" }}
+        style={{ width: "335px", marginLeft: "20px" }}
       />
-      <Button onClick={cancel} style={{  marginLeft: "20px"}}>Отменить изменения</Button>
       </div>
+      <div style={{marginTop: "10px", textAlign: "right"}}>
+        <Button onClick={cancel} >Отменить изменения</Button>
+        <Button onClick={closeDialog} style={{  marginLeft: "10px" }}>Завершить</Button>
+      </div>
+      </div>
+      
       <Grid
         data={ linksArr}
-        style={{ height: "500px" }}
+        style={{ minHeight: "500px", height: "85%", minWidth: "500px" }}
         onItemChange={itemChange}
         dataItemKey={"tempId"}
       >
@@ -220,12 +226,11 @@ const WindowLink = ({ closeDialog, priceRecordId }) => {
           cell={CheckCell}
           field="selected"
           title="Выбрать"
-          width="50px"
+          width="100px"
         />
-        <GridColumn field="name" width="150px" title="Имя" />
+        <GridColumn field="name" width="350px" title="Имя" />
         <GridColumn field="code" width="250px" title="Код" />
       </Grid>
-      <Button onClick={closeDialog} style={{  marginTop: "20px" }}>Завершить</Button>
     </Window>
   );
 };

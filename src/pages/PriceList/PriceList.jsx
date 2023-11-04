@@ -654,6 +654,7 @@ const PriceList = (props) => {
   const [link, setLink] = React.useState();
   console.log(result?.findIndex((el) => el.sku === "УТ000006206"));
   React.useEffect(() => {if (!link) showPriceList()}, [link])
+  console.log(document);
   return (
     <div
       style={{
@@ -662,8 +663,8 @@ const PriceList = (props) => {
         marginLeft: "20px",
       }}
     >
-      {link && (
-        <WindowLink priceRecordId={link} closeDialog={closeDialog} />
+      {link &&  (
+        <WindowLink title={document?.find(row => row.id === link)?.name} priceRecordId={link} closeDialog={closeDialog} />
         // <Window
         //   title={"Link"}
         //   onClose={closeDialog}
