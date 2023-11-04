@@ -228,12 +228,11 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
           title="Выбрать"
           width="100px"
         />
-        
+
         <GridColumn field="name" width="350px" title="Имя" />
         <GridColumn field="code" width="250px" title="Код" />
       </Grid>
     </Window>
   );
-
 };
 export default WindowLink;
