@@ -501,7 +501,7 @@ const PriceList = (props) => {
         },
       ]);
   };
-
+  
   function itemChange(event) {
     console.log(event);
     let value = event.value;
@@ -653,7 +653,7 @@ const PriceList = (props) => {
   };
   const [link, setLink] = React.useState();
   console.log(result?.findIndex((el) => el.sku === "УТ000006206"));
-
+  React.useEffect(() => {if (!link) showPriceList()}, [link])
   return (
     <div
       style={{
