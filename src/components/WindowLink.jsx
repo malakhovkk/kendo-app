@@ -200,7 +200,7 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
       title={title}
       onClose={closeDialog}
       initialHeight={850}
-      initialWidth={600}
+      initialWidth={800}
     >
       <div style={{   marginBottom: "20px", width: "400px" }}>
         <div>
@@ -233,5 +233,6 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
       </Grid>
     </Window>
   );
+
 };
 export default WindowLink;
