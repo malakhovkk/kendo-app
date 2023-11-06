@@ -9,6 +9,7 @@ import {
   useDeleteSingleMutation,
   useGetLinksMutation,
   useSetLinkMutation,
+  //useAddMultipleMutation
 } from "../features/apiSlice";
 import CheckInput from "./CheckInput";
 import { link } from "@progress/kendo-editor-common";
@@ -30,6 +31,7 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
   const [setLinksReq] = useSetLinkMutation();
   const [queryInfo, setQueryInfo] = React.useState({});
   const [linksArr, setLinksArr] = React.useState([]);
+  //const [addMultipleReq] = useAddMultipleMutation();
   const isFetching = React.useRef(false);
   const var1 = React.useRef(false);
   const var2 = React.useRef([]);
@@ -176,13 +178,14 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
   };
   const cancel = async () => {
     console.log(currentLinksArr, initialLinksArr);
-    let res = currentLinksArr.filter(el => !initialLinksArr.includes(el));
-    if(res.length)
+    let toDelete = currentLinksArr.filter(el => !initialLinksArr.includes(el));
+    let toAdd = initialLinksArr.filter(el => !currentLinksArr.includes(el));
+    if(toDelete.length || toAdd.length)
     {
       try 
       {
-        await removeMultipleReq(res).unwrap();
-      
+        if(toDelete.length) await removeMultipleReq(toDelete).unwrap();
+        //if(toAdd.length) await addMultipleReq(toAdd).unwrap();
         let ans = await getLinksQueryReq({
           priceRecordId,
           searchWord: searchWord ? searchWord : "getAll",
