@@ -9,7 +9,7 @@ import {
   useDeleteSingleMutation,
   useGetLinksMutation,
   useSetLinkMutation,
-  //useAddMultipleMutation
+  useAddMultipleMutation,
 } from "../features/apiSlice";
 import CheckInput from "./CheckInput";
 import { link } from "@progress/kendo-editor-common";
@@ -31,7 +31,7 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
   const [setLinksReq] = useSetLinkMutation();
   const [queryInfo, setQueryInfo] = React.useState({});
   const [linksArr, setLinksArr] = React.useState([]);
-  //const [addMultipleReq] = useAddMultipleMutation();
+  const [addMultipleReq] = useAddMultipleMutation();
   const isFetching = React.useRef(false);
   const var1 = React.useRef(false);
   const var2 = React.useRef([]);
@@ -45,7 +45,7 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     //   priceRecordId,
     //   searchWord: searchWord ? searchWord : "getAll",
     // });
-    try{
+    try {
       let res = await getLinksQueryReq({
         priceRecordId,
         searchWord: searchWord ? searchWord : "getAll",
@@ -54,9 +54,7 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
       //console.log(res.map((item) => ({ ...item, selected: !!item.linkId })));
       setLinksArr(res.map((item) => ({ ...item, selected: !!item.linkId })));
       var2.current = res.map((item) => ({ ...item, selected: !!item.linkId }));
-    }
-    catch(e)
-    {
+    } catch (e) {
       console.log(e);
     }
   }
@@ -76,9 +74,11 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
   // }, [linksArr]);
   React.useEffect(() => {
     if (!linksArr) return;
-    if (new_arr.current && linksArr && linksArr.length)  {
-      console.error(linksArr.filter((el) => el.linkId !== "").map((el) => el.uid));
-      
+    if (new_arr.current && linksArr && linksArr.length) {
+      console.error(
+        linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
+      );
+
       setInitialLinksArr(
         linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
       );
@@ -97,7 +97,7 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     if (oldSearchWord.length >= 3)
       t = setTimeout(() => {
         setSearchWord(oldSearchWord);
-      }, 2000);
+      }, 1400);
     else setSearchWord("");
     return () => {
       clearTimeout(t);
@@ -108,12 +108,10 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     //alert("linksArr change");
   }, [linksArr]);
 
- 
-
   const [initialLinksArr, setInitialLinksArr] = React.useState([]);
   const [currentLinksArr, setCurrentLinksArr] = React.useState([]);
- React.useEffect(() => {
-  console.warn(initialLinksArr)
+  React.useEffect(() => {
+    console.warn(initialLinksArr);
     //alert("linksArr change");
   }, [initialLinksArr]);
 
@@ -148,52 +146,48 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     } else {
       console.log(event);
       let ld = event.dataItem.linkId;
-      try 
-      {
+      try {
         let obj = await removeSingleReq(ld).unwrap();
         if (!obj || !obj.result) return;
-        setCurrentLinksArr(
-          currentLinksArr.filter((row) => row !== ld)
-        );
-      }
-      catch(e)
-      {
+        setCurrentLinksArr(currentLinksArr.filter((row) => row !== ld));
+      } catch (e) {
         console.log(e);
       }
     }
-
   }
 
   const send = async (ProductScu, Product1c) => {
-    try 
-    {
-      const res = await setLinksReq({ id: "", ProductScu, Product1c }).unwrap();
+    try {
+      //const res = await setLinksReq({ id: "", ProductScu, Product1c }).unwrap();
+      const res = await addMultipleReq([
+        { id: "", ProductScu, Product1c },
+      ]).unwrap();
       return res;
-    }
-    catch(e) 
-    {
+    } catch (e) {
       console.log(e);
     }
-    
   };
   const cancel = async () => {
     console.log(currentLinksArr, initialLinksArr);
-    let toDelete = currentLinksArr.filter(el => !initialLinksArr.includes(el));
-    let toAdd = initialLinksArr.filter(el => !currentLinksArr.includes(el));
-    if(toDelete.length || toAdd.length)
-    {
-      try 
-      {
-        if(toDelete.length) await removeMultipleReq(toDelete).unwrap();
-        //if(toAdd.length) await addMultipleReq(toAdd).unwrap();
+    let toDelete = currentLinksArr.filter(
+      (el) => !initialLinksArr.includes(el)
+    );
+    let toAdd = initialLinksArr.filter((el) => !currentLinksArr.includes(el));
+    console.log(initialLinksArr, currentLinksArr);
+    console.error(
+      initialLinksArr.filter((el) => !currentLinksArr.includes(el))
+    );
+    if (toDelete.length || toAdd.length) {
+      try {
+        if (toDelete.length) await removeMultipleReq(toDelete).unwrap();
+        if (toAdd.length) await addMultipleReq(toAdd).unwrap();
         let ans = await getLinksQueryReq({
           priceRecordId,
           searchWord: searchWord ? searchWord : "getAll",
         }).unwrap();
-      
+
         exec();
-      }
-      catch(e) {
+      } catch (e) {
         console.log(e);
       }
     }
@@ -205,22 +199,24 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
       initialHeight={850}
       initialWidth={800}
     >
-      <div style={{   marginBottom: "20px", width: "400px" }}>
+      <div style={{ marginBottom: "20px", width: "400px" }}>
         <div>
-      Поиск:
-      <Input
-        onChange={(e) => setOldSearchWord(e.target.value)}
-        style={{ width: "335px", marginLeft: "20px" }}
-      />
+          Поиск:
+          <Input
+            onChange={(e) => setOldSearchWord(e.target.value)}
+            style={{ width: "335px", marginLeft: "20px" }}
+          />
+        </div>
+        <div style={{ marginTop: "10px", textAlign: "right" }}>
+          <Button onClick={cancel}>Отменить изменения</Button>
+          <Button onClick={closeDialog} style={{ marginLeft: "10px" }}>
+            Завершить
+          </Button>
+        </div>
       </div>
-      <div style={{marginTop: "10px", textAlign: "right"}}>
-        <Button onClick={cancel} >Отменить изменения</Button>
-        <Button onClick={closeDialog} style={{  marginLeft: "10px" }}>Завершить</Button>
-      </div>
-      </div>
-      
+
       <Grid
-        data={ linksArr}
+        data={linksArr}
         style={{ minHeight: "500px", height: "85%", minWidth: "500px" }}
         onItemChange={itemChange}
         dataItemKey={"tempId"}
