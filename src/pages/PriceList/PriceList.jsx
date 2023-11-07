@@ -136,13 +136,19 @@ const PriceList = (props) => {
         {props.dataItem.linkId ? (
           <img
             style={{ width: "20px", height: "20px", cursor: "pointer" }}
-            onClick={() => setLink(props.dataItem.id)}
+            onClick={() => {
+              reset2();
+              setLink(props.dataItem.id);
+            }}
             src={require("../../assets/grc.png")}
           />
         ) : (
           <img
             style={{ width: "20px", height: "20px", cursor: "pointer" }}
-            onClick={() => setLink(props.dataItem.id)}
+            onClick={() => {
+              reset2();
+              setLink(props.dataItem.id);
+            }}
             src={require("../../assets/redc.png")}
           />
         )}
@@ -501,7 +507,7 @@ const PriceList = (props) => {
         },
       ]);
   };
-  
+
   function itemChange(event) {
     console.log(event);
     let value = event.value;
@@ -645,6 +651,13 @@ const PriceList = (props) => {
     setOrderId();
     vendor.current = "";
     setComment("");
+    dispatch(freeze(false));
+  };
+  const reset2 = () => {
+    setQuantOrderArr([]);
+    setOrderId();
+    setComment("");
+    dispatch(freeze(false));
   };
   const [active, setActive] = React.useState();
   const clickVendor = (e) => {
@@ -653,7 +666,9 @@ const PriceList = (props) => {
   };
   const [link, setLink] = React.useState();
   console.log(result?.findIndex((el) => el.sku === "УТ000006206"));
-  React.useEffect(() => {if (!link) showPriceList()}, [link])
+  React.useEffect(() => {
+    if (!link) showPriceList();
+  }, [link]);
   console.log(document);
   return (
     <div
@@ -663,8 +678,12 @@ const PriceList = (props) => {
         marginLeft: "20px",
       }}
     >
-      {link &&  (
-        <WindowLink title={document?.find(row => row.id === link)?.name} priceRecordId={link} closeDialog={closeDialog} />
+      {link && (
+        <WindowLink
+          title={document?.find((row) => row.id === link)?.name}
+          priceRecordId={link}
+          closeDialog={closeDialog}
+        />
         // <Window
         //   title={"Link"}
         //   onClose={closeDialog}
