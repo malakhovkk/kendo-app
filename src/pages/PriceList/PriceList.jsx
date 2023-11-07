@@ -35,7 +35,7 @@ import { Checkbox } from "@progress/kendo-react-inputs";
 import WindowLink from "../../components/WindowLink";
 const MyCell = function (props) {
   return (
-    <td style={{ height: "80px" }} colSpan={props.colSpan}>
+    <td style={{ height: "40px" }} colSpan={props.colSpan}>
       <NumInput {...props} />
     </td>
   );
@@ -124,7 +124,7 @@ const PriceList = (props) => {
   const DefaultCell = (props) => {
     const field = props.field || "";
     return (
-      <td style={{ height: "150px" }} colSpan={props.colSpan}>
+      <td style={{ height: "40px" }} colSpan={props.colSpan}>
         {props.dataItem[field]}
       </td>
     );
@@ -132,7 +132,7 @@ const PriceList = (props) => {
   const LinkCell = (props) => {
     //console.log(props)
     return (
-      <td>
+      <td style={{ height: "40px" }}>
         {props.dataItem.linkId ? (
           <img
             style={{ width: "20px", height: "20px", cursor: "pointer" }}
@@ -172,6 +172,8 @@ const PriceList = (props) => {
     let cols = new_fields?.map((field, idx) => {
       console.log(field);
       if (field === "quantDelta" || field === "priceDelta") return;
+      let w = 100;
+      if (field === "name") w = 400;
       if (field === "link") {
         return <GridColumn cell={LinkCell} width="50px" />;
       }
@@ -181,7 +183,7 @@ const PriceList = (props) => {
             cell={MyCell}
             field="orderQuant"
             title="Order"
-            width={100}
+            width={w}
             key={field}
           />
         );
@@ -191,7 +193,7 @@ const PriceList = (props) => {
         <GridColumn
           key={field}
           field={field}
-          width={100}
+          width={w}
           cell={DefaultCell}
           title={field}
         />
@@ -540,7 +542,7 @@ const PriceList = (props) => {
 
   const [page, setPage] = React.useState({
     skip: 0,
-    take: 15,
+    take: 30,
   });
 
   const frozen = useSelector((state) => state.settings.frozen);
@@ -634,14 +636,17 @@ const PriceList = (props) => {
       };
       axios.put(url, formData, config).catch((err) => console.error(err));
     }
-
-    await saveOrderReq({ body: orderContentMutationArray("new") }).unwrap();
-    if (quantOrderArr.filter((el) => el.status === "edited").length)
-      await saveEditOrderReq({
-        body: orderContentMutationArray("edited"),
-      }).unwrap();
-    await deleteRecordOrder({ body: orderContentDeleteArray() }).unwrap();
-    await getOrderRequest();
+    try {
+      await saveOrderReq({ body: orderContentMutationArray("new") }).unwrap();
+      if (quantOrderArr.filter((el) => el.status === "edited").length)
+        await saveEditOrderReq({
+          body: orderContentMutationArray("edited"),
+        }).unwrap();
+      await deleteRecordOrder({ body: orderContentDeleteArray() }).unwrap();
+      await getOrderRequest();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const reset = () => {
@@ -684,32 +689,6 @@ const PriceList = (props) => {
           priceRecordId={link}
           closeDialog={closeDialog}
         />
-        // <Window
-        //   title={"Link"}
-        //   onClose={closeDialog}
-        //   initialHeight={350}
-        //   initialWidth={600}
-        // >
-        //   <Grid data={[]} style={{}}>
-        //     <GridColumn cell={CheckCell} width="50px" />
-        //     {/* <GridColumn field="comment" width="150px" title="Комментарий" /> */}
-        //     <GridColumn field="name" width="150px" title="Имя" />
-        //     <GridColumn
-        //       //  field="contact"
-        //       // cell={EmailContactCell}
-        //       width="250px"
-        //       title="Почта"
-        //     />
-        //   </Grid>
-        //   {/* <div style={{ marginTop: "15px", marginBottom: "15px" }}>
-        //     <Select
-        //       options={companies}
-        //       onChange={onSelectCompany}
-        //       placeholder="Выбрать магазин"
-        //     />
-        //   </div> */}
-        //   <Button onClick={() => {}}>Отправить</Button>
-        // </Window>
       )}
       {loading && (
         <div
@@ -793,52 +772,57 @@ const PriceList = (props) => {
         </>
       )}
       {table && result && !withChanges && (
-        <Grid
-          resizable={true}
-          style={{
-            height: "500px",
-            marginTop: "10px",
-          }}
-          rowRender={rowRender}
-          onRowClick={clickVendor}
-          data={
-            document === undefined || document.length === 0
-              ? []
-              : result.slice(page.skip, page.take + page.skip)
-          }
-          scrollable={"virtual"}
-          skip={page.skip}
-          take={page.take}
-          rowHeight={166}
-          total={result.length}
-          onPageChange={(event) => {
-            console.log(event.page);
-            setPage(event.page);
-          }}
-          onItemChange={itemChange}
-          dataItemKey={"id"}
-        >
-          {columns}
-        </Grid>
+        <div className="wrap">
+          <Grid
+            resizable={true}
+            style={{
+              height: "500px",
+              marginTop: "10px",
+            }}
+            rowRender={rowRender}
+            onRowClick={clickVendor}
+            data={
+              document === undefined || document.length === 0
+                ? []
+                : result.slice(page.skip, page.take + page.skip)
+            }
+            scrollable={"virtual"}
+            skip={page.skip}
+            take={page.take}
+            rowHeight={56}
+            total={result.length}
+            onPageChange={(event) => {
+              console.log(event.page);
+              setPage(event.page);
+            }}
+            onItemChange={itemChange}
+            dataItemKey={"id"}
+          >
+            {columns}
+          </Grid>
+        </div>
       )}
 
       {table && result && withChanges && (
-        <Grid
-          rowRender={rowRender}
-          resizable={true}
-          style={{
-            width: "100%",
-            height: "500px",
-            marginTop: "10px",
-          }}
-          onRowClick={clickVendor}
-          data={result.filter(
-            (row) => row.quantDelta !== 0 || row.priceDelta !== 0
-          )}
-          onItemChange={itemChange}
-        >
-          {columns}
-        </Grid>
+        <div className="wrap">
+          <Grid
+            rowRender={rowRender}
+            resizable={true}
+            style={{
+              width: "100%",
+              height: "500px",
+              marginTop: "10px",
+            }}
+            onRowClick={clickVendor}
+            data={result.filter(
+              (row) => row.quantDelta !== 0 || row.priceDelta !== 0
+            )}
+            onItemChange={itemChange}
+            dataItemKey={"id"}
+          >
+            {columns}
+          </Grid>
+        </div>
       )}
       {table &&
         result &&

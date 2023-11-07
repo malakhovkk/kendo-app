@@ -15,7 +15,33 @@
   border-bottom: 20px solid white;
   top: -40px;
 }
+
+tr {
+  white-space: nowrap;
+}
+
+/* .wrap {
+  position: relative;
+  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+} */
+
+/* td {
+  padding-block: 0 !important;
+} */
+
+/* td {
+  padding-block: 0 !important;
+} */
 /* tr,
 td {
   z-index: 10;
-} */
+}
+tr {
+  white-space: nowrap;
+}
+td {
+  padding-block: 0 !important;
+}
+*/

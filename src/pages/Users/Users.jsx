@@ -137,7 +137,22 @@ const Users = () => {
       showError(`Ошибка: заполните необходимые поля`);
     }
   };
-
+  // const rowRender = (trElement, props) => {
+  //   const blue = { backgroundColor: "#d9d9e3" };
+  //   const red = {};
+  //   // console.log(active, "  ", props.dataItem.id);
+  //   const trProps = {
+  //     style: active === props.dataItem.id ? blue : red,
+  //   };
+  //   return React.cloneElement(
+  //     trElement,
+  //     {
+  //       ...trProps,
+  //     },
+  //     trElement.props.children
+  //   );
+  // };
+  // rowRender={rowRender}
   return (
     <div style={{ marginTop: "100px" }}>
       <div className="add_user">

@@ -24,3 +24,15 @@
 body {
   height: 100%;
 }
+
+tr {
+  white-space: nowrap;
+}
+/* tr {
+  white-space: nowrap;
+}
+td {
+  padding-block: 0 !important;
+} */
+
+/* whiteSpace: "nowrap" */
