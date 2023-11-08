@@ -75,9 +75,9 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
   React.useEffect(() => {
     if (!linksArr) return;
     if (new_arr.current && linksArr && linksArr.length) {
-      console.error(
-        linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
-      );
+      // console.error(
+      //   linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
+      // );
 
       setInitialLinksArr(
         linksArr.filter((el) => el.linkId !== "").map((el) => el.uid)
@@ -126,6 +126,7 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     const name = event.field;
     if (value) {
       let obj = await send(priceRecordId, event.dataItem.uid);
+      console.log("uid ", event.dataItem.uid);
       if (!obj || !obj.result) return;
       let linkId = obj.result;
 
@@ -142,13 +143,19 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
 
       // var1.current = event;
       //console.log(linkId);
-      setCurrentLinksArr([...currentLinksArr, linkId]);
+      setCurrentLinksArr((currentLinksArr) => [
+        ...currentLinksArr,
+        event.dataItem.uid,
+      ]);
     } else {
       console.log(event);
       let ld = event.dataItem.linkId;
+
       try {
         let obj = await removeSingleReq(ld).unwrap();
         if (!obj || !obj.result) return;
+        console.warn(currentLinksArr.filter((row) => row !== ld));
+        console.log(ld);
         setCurrentLinksArr(currentLinksArr.filter((row) => row !== ld));
       } catch (e) {
         console.log(e);
@@ -168,28 +175,46 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     }
   };
   const cancel = async () => {
-    console.log(currentLinksArr, initialLinksArr);
-    let toDelete = currentLinksArr.filter(
-      (el) => !initialLinksArr.includes(el)
-    );
-    let toAdd = initialLinksArr.filter((el) => !currentLinksArr.includes(el));
-    console.log(initialLinksArr, currentLinksArr);
-    console.error(
-      initialLinksArr.filter((el) => !currentLinksArr.includes(el))
-    );
-    if (toDelete.length || toAdd.length) {
-      try {
-        if (toDelete.length) await removeMultipleReq(toDelete).unwrap();
-        if (toAdd.length) await addMultipleReq(toAdd).unwrap();
-        let ans = await getLinksQueryReq({
-          priceRecordId,
-          searchWord: searchWord ? searchWord : "getAll",
-        }).unwrap();
+    // console.log(currentLinksArr, initialLinksArr);
+    // let toDelete = currentLinksArr.filter(
+    //   (el) => !initialLinksArr.includes(el)
+    // );
+    // let toAdd = initialLinksArr.filter((el) => !currentLinksArr.includes(el));
+    // console.log(initialLinksArr, currentLinksArr);
+    // console.error(
+    //   initialLinksArr.filter((el) => !currentLinksArr.includes(el))
+    // );
+    // if (toDelete.length || toAdd.length) {
+    //   try {
+    //     if (toDelete.length) await removeMultipleReq(toDelete).unwrap();
+    //     console.log(toAdd);
+    //     if (toAdd.length) {
+    //       await addMultipleReq(toAdd).unwrap();
+    //     } else {
+    //     }
+    //     let ans = await getLinksQueryReq({
+    //       priceRecordId,
+    //       searchWord: searchWord ? searchWord : "getAll",
+    //     }).unwrap();
 
-        exec();
-      } catch (e) {
-        console.log(e);
-      }
+    //     exec();
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    try {
+      await removeMultipleReq(
+        linksArr.filter((el) => el.linkId !== "").map((el) => el.linkId)
+      ).unwrap();
+      await addMultipleReq(
+        currentLinksArr.map((el) => ({
+          id: "",
+          ProductScu: priceRecordId,
+          Product1c: el,
+        }))
+      ).unwrap();
+      exec();
+    } catch (err) {
+      console.log(err);
     }
   };
   return (

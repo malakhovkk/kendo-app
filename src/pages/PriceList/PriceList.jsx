@@ -33,6 +33,8 @@ import { Loader } from "@progress/kendo-react-indicators";
 import TableSkeleton from "../../components/TableSkeleton";
 import { Checkbox } from "@progress/kendo-react-inputs";
 import WindowLink from "../../components/WindowLink";
+import Selectrix from "react-selectrix";
+
 const MyCell = function (props) {
   return (
     <td style={{ height: "40px" }} colSpan={props.colSpan}>
@@ -683,89 +685,6 @@ const PriceList = (props) => {
         marginLeft: "20px",
       }}
     >
-      {link && (
-        <WindowLink
-          title={document?.find((row) => row.id === link)?.name}
-          priceRecordId={link}
-          closeDialog={closeDialog}
-        />
-      )}
-      {loading && (
-        <div
-          style={{
-            content: "",
-            position: "absolute",
-            top: "-179px",
-            left: 0,
-            background: "rgba(0,0,0,.5)",
-            zIndex: "1000",
-            height: "100vh",
-            display: "flex",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Loader size="large" type="infinite-spinner" />{" "}
-        </div>
-      )}
-      <div style={{ display: "flex" }}>
-        <div>
-          <div style={{ width: "500px", marginBottom: "10px" }}>
-            <div style={{ marginBottom: "10px" }}>Поставщик:</div>
-            <div>
-              <Select
-                options={options}
-                onChange={(e) => {
-                  onSelectVendor(e);
-                  console.log("onChange");
-                }}
-                placeholder="Выбрать поставщика"
-              />
-            </div>
-          </div>
-
-          <div style={{ marginBottom: "200px" }}>
-            Выбрано: {getVendorById(vendor.current)}
-          </div>
-          {!orderId && vendor.current && !!table?.length && (
-            <>
-              <Button onClick={createOrder}>Создать заказ</Button>
-            </>
-          )}
-          {orderId && (
-            <>
-              <Button onClick={saveOrder} style={{ marginRight: "10px" }}>
-                Сохранить заказ
-              </Button>
-              <Button onClick={reset}>Новый заказ</Button>
-            </>
-          )}
-        </div>
-        <div
-          style={{
-            marginTop: "5px",
-            marginLeft: "20px",
-          }}
-        >
-          <textarea
-            style={{
-              maxHeight: "100px",
-              maxWidth: "500px",
-              minHeight: "40px",
-              minWidth: "120px",
-              padding: "5px",
-              border: "1px solid grey",
-            }}
-            placeholder="Комментарий"
-            value={comment}
-            onChange={(e) => {
-              setComment(e.target.value);
-            }}
-          />
-        </div>
-      </div>
       {loadingDocument && (
         <>
           <TableSkeleton />
@@ -849,6 +768,99 @@ const PriceList = (props) => {
             Показать всю таблицу
           </Button>
         ))}
+      {link && (
+        <WindowLink
+          title={document?.find((row) => row.id === link)?.name}
+          priceRecordId={link}
+          closeDialog={closeDialog}
+        />
+      )}
+      {loading && (
+        <div
+          style={{
+            content: "",
+            position: "absolute",
+            top: "-179px",
+            left: 0,
+            background: "rgba(0,0,0,.5)",
+            zIndex: "1000",
+            height: "100vh",
+            display: "flex",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Loader size="large" type="infinite-spinner" />{" "}
+        </div>
+      )}
+      <div style={{ display: "flex" }}>
+        <div>
+          <div style={{ width: "500px", marginBottom: "10px" }}>
+            <div style={{ marginBottom: "10px" }}>Поставщик:</div>
+            <div>
+              {/* <Select
+                options={options}
+                onChange={(e) => {
+                  onSelectVendor(e);
+                  console.log("onChange");
+                }}
+                placeholder="Выбрать поставщика"
+              /> */}
+              <Selectrix
+                multiple={false}
+                materialize={true}
+                options={options?.map((el) => ({ ...el, key: el.value }))}
+                // onRenderOption={onRenderOption}
+                // onRenderSelection={onRenderSelection}
+                // onChange={ value => console.log( value ) }
+                onChange={(e) => {
+                  onSelectVendor(e);
+                  console.log("onChange");
+                }}
+              />
+            </div>
+          </div>
+
+          <div>Выбрано: {getVendorById(vendor.current)}</div>
+          {!orderId && vendor.current && !!table?.length && (
+            <>
+              <Button onClick={createOrder}>Создать заказ</Button>
+            </>
+          )}
+          {orderId && (
+            <>
+              <Button onClick={saveOrder} style={{ marginRight: "10px" }}>
+                Сохранить заказ
+              </Button>
+              <Button onClick={reset}>Новый заказ</Button>
+            </>
+          )}
+        </div>
+        <div
+          style={{
+            marginTop: "5px",
+            marginLeft: "20px",
+          }}
+        >
+          <textarea
+            style={{
+              maxHeight: "100px",
+              maxWidth: "500px",
+              minHeight: "40px",
+              minWidth: "120px",
+              padding: "5px",
+              border: "1px solid grey",
+            }}
+            placeholder="Комментарий"
+            value={comment}
+            onChange={(e) => {
+              setComment(e.target.value);
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

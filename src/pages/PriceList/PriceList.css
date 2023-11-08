@@ -19,7 +19,9 @@
 tr {
   white-space: nowrap;
 }
-
+.rs_header {
+  padding: 5px 10px;
+}
 /* .wrap {
   position: relative;
   overflow-x: auto;
