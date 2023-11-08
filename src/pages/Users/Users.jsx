@@ -153,6 +153,28 @@ const Users = () => {
   //   );
   // };
   // rowRender={rowRender}
+  const [active, setActive] = React.useState("");
+  const click = (e) => {
+    const id = e.dataItem.id;
+    setActive(id);
+  };
+
+  const rowRender = (trElement, props) => {
+    const blue = { backgroundColor: "#d9d9e3" };
+    const red = {};
+    // console.log(active, "  ", props.dataItem.id);
+    const trProps = {
+      style: active === props.dataItem.id ? blue : red,
+    };
+    return React.cloneElement(
+      trElement,
+      {
+        ...trProps,
+      },
+      trElement.props.children
+    );
+  };
+
   return (
     <div style={{ marginTop: "100px" }}>
       <div className="add_user">
@@ -167,6 +189,8 @@ const Users = () => {
       </div>
       <Grid
         data={data}
+        rowRender={rowRender}
+        onRowClick={click}
         className="grid"
         style={{
           height: "400px",

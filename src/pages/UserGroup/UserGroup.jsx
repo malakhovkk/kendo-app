@@ -201,6 +201,28 @@ const UserGroup = () => {
   //   .catch(err => console.log(err));
   // }
 
+  const [active, setActive] = React.useState("");
+  const click = (e) => {
+    const id = e.dataItem.id;
+    setActive(id);
+  };
+
+  const rowRender = (trElement, props) => {
+    const blue = { backgroundColor: "#d9d9e3" };
+    const red = {};
+    // console.log(active, "  ", props.dataItem.id);
+    const trProps = {
+      style: active === props.dataItem.id ? blue : red,
+    };
+    return React.cloneElement(
+      trElement,
+      {
+        ...trProps,
+      },
+      trElement.props.children
+    );
+  };
+
   const getById = (id) => {
     const element = data.find((el) => el.id === id);
     return element;
@@ -221,6 +243,8 @@ const UserGroup = () => {
     //setInfo(arr);
   };
   const clickGroup = (e) => {
+    const id = e.dataItem.id;
+    setActive(id);
     console.log("click row");
     console.log(e);
     const id_group = e.dataItem.id;
@@ -349,6 +373,7 @@ const UserGroup = () => {
         style={{
           height: "400px",
         }}
+        rowRender={rowRender}
         onRowClick={clickGroup}
         // selectable={{
         //   enabled: true,

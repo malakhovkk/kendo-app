@@ -71,6 +71,30 @@ const UserGroup = () => {
   const [showContactVisibility, setShowContactVisibility] = React.useState(0);
   const [idContact, setIdContact] = React.useState();
   const [addContact] = useAddContactMutation();
+
+  const [active, setActive] = React.useState("");
+
+  const click = (e) => {
+    const id = e.dataItem.id;
+    setActive(id);
+  };
+
+  const rowRender = (trElement, props) => {
+    const blue = { backgroundColor: "#d9d9e3" };
+    const red = {};
+    // console.log(active, "  ", props.dataItem.id);
+    const trProps = {
+      style: active === props.dataItem.id ? blue : red,
+    };
+    return React.cloneElement(
+      trElement,
+      {
+        ...trProps,
+      },
+      trElement.props.children
+    );
+  };
+
   function f() {
     return;
   }
@@ -333,6 +357,7 @@ const UserGroup = () => {
     console.log("click row");
     console.log(e);
     const id_group = e.dataItem.id;
+    setActive(id_group);
     showContact(id_group);
     // setIdGroup(id_group);
     // getUsersByGroup({id:id_group})
@@ -487,6 +512,7 @@ const UserGroup = () => {
       <Grid
         data={data}
         className="grid"
+        rowRender={rowRender}
         style={{
           height: "400px",
         }}

@@ -190,6 +190,29 @@ export default function Files(props) {
     );
   }, [dataProfiles]);
 
+  const [active, setActive] = React.useState("");
+
+  const click = (e) => {
+    const id = e.dataItem.id;
+    setActive(id);
+  };
+
+  const rowRender = (trElement, props) => {
+    const blue = { backgroundColor: "#d9d9e3" };
+    const red = {};
+    // console.log(active, "  ", props.dataItem.id);
+    const trProps = {
+      style: active === props.dataItem.id ? blue : red,
+    };
+    return React.cloneElement(
+      trElement,
+      {
+        ...trProps,
+      },
+      trElement.props.children
+    );
+  };
+
   return (
     <div style={{ marginLeft: "10px", marginTop: "100px" }}>
       {loading && (
@@ -313,6 +336,8 @@ export default function Files(props) {
 
       <Grid
         data={info}
+        rowRender={rowRender}
+        onRowClick={click}
         className="grid"
         style={{
           height: "400px",

@@ -329,6 +329,28 @@ const Orders = () => {
     );
   };
 
+  const [active, setActive] = React.useState("");
+  const click = (e) => {
+    const id = e.dataItem.id;
+    setActive(id);
+  };
+
+  const rowRender = (trElement, props) => {
+    const blue = { backgroundColor: "#d9d9e3" };
+    const red = {};
+    // console.log(active, "  ", props.dataItem.id);
+    const trProps = {
+      style: active === props.dataItem.id ? blue : red,
+    };
+    return React.cloneElement(
+      trElement,
+      {
+        ...trProps,
+      },
+      trElement.props.children
+    );
+  };
+
   const send = () => {
     if (!orderId || !vendorId) {
       alert("Произошла ошибка");
@@ -375,7 +397,12 @@ const Orders = () => {
       </Button>
       {orders && (
         <>
-          <Grid data={orders} style={{ height: "600px" }}>
+          <Grid
+            data={orders}
+            rowRender={rowRender}
+            onRowClick={click}
+            style={{ height: "600px" }}
+          >
             <GridColumn field="number" width="150px" title="Номер" />
             <GridColumn
               field="dateCreate"
