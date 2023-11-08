@@ -202,17 +202,25 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     //     console.log(e);
     //   }
     try {
-      await removeMultipleReq(
-        linksArr.filter((el) => el.linkId !== "").map((el) => el.linkId)
-      ).unwrap();
-      await addMultipleReq(
-        currentLinksArr.map((el) => ({
+      if (linksArr && linksArr.length) {
+        await removeMultipleReq(
+          linksArr.filter((el) => el.linkId !== "").map((el) => el.linkId)
+        ).unwrap();
+        const toAdd = initialLinksArr.map((el) => ({
           id: "",
           ProductScu: priceRecordId,
           Product1c: el,
-        }))
-      ).unwrap();
-      exec();
+        }));
+        if (toAdd.length)
+          await addMultipleReq(
+            initialLinksArr.map((el) => ({
+              id: "",
+              ProductScu: priceRecordId,
+              Product1c: el,
+            }))
+          ).unwrap();
+        exec();
+      }
     } catch (err) {
       console.log(err);
     }
