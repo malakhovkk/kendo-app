@@ -15,7 +15,6 @@ const Suppliers = () => {
   };
   const navigate = useNavigate();
   const save = (e) => {
-    console.log(file);
     const url = "http://192.168.20.30:55555/api/file";
     const formData = new FormData();
     formData.append("Document", file);
@@ -38,9 +37,7 @@ const Suppliers = () => {
     // }
     axios
       .post(url, formData, config)
-      .then((response) => {
-        console.log(response.data);
-      })
+      .then((response) => {})
       .catch((err) => {
         if (err.response.status === 401) navigate("/");
         console.log(err);

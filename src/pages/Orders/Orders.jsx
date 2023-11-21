@@ -43,6 +43,7 @@ const Orders = () => {
       // if (k === "orderId") formData.append(k, `'; DROP TABLE USERS; --`);
       formData.append(k, body[k]);
     }
+
     // formData.append("Document", file);
     // formData.append("ProfileId", profile);
     // formData.append("UserLogin", localStorage.getItem("login"));
@@ -68,7 +69,7 @@ const Orders = () => {
         console.log(data);
         getContactsAndOrders();
         if (data.data.code === 0) {
-          toast.success(`Успешно оптравлено`, {
+          toast.success(`Успешно отправлено`, {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -351,7 +352,33 @@ const Orders = () => {
     );
   };
 
-  const send = () => {
+  const showSuccess = (msg) => {
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
+  const showError = (msg) => {
+    toast.error(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
+  const send = async () => {
     if (!orderId || !vendorId) {
       alert("Произошла ошибка");
       return;
@@ -371,6 +398,7 @@ const Orders = () => {
       return;
     }
     console.log(contacts.filter((contact) => checkedRow[contact.id]));
+
     sendOrder({
       orderId,
       eMailList: contacts
@@ -402,6 +430,7 @@ const Orders = () => {
             rowRender={rowRender}
             onRowClick={click}
             style={{ height: "600px" }}
+            resizable={true}
           >
             <GridColumn field="number" width="150px" title="Номер" />
             <GridColumn

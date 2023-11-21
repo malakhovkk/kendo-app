@@ -69,8 +69,15 @@ const Users = () => {
     setVisible(1);
   };
 
-  const deleteUser = (id) => {
-    if (window.confirm("Удалить пользователя?")) deleteUserReq(getById(id));
+  const deleteUser = async (id) => {
+    if (window.confirm("Удалить пользователя?")) {
+      try {
+        await deleteUserReq(getById(id)).unwrap();
+        showSuccess("Успешно удален!");
+      } catch (e) {
+        showError("Ошибка");
+      }
+    }
   };
 
   const closeDialog = () => {

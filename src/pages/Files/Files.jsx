@@ -32,7 +32,6 @@ export default function Files(props) {
   const [docId, setDocId] = React.useState();
   const [loading, setLoading] = React.useState(false);
   const { data: dataProfiles } = useGetProfilesQuery();
-  console.log(files);
   const getUserById = (id) => {
     return users.find((user) => user.id === id)?.name;
   };
@@ -65,7 +64,6 @@ export default function Files(props) {
     deleteFile(id);
   };
   const DeleteCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -79,7 +77,6 @@ export default function Files(props) {
   };
   const navigate = useNavigate();
   const EditCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -100,7 +97,6 @@ export default function Files(props) {
   };
   React.useEffect(() => {}, []);
   React.useEffect(() => {
-    //console.log(data);
     setOptions(data?.map((el) => ({ value: el.id, label: el.name })));
   }, [data]);
   const editRow = ({ profileId, vendorId, id, fileName }) => {
@@ -108,26 +104,21 @@ export default function Files(props) {
       "/home/pricelist",
       { state: { profileId, vendorId, docId: id, fileName } } // your data array of objects
     );
-    console.log("AAA ", profileId, "BBB", vendorId);
   };
 
   const onSelectVendor = (select) => {
-    //console.log(select.value);
     setVendor(select.value);
   };
   const onSelectProfile = (select) => {
-    //console.log(select.value);
     setProfile(select.value);
   };
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
-      console.log(e.target.files[0]);
     }
   };
 
   const save = (e) => {
-    console.log(file);
     if (!file || !profile || !vendor || !localStorage.getItem("login")) return;
     setFileN(file.name);
     // const url = "http://192.168.20.30:55555/api/file";
@@ -156,7 +147,6 @@ export default function Files(props) {
     axios
       .post(url, formData, config)
       .then((response) => {
-        //console.log(response.data);
         setShowTable(true);
 
         const doc_id = response.data.result;
@@ -166,7 +156,6 @@ export default function Files(props) {
         if (files !== undefined) refetch();
       })
       .catch((err) => {
-        console.log(err);
         if (err.response.status === 401) navigate("/");
         if (err?.response.data.message === "Records not found")
           alert("Профиль не соотвествует файлу");
@@ -184,7 +173,6 @@ export default function Files(props) {
   };
 
   React.useEffect(() => {
-    //console.log(dataProfiles);
     setOptionsProfile(
       dataProfiles?.map((el) => ({ value: el.id, label: el.name }))
     );
@@ -200,7 +188,6 @@ export default function Files(props) {
   const rowRender = (trElement, props) => {
     const blue = { backgroundColor: "#d9d9e3" };
     const red = {};
-    // console.log(active, "  ", props.dataItem.id);
     const trProps = {
       style: active === props.dataItem.id ? blue : red,
     };

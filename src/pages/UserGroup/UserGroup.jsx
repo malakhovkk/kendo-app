@@ -47,6 +47,7 @@ import { Fade } from "@progress/kendo-react-animation";
 //   );
 // };
 // const MyCustomCell = (props) => <CustomCell {...props} color={"red"} />;
+import { toast } from "react-toastify";
 
 const UserGroup = () => {
   const { data, error: err, isLoading, refetch } = useGetAllGroupsQuery();
@@ -71,7 +72,6 @@ const UserGroup = () => {
   // if(err?.status === 401) navigate('/');
   const dispatch = useDispatch();
   const EditCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -85,7 +85,6 @@ const UserGroup = () => {
   };
 
   const DeleteCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -104,7 +103,6 @@ const UserGroup = () => {
       .unwrap()
       .then((payload) => {
         setUsersByGroup(payload);
-        console.log(payload);
       })
       .catch((err) => console.log(err));
   };
@@ -114,14 +112,12 @@ const UserGroup = () => {
       .unwrap()
       .then((payload) => {
         setRightsByGroup(payload);
-        console.log(payload);
       })
       .catch((err) => console.log(err));
   };
 
   const AddToGroupCell = (props) => {
     const users_id = usersByGroup.map((el) => el.id);
-    //console.log(props)
     return (
       <td>
         {users_id?.includes(props.dataItem.id) ? (
@@ -142,7 +138,6 @@ const UserGroup = () => {
 
   const AddRightToGroupCell = (props) => {
     const rights_id = rightsByGroup.map((el) => el.id);
-    //console.log(props)
     return (
       <td>
         {rights_id?.includes(props.dataItem.id) ? (
@@ -174,7 +169,6 @@ const UserGroup = () => {
       .unwrap()
       .then((payload) => {
         setUsersByGroup(payload);
-        console.log(payload);
       })
       .catch((err) => console.log(err));
   };
@@ -185,7 +179,6 @@ const UserGroup = () => {
       .unwrap()
       .then((payload) => {
         setRightsByGroup(payload);
-        console.log(payload);
       })
       .catch((err) => console.log(err));
   };
@@ -229,31 +222,30 @@ const UserGroup = () => {
   };
 
   const openDialog = (id) => {
-    console.log("Active");
     setVisible(1);
     setFormData({});
     setId(id);
     setFormData(getById(id));
   };
 
-  const deleteUser = (id) => {
+  const deleteUser = async (id) => {
     //const arr = info.filter(el => el.id !== id);
-    if (window.confirm("Удалить группу?")) _deleteGroup(getById(id));
+    if (window.confirm("Удалить группу?")) {
+      await _deleteGroup(getById(id)).unwrap();
+      showSuccess("Успешно удален!");
+    }
     // dispatch(removeUser(id));
     //setInfo(arr);
   };
   const clickGroup = (e) => {
     const id = e.dataItem.id;
     setActive(id);
-    console.log("click row");
-    console.log(e);
     const id_group = e.dataItem.id;
     setIdGroup(id_group);
     getUsersByGroup({ id: id_group })
       .unwrap()
       .then((payload) => {
         setUsersByGroup(payload);
-        console.log(payload);
       })
       .catch((err) => console.log(err));
 
@@ -261,7 +253,6 @@ const UserGroup = () => {
       .unwrap()
       .then((payload) => {
         setRightsByGroup(payload);
-        console.log(payload);
       })
       .catch((err) => console.log(err));
     // e.target.style.color = 'red';
@@ -280,6 +271,33 @@ const UserGroup = () => {
   //   const element = data.find(el => el.id === id);
   //   return element.surname;
   // };
+
+  const showSuccess = (msg) => {
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
+  const showError = (msg) => {
+    toast.error(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
   const save = () => {
     // const arr = info.map(el =>{
     //    if(el.id != id) return el;
@@ -290,16 +308,14 @@ const UserGroup = () => {
       .unwrap()
       .then((payload) => {
         if (payload.message === "Server error") {
-          setError(true);
-          setTimeout(() => {
-            setError(false);
-          }, 2000);
+          showError("Ошибка");
+          // setError(true);
+          // setTimeout(() => {
+          //   setError(false);
+          // }, 2000);
         }
         if (payload.message === "success") {
-          setSuccess(true);
-          setTimeout(() => {
-            setSuccess(false);
-          }, 2000);
+          showSuccess("Операция выполнена удачно");
         }
       })
       .catch((error) => console.error("rejected", error));
@@ -319,20 +335,21 @@ const UserGroup = () => {
         .unwrap()
         .then((payload) => {
           if (payload.message === "Server error") {
-            setError(true);
-            setTimeout(() => {
+            showError("Ошибка");
+            //setError(true);
+            /*setTimeout(() => {
               setError(false);
-            }, 2000);
+            }, 2000);*/
           }
           if (payload.message === "success") {
-            setSuccess(true);
+            showSuccess("Операция выполнена удачно");
+            /*setSuccess(true);
             setTimeout(() => {
               setSuccess(false);
-            }, 2000);
+            }, 2000);*/
           }
         })
         .catch((error) => {
-          console.error("rejected", error);
           if (error.status === 401) navigate("/");
         });
       setFormData({ name: "", login: "", email: "", password: "" });

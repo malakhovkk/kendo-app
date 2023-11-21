@@ -34,6 +34,7 @@ import TableSkeleton from "../../components/TableSkeleton";
 import { Checkbox } from "@progress/kendo-react-inputs";
 import WindowLink from "../../components/WindowLink";
 import Selectrix from "react-selectrix";
+import { process } from "@progress/kendo-data-query";
 
 const MyCell = function (props) {
   return (
@@ -222,6 +223,7 @@ const PriceList = (props) => {
     "value",
     "price",
     "quant",
+    "quantStock",
     "structure",
     "rating",
     "barcode",
@@ -366,9 +368,10 @@ const PriceList = (props) => {
     console.log(document);
     let meta = [];
     for (let k in document[0].meta) {
-      if (!["name", "sku", "price", "quant"].includes(k)) meta.push(k);
+      if (!["name", "sku", "price", "quant", "quantStock"].includes(k))
+        meta.push(k);
     }
-    setFields(["name", "sku", "price", "quant", ...meta]);
+    setFields(["name", "sku", "price", "quant", "quantStock", ...meta]);
   }, [document]);
 
   React.useEffect(() => {
@@ -409,6 +412,7 @@ const PriceList = (props) => {
               : _el.statistics.quant > 0
               ? `${_el.quant} (+${_el.statistics.quant})`
               : `${_el.quant} (${_el.statistics.quant})`,
+          quantStock: _el.quantStock,
           id: _el.id,
           status: "new",
         };
@@ -676,6 +680,9 @@ const PriceList = (props) => {
   React.useEffect(() => {
     if (!link) showPriceList();
   }, [link]);
+  // const handleGridDataStateChange = (event) => {
+  //   setDateState(event.dataState);
+  // };
   console.log(document);
   return (
     <div
@@ -700,11 +707,11 @@ const PriceList = (props) => {
             }}
             rowRender={rowRender}
             onRowClick={clickVendor}
-            data={
-              document === undefined || document.length === 0
-                ? []
-                : result.slice(page.skip, page.take + page.skip)
-            }
+            // data={
+            //   document === undefined || document.length === 0
+            //     ? []
+            //     : result.slice(page.skip, page.take + page.skip)
+            // }
             scrollable={"virtual"}
             skip={page.skip}
             take={page.take}
@@ -716,6 +723,13 @@ const PriceList = (props) => {
             }}
             onItemChange={itemChange}
             dataItemKey={"id"}
+            data={
+              document === undefined || document.length === 0 || !data
+                ? []
+                : result.slice(page.skip, page.take + page.skip)
+            }
+            {...dataState}
+            // onDataStateChange={handleGridDataStateChange}
           >
             {columns}
           </Grid>

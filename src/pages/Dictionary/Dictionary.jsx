@@ -24,7 +24,6 @@ const Dictionary = () => {
         ?.filter((record) => record.dictId == 1)
         .map((el) => ({ value: el.id, label: el.name }))
     );
-    console.log(dict);
   }, [dict]);
   const handleSelect = (e) => {
     if (!visible) setSelected(e.selected);
@@ -55,7 +54,6 @@ const Dictionary = () => {
     deleteRecord({ dictId, id, name: "", field: "" });
   };
   const EditCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -69,7 +67,6 @@ const Dictionary = () => {
   };
 
   const DeleteCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img

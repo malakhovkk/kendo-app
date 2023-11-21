@@ -81,9 +81,7 @@ const Profile = () => {
       return res;
     })()
   );
-  // console.log(optionsColNum);
   React.useEffect(() => {
-    console.error(dict);
     if (dict === undefined) return;
     setFields(
       dict
@@ -98,7 +96,6 @@ const Profile = () => {
   }, [fields]);
   React.useEffect(() => {
     if (data === undefined) return;
-    console.log(data);
     setOptions(data?.map((el) => ({ value: el.id, label: el.name })));
     // setProfileFields(data.map((el) => ({id: el.id, columns})))
   }, [data]);
@@ -108,16 +105,10 @@ const Profile = () => {
     // setFormData(emptyData);
   };
   const add = () => {
-    console.log(formData);
     if (formData.name) _addProfile({ ...formData, id: "" });
   };
   const save = () => {
     if (colNum === "" || field === "") return;
-    console.log(...table, {
-      field,
-      name,
-      colNum,
-    });
     setTable([
       ...table,
       {
@@ -161,8 +152,6 @@ const Profile = () => {
   };
   const id = React.useRef("");
   const onSelectProfile = (select) => {
-    console.log(select.value);
-    console.log();
     setSelectedId(select.value);
     let profile = data.find((el) => el.id === select.value);
     id.current = profile.id;
@@ -171,7 +160,6 @@ const Profile = () => {
     setSelectedFields(profile.columns.map((column) => column.code));
     setSelectedColNum(
       profile.columns.map((column) => {
-        console.log(column);
         return column.position;
       })
     );
@@ -200,13 +188,11 @@ const Profile = () => {
   };
   const openDialog = ({ field, colNum, name }) => {
     setVisible(true);
-    console.log(field, colNum, name);
     setEditField(field);
     setEditColNum(colNum);
     setEditName(name);
   };
   const EditCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -237,7 +223,6 @@ const Profile = () => {
     setShow(false);
   };
   const DeleteCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -303,7 +288,6 @@ const Profile = () => {
                 marginLeft: "10px",
               }}
               onClick={() => {
-                console.log(profile);
                 if (profile.length === 0) {
                   toast.error(`Выберите профиль `, {
                     position: "top-right",
@@ -403,7 +387,6 @@ const Profile = () => {
                     onChange={(e) => {
                       setField(e.value);
                       setName(e.label);
-                      console.log(selectedFields);
                       // onSelectFilter(e, idx);
                     }}
                     placeholder="Выбрать поле"
@@ -423,8 +406,6 @@ const Profile = () => {
                     )}
                     onChange={(e) => {
                       setColNum(e.value);
-                      console.log(optionsColNum);
-                      console.log(selectedColNum);
                       // onSelectFilter(e, idx);
                     }}
                     placeholder="Выбрать номер столбца"

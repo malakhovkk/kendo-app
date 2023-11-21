@@ -31,6 +31,7 @@ import {
 import { Fade } from "@progress/kendo-react-animation";
 import { useEffect } from "react";
 import { useGetDictionaryQuery } from "../../features/apiSlice";
+import { toast } from "react-toastify";
 import Select from "react-select";
 // const CustomCell = (props) => {
 //   return (
@@ -82,7 +83,6 @@ const UserGroup = () => {
   const rowRender = (trElement, props) => {
     const blue = { backgroundColor: "#d9d9e3" };
     const red = {};
-    // console.log(active, "  ", props.dataItem.id);
     const trProps = {
       style: active === props.dataItem.id ? blue : red,
     };
@@ -98,12 +98,10 @@ const UserGroup = () => {
   function f() {
     return;
   }
-  // console.log("error: ", err);
   // const navigate = useNavigate();
   // if (err?.status === 401) navigate("/");
   const dispatch = useDispatch();
   const EditCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -117,7 +115,6 @@ const UserGroup = () => {
   };
 
   const DeleteCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -131,7 +128,6 @@ const UserGroup = () => {
   };
 
   const DeleteContactCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <img
@@ -146,11 +142,8 @@ const UserGroup = () => {
   const editContactVendor = (id) => {
     setShowContactVisibility(1);
     setEditContactData(contacts.find((contact) => contact.id === id));
-    console.log("editContactVendor");
   };
   const EditContactCell = (props) => {
-    //console.log(props)
-    console.log();
     return (
       <td>
         <img
@@ -164,7 +157,6 @@ const UserGroup = () => {
   };
 
   const ContactCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <div onClick={() => showContact(props.dataItem.id)}>
@@ -182,12 +174,10 @@ const UserGroup = () => {
   };
 
   const AddCell = (props) => {
-    //console.log(props)
     return (
       <td>
         <div
           onClick={() => {
-            console.log(props.dataItem.id);
             setIdContact(props.dataItem.id);
             setShowContactVisibility(3);
           }}
@@ -228,7 +218,6 @@ const UserGroup = () => {
         //   }, 2000);
         // }
         setPayload(payload);
-        console.log(payload);
       })
       .catch((error) => console.error("rejected", error));
   };
@@ -238,7 +227,6 @@ const UserGroup = () => {
     let info = dict
       .filter((rec) => rec.dictId === 8)
       .map((el) => ({ name: el.name, type: el.id }));
-    console.log(info);
     setContacts(
       payload.map((contact) => ({
         ...contact,
@@ -340,7 +328,6 @@ const UserGroup = () => {
   };
 
   const openDialog = (id) => {
-    console.log("Active");
     setVisible(1);
     setFormData({});
     setId(id);
@@ -354,8 +341,6 @@ const UserGroup = () => {
     //setInfo(arr);
   };
   const clickGroup = (e) => {
-    console.log("click row");
-    console.log(e);
     const id_group = e.dataItem.id;
     setActive(id_group);
     showContact(id_group);
@@ -391,20 +376,50 @@ const UserGroup = () => {
   //   const element = data.find(el => el.id === id);
   //   return element.surname;
   // };
-  const addVendor = () => {
+
+  const showSuccess = (msg) => {
+    toast.success(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
+  const showError = (msg) => {
+    toast.error(msg, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
+  const addVendor = async () => {
     let found = data.find((vendor) => vendor.code === formData.code);
-    if (found.id !== formData.id) {
-      console.log(found, formData);
+    if (found?.id) {
       alert("Поле код должно быть уникальным");
       return;
     }
-    createVendor(formData);
+    try {
+      await createVendor(formData).unwrap();
+      showSuccess("Успех!");
+    } catch (e) {
+      showError("Ошибка");
+    }
     closeDialog();
   };
   const save = () => {
     let found = data.find((vendor) => vendor.code === formData.code);
     if (found.id !== formData.id) {
-      console.log(found, formData);
       alert("Поле код должно быть уникальным");
       return;
     }
@@ -473,10 +488,6 @@ const UserGroup = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
-
   const getNameById = (id) => {
     return data.find((el) => el.id === id).name;
   };
@@ -503,6 +514,7 @@ const UserGroup = () => {
     setEditContactData({});
     closeEditDialog();
   };
+
   return (
     <div>
       <div className="add_user" style={{ marginTop: "100px" }}>
