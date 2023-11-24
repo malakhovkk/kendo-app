@@ -45,7 +45,6 @@ const MyCell = function (props) {
 };
 const PriceList = (props) => {
   // const DeleteCell = (props) => {
-  //   console.log("DeleteCell");
 
   //   if (props.rowType === "groupHeader") {
   //     return null;
@@ -133,7 +132,6 @@ const PriceList = (props) => {
     );
   };
   const LinkCell = (props) => {
-    //console.log(props)
     return (
       <td style={{ height: "40px" }}>
         {props.dataItem.linkId ? (
@@ -170,10 +168,8 @@ const PriceList = (props) => {
       ];
     else new_fields = [...fields];
     new_fields = ["link", ...new_fields];
-    // console.error(new_fields);
 
     let cols = new_fields?.map((field, idx) => {
-      console.log(field);
       if (field === "quantDelta" || field === "priceDelta") return;
       let w = 100;
       if (field === "name") w = 400;
@@ -202,8 +198,6 @@ const PriceList = (props) => {
         />
       );
     });
-    // console.timeEnd("FUNC_FIELDS");
-    console.log(cols);
     return cols;
   };
 
@@ -258,9 +252,9 @@ const PriceList = (props) => {
   const [loadingDocument, setLoadingDocument] = React.useState(false);
 
   React.useEffect(() => {
-    if (!state) return;
+    let idVendor = state?.idVendor;
+    if (!state || !idVendor) return;
 
-    let idVendor = state.idVendor;
     let idOrder = state.idOrder;
 
     setComment(state.comment);
@@ -358,14 +352,11 @@ const PriceList = (props) => {
     // }
     setResult(initialState.result);
     setDataState(initialState.dataState);
-    //console.log(res);
     setDictionary(res);
-    console.log(res);
   }, [table]);
 
   React.useEffect(() => {
     if (!document || document.length === 0) return;
-    console.log(document);
     let meta = [];
     for (let k in document[0].meta) {
       if (!["name", "sku", "price", "quant", "quantStock"].includes(k))
@@ -375,7 +366,6 @@ const PriceList = (props) => {
   }, [document]);
 
   React.useEffect(() => {
-    console.log(mapDict, document);
     if (
       (mapDict === undefined || !document === undefined) &&
       loadingOrder !== 3
@@ -383,7 +373,6 @@ const PriceList = (props) => {
       return;
     if (!document?.length) return;
     let res = [];
-    console.log(mapDict === undefined || document === undefined);
 
     try {
       let obj = {};
@@ -425,7 +414,6 @@ const PriceList = (props) => {
       setTable(res);
       setLoadingOrder(0);
     } catch (err) {
-      console.log(err);
       setTable();
     }
   }, [mapDict, document, loadingOrder]);
@@ -475,7 +463,6 @@ const PriceList = (props) => {
   const rowRender = (trElement, props) => {
     const blue = { backgroundColor: "#d9d9e3" };
     const red = {};
-    // console.log(active, "  ", props.dataItem.id);
     const trProps = {
       style: active === props.dataItem.id ? blue : red,
     };
@@ -489,7 +476,6 @@ const PriceList = (props) => {
   };
 
   const setOrderArr = (priceRecordId, value, status, id) => {
-    console.log(id, value);
     if (value !== 0)
       setQuantOrderArr([
         ...quantOrderArr.filter(
@@ -517,7 +503,6 @@ const PriceList = (props) => {
   };
 
   function itemChange(event) {
-    console.log(event);
     let value = event.value;
     const name = event.dataItem.field;
     let obj = quantOrderArr.find(
@@ -555,6 +540,7 @@ const PriceList = (props) => {
   const promise = React.useRef();
   const counter = React.useRef(0);
   const showPriceList = () => {
+    if (!vendor.current) return;
     if (frozen)
       if (
         !window.confirm(
@@ -568,7 +554,6 @@ const PriceList = (props) => {
     setDocument([]);
     setOrderId();
     counter.current++;
-    console.log("counter=", counter.current);
     promise.current?.abort();
     promise.current = getDocument({ id: vendor.current });
     setLoadingDocument(true);
@@ -593,8 +578,6 @@ const PriceList = (props) => {
   const [saveEditOrderReq] = useSaveEditOrderMutation();
   const getOrderRequest = async () => {
     let payload = await getOrder(orderId).unwrap();
-    console.log(payload);
-    console.log(quantOrderArr);
     setQuantOrderArr(
       quantOrderArr
         .filter((item) => item.status !== "deleted")
@@ -676,14 +659,12 @@ const PriceList = (props) => {
     setActive(id_vendor);
   };
   const [link, setLink] = React.useState();
-  console.log(result?.findIndex((el) => el.sku === "УТ000006206"));
   React.useEffect(() => {
     if (!link) showPriceList();
   }, [link]);
   // const handleGridDataStateChange = (event) => {
   //   setDateState(event.dataState);
   // };
-  console.log(document);
   return (
     <div
       style={{
@@ -718,13 +699,12 @@ const PriceList = (props) => {
             rowHeight={56}
             total={result.length}
             onPageChange={(event) => {
-              console.log(event.page);
               setPage(event.page);
             }}
             onItemChange={itemChange}
             dataItemKey={"id"}
             data={
-              document === undefined || document.length === 0 || !data
+              document === undefined || document.length === 0
                 ? []
                 : result.slice(page.skip, page.take + page.skip)
             }
@@ -818,7 +798,6 @@ const PriceList = (props) => {
                 options={options}
                 onChange={(e) => {
                   onSelectVendor(e);
-                  console.log("onChange");
                 }}
                 placeholder="Выбрать поставщика"
               /> */}
@@ -831,7 +810,6 @@ const PriceList = (props) => {
                 // onChange={ value => console.log( value ) }
                 onChange={(e) => {
                   onSelectVendor(e);
-                  console.log("onChange");
                 }}
               />
             </div>

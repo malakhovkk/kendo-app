@@ -93,13 +93,9 @@ const DrawerRouterContainer = (props) => {
   const login = useSelector((state) => state.settings.login);
   const rights = useSelector((state) => state.settings.rights);
 
-  console.log(rights);
   const initial = () => {
     let pathName = location.pathname;
-    console.log("pathName: " + pathName);
-    console.log(items);
     let currentPath = items.find((item) => item.route === pathName);
-    console.log(currentPath);
     if (currentPath.text) {
       //setSelected(currentPath.route);
       return currentPath.text;
@@ -109,16 +105,12 @@ const DrawerRouterContainer = (props) => {
   const [settings, setSettings] = React.useState([]);
   const [rights2, setRights2] = React.useState([]);
   const [getRightsSettings] = useGetRightsSettingsMutation();
-  console.log(location.pathname);
   React.useEffect(() => {
-    console.log("LOCATION", location);
     // alert("USEEFFECT");
     //if (!location) return;
     // navigate(location.pathname);
     // console.log(items);
-    console.log(location.pathname);
     if (items.find((item) => item.route === location.pathname)) {
-      console.log(items.find((item) => item.route === location.pathname).text);
       setSelected(items.find((item) => item.route === location.pathname).text);
     }
   }, [location.pathname]);
@@ -126,8 +118,6 @@ const DrawerRouterContainer = (props) => {
     console.error(selected);
   });
   React.useEffect(() => {
-    console.log(rights);
-
     getRightsSettings(localStorage.getItem("login"))
       .unwrap()
       .then((payload) => {
@@ -148,13 +138,9 @@ const DrawerRouterContainer = (props) => {
   // }, []);
 
   // const settings = useSelector((state) => state.settings.value);
-  console.log(settings);
 
   const setSelectedItem = (pathName) => {
-    console.log("pathName: " + pathName);
-    console.log(items);
     let currentPath = items.find((item) => item.route === pathName);
-    console.log(currentPath);
     if (currentPath.text) {
       //setSelected(currentPath.route);
       return currentPath.text;
@@ -165,8 +151,6 @@ const DrawerRouterContainer = (props) => {
     let route;
     console.error(e.itemTarget.props.route);
     route = e.itemTarget.props.route;
-    console.log("location.pathname=", location.pathname);
-    console.log(route);
     if (frozen) {
       if (
         window.confirm(
@@ -178,9 +162,7 @@ const DrawerRouterContainer = (props) => {
         setSelected(setSelectedItem(route));
       }
     } else {
-      console.log("1, ", route);
       if (route) {
-        console.log("2, ", route);
         navigate(route);
         setSelected(setSelectedItem(route));
       }
@@ -188,8 +170,6 @@ const DrawerRouterContainer = (props) => {
     // setExpanded(!expanded);
   };
 
-  console.log(location.pathname);
-  console.log(selected);
   // let selected = setSelectedItem(location.pathname);
   return (
     <div>
@@ -236,7 +216,6 @@ const DrawerRouterContainer = (props) => {
             </Button>
           </Link>
         </div>
-        {console.log(rights)}
         {rights2 && (
           <Drawer
             expanded={expanded}
