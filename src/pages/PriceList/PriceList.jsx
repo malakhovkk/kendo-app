@@ -665,6 +665,7 @@ const PriceList = (props) => {
   // const handleGridDataStateChange = (event) => {
   //   setDateState(event.dataState);
   // };
+  function pickVendor() {}
   return (
     <div
       style={{
@@ -792,27 +793,19 @@ const PriceList = (props) => {
       <div style={{ display: "flex" }}>
         <div>
           <div style={{ width: "500px", marginBottom: "10px" }}>
-            <div style={{ marginBottom: "10px" }}>Поставщик:</div>
+            {/* <div style={{ marginBottom: "10px" }}>Поставщик:</div>
             <div>
-              {/* <Select
-                options={options}
-                onChange={(e) => {
-                  onSelectVendor(e);
-                }}
-                placeholder="Выбрать поставщика"
-              /> */}
+             
               <Selectrix
                 multiple={false}
                 materialize={true}
                 options={options?.map((el) => ({ ...el, key: el.value }))}
-                // onRenderOption={onRenderOption}
-                // onRenderSelection={onRenderSelection}
-                // onChange={ value => console.log( value ) }
                 onChange={(e) => {
                   onSelectVendor(e);
                 }}
               />
-            </div>
+            </div> */}
+            <Button onClick={pickVendor}>Выбрать поставщика</Button>
           </div>
 
           <div>Выбрано: {getVendorById(vendor.current)}</div>
