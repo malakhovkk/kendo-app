@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {useGetVendorsQuery} from "../../features/apiSlice";
 import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.common.css';
 
 
 import {
@@ -8,7 +9,8 @@ import {
   GroupPanel,
   // ...
   FilterRow,
-  SearchPanel
+  SearchPanel,
+  Scrolling
 } from 'devextreme-react/data-grid';
 
 
@@ -70,8 +72,10 @@ function PriceList() {
     return (
       <div style={{marginTop: "100px"}}>
       <DataGrid
-        dataSource={data}>
-
+        dataSource={data}
+        allowColumnReordering={true}
+        allowColumnResizing={true}>
+                <Scrolling mode="infinite" />
                 <FilterRow visible={true} />
                 <SearchPanel visible={true} />
                 <GroupPanel visible={true} />
