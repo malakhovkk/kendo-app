@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import {useGetVendorsQuery} from "../../features/apiSlice";
-import 'devextreme/dist/css/dx.light.css';
-import 'devextreme/dist/css/dx.common.css';
-
+import React, { useEffect, useState } from "react";
+import { useGetVendorsQuery } from "../../features/apiSlice";
+import "devextreme/dist/css/dx.light.css";
+import "devextreme/dist/css/dx.common.css";
 
 import {
   DataGrid,
@@ -10,80 +9,79 @@ import {
   // ...
   FilterRow,
   SearchPanel,
-  Scrolling
-} from 'devextreme-react/data-grid';
+  Scrolling,
+  Column,
+} from "devextreme-react/data-grid";
 
+import { useGetDocumentMutation } from "../../features/apiSlice";
 
-import { useGetDocumentMutation } from '../../features/apiSlice';
+import { createStore } from "devextreme-aspnet-data-nojquery";
 
-import { createStore } from 'devextreme-aspnet-data-nojquery';
- 
-const serviceUrl = 'http://194.87.239.231:55555/api/';
- 
+const serviceUrl = "http://194.87.239.231:55555/api/";
+
 const remoteDataSource = createStore({
-    key: 'ID',
-    loadUrl: serviceUrl + '/Document/8f645ced-737e-11eb-82a1-001d7dd64d88',
-    insertUrl: serviceUrl + '/InsertAction',
-    updateUrl: serviceUrl + '/UpdateAction',
-    deleteUrl: serviceUrl + '/DeleteAction'
+  key: "ID",
+  loadUrl: serviceUrl + "/Document/8f645ced-737e-11eb-82a1-001d7dd64d88",
+  insertUrl: serviceUrl + "/InsertAction",
+  updateUrl: serviceUrl + "/UpdateAction",
+  deleteUrl: serviceUrl + "/DeleteAction",
 });
- 
+
 function PriceList() {
   const [data, setData] = useState([]);
   // const { data, error: err, isLoading, refetch } = useGetVendorsQuery();
   const [getDocument] = useGetDocumentMutation();
-    useEffect( () => {
-      async function exec(){
-        const res = await getDocument({id: "8f645ced-737e-11eb-82a1-001d7dd64d88"}).unwrap();
-        setData(res.map((_el, idx) => {
-                  return {
-                    priceDelta: _el.statistics.price,
-                    quantDelta: _el.statistics.quant,
-                    name: _el.name,
-                    sku: _el.sku,
-                    linkId: _el.linkId,
-                    // orderQuant:
-                    //   quantOrderArr.length === 0 ? 0 : obj[_el.id] ? obj[_el.id] : 0,
-                    price:
-                      _el.statistics.price === 0
-                        ? _el.price
-                        : _el.statistics.price > 0
-                        ? `${_el.price} (+${_el.statistics.price})`
-                        : `${_el.price} (${_el.statistics.price})`,
-                    quant:
-                      _el.statistics.quant === 0
-                        ? _el.quant
-                        : _el.statistics.quant > 0
-                        ? `${_el.quant} (+${_el.statistics.quant})`
-                        : `${_el.quant} (${_el.statistics.quant})`,
-                    quantStock: _el.quantStock,
-                    id: _el.id,
-                    ..._el.meta,
-                    status: "new",
-                  };
-                  // for (let row in _el.meta) {
-                  //   el[row] = _el.meta[row];
-                  // }
-                  // res.push(el);
-                }));
-      }
-      exec();
-    }, [])
-    return (
-      <div style={{marginTop: "100px"}}>
+  useEffect(() => {
+    async function exec() {
+      const res = await getDocument({
+        id: "8f645ced-737e-11eb-82a1-001d7dd64d88",
+      }).unwrap();
+      setData(
+        res.map((_el, idx) => {
+          return {
+            priceDelta: _el.statistics.price,
+            quantDelta: _el.statistics.quant,
+            name: _el.name,
+            sku: _el.sku,
+            linkId: _el.linkId,
+            // orderQuant:
+            //   quantOrderArr.length === 0 ? 0 : obj[_el.id] ? obj[_el.id] : 0,
+            price: _el.price,
+            quant: _el.quant,
+            stats: _el.statistics.quant,
+            quantStock: _el.quantStock,
+            id: _el.id,
+            ..._el.meta,
+            status: "new",
+          };
+          // for (let row in _el.meta) {
+          //   el[row] = _el.meta[row];
+          // }
+          // res.push(el);
+        })
+      );
+    }
+    exec();
+  }, []);
+  return (
+    <div style={{ marginTop: "100px" }}>
       <DataGrid
         dataSource={data}
         allowColumnReordering={true}
-        allowColumnResizing={true}>
-                <Scrolling mode="infinite" />
-                <FilterRow visible={true} />
-                <SearchPanel visible={true} />
-                <GroupPanel visible={true} />
+        allowColumnResizing={true}
+        height={800}
+        columnResizingMode={"widget"}
+        columnMinWidth={150}
+      >
+        <Scrolling columnRenderingMode="virtual" mode="infinite" />
+        <FilterRow visible={true} />
+        <SearchPanel visible={true} />
+        <GroupPanel visible={true} />
       </DataGrid>
-      </div>
-    );
+    </div>
+  );
 }
- 
+
 export default PriceList;
 
 // import * as React from "react";
@@ -439,14 +437,8 @@ export default PriceList;
 //     //   skip: 0,
 //     // }
 
-
-
-
-
 //     // setResult(initialState.result);
 //     // setDataState(initialState.dataState);
-
-
 
 //     setDictionary(res);
 //   }, [table]);
@@ -749,7 +741,7 @@ export default PriceList;
 //     setComment("");
 //     dispatch(freeze(false));
 //   };
-  
+
 //   const [active, setActive] = React.useState();
 //   const clickVendor = (e) => {
 //     const id_vendor = e.dataItem.id;
@@ -819,7 +811,7 @@ export default PriceList;
 //               dataResult
 //             }
 //             {...dataState}
-            
+
 //             onDataStateChange={dataStateChange}
 //             groupable={true}
 //             sortable={true}
@@ -907,7 +899,7 @@ export default PriceList;
 //           <div style={{ width: "500px", marginBottom: "10px" }}>
 //             <div style={{ marginBottom: "10px" }}>Поставщик:</div>
 //             <div>
-             
+
 //               <Selectrix
 //                 multiple={false}
 //                 materialize={true}
@@ -963,4 +955,3 @@ export default PriceList;
 // };
 
 // export default PriceList;
-
