@@ -48,7 +48,7 @@ function PriceList() {
             //   quantOrderArr.length === 0 ? 0 : obj[_el.id] ? obj[_el.id] : 0,
             price: _el.price,
             quant: _el.quant,
-            stats: _el.statistics.quant,
+            //stats: _el.statistics.quant,
             quantStock: _el.quantStock,
             id: _el.id,
             ..._el.meta,
@@ -77,6 +77,11 @@ function PriceList() {
         <FilterRow visible={true} />
         <SearchPanel visible={true} />
         <GroupPanel visible={true} />
+        {/* <Column dataField="name" dataType="string" />
+        <Column dataField="price" dataType="string" />
+        <Column dataField="sku" dataType="string" /> */}
+        {/* <Column dataField="Channel" dataType="string" />
+        <Column dataField="Customer" dataType="string" width={150} /> */}
       </DataGrid>
     </div>
   );
