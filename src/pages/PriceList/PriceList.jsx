@@ -63,6 +63,31 @@ function PriceList() {
     }
     exec();
   }, []);
+  // let fields = [
+  //   {
+  //     name: "price",
+  //     alignment: "right"
+  //   }
+  // ]
+
+  function getFormat(field) {
+    let curencyFields = ["price"];
+    let intFields = ["quant", "quantStock", "orderQuant"];
+
+    let res = { mask: "", alignment: "left" };
+
+    if (curencyFields.includes(field)) {
+      res.mask = "##0.00";
+      res.alignment = "right";
+    } else {
+      if (intFields.includes(field)) res.alignment = "right";
+    }
+
+    return res;
+  }
+
+  function getColumns() {}
+
   return (
     <div style={{ marginTop: "100px" }}>
       <DataGrid
@@ -71,15 +96,17 @@ function PriceList() {
         allowColumnResizing={true}
         height={800}
         columnResizingMode={"widget"}
-        columnMinWidth={150}
+        // columnMinWidth={150}
+        columnAutoWidth={true}
       >
+        {/* <Column dataField="name" dataType="string" />
+        <Column dataField="price" dataType="string" />
+        <Column dataField="sku" dataType="string" /> */}
         <Scrolling columnRenderingMode="virtual" mode="infinite" />
         <FilterRow visible={true} />
         <SearchPanel visible={true} />
         <GroupPanel visible={true} />
-        {/* <Column dataField="name" dataType="string" />
-        <Column dataField="price" dataType="string" />
-        <Column dataField="sku" dataType="string" /> */}
+
         {/* <Column dataField="Channel" dataType="string" />
         <Column dataField="Customer" dataType="string" width={150} /> */}
       </DataGrid>
