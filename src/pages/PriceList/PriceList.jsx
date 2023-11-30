@@ -85,32 +85,65 @@ function PriceList() {
 
     return res;
   }
-
-  function getColumns() {}
+  const ignore = (d, fields) => {
+    // console.log(
+    //   "!!!!!",
+    //   d.filter((el) => !fields.includes(el))
+    // );
+    return d.filter((el) => !fields.includes(el));
+  };
+  //console.log( Object.keys(data[0].meta));
+  const all_fields = data.length
+    ? [
+        "name",
+        "sku",
+        "price",
+        "quant",
+        "quantStock",
+        "barcode",
+        ...ignore(
+          Object.keys(data[0].meta),
+          "name",
+          "sku",
+          "price",
+          "quant",
+          "quantStock",
+          "barcode"
+        ),
+      ]
+    : [];
+  console.log("9999", all_fields);
+  const columns = all_fields.map((el) => {
+    let f = getFormat(el);
+    return <Column dataField={el} format={f.mask} alignment={f.alignment} />;
+  });
 
   return (
-    <div style={{ marginTop: "100px" }}>
-      <DataGrid
-        dataSource={data}
-        allowColumnReordering={true}
-        allowColumnResizing={true}
-        height={800}
-        columnResizingMode={"widget"}
-        // columnMinWidth={150}
-        columnAutoWidth={true}
-      >
-        {/* <Column dataField="name" dataType="string" />
+    data && (
+      <div style={{ marginTop: "100px" }}>
+        <DataGrid
+          dataSource={data}
+          allowColumnReordering={true}
+          allowColumnResizing={true}
+          height={800}
+          columnResizingMode={"widget"}
+          // columnMinWidth={150}
+          columnAutoWidth={true}
+        >
+          {columns}
+          {/* <Column dataField="name" dataType="string" />
         <Column dataField="price" dataType="string" />
         <Column dataField="sku" dataType="string" /> */}
-        <Scrolling columnRenderingMode="virtual" mode="infinite" />
-        <FilterRow visible={true} />
-        <SearchPanel visible={true} />
-        <GroupPanel visible={true} />
+          <Scrolling columnRenderingMode="virtual" mode="infinite" />
+          <FilterRow visible={true} />
+          <SearchPanel visible={true} />
+          <GroupPanel visible={true} />
 
-        {/* <Column dataField="Channel" dataType="string" />
+          {/* <Column dataField="Channel" dataType="string" />
         <Column dataField="Customer" dataType="string" width={150} /> */}
-      </DataGrid>
-    </div>
+        </DataGrid>
+      </div>
+    )
   );
 }
 
