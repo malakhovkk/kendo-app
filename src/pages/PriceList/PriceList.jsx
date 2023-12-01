@@ -27,15 +27,117 @@ const remoteDataSource = createStore({
   deleteUrl: serviceUrl + "/DeleteAction",
 });
 
+const test = [
+  {
+    id: "8df9681e-aec3-4e4c-a90e-135fb3c36dc6",
+    name: "0,7 Царская Оригинальная п/к корх6 (ГЛ) ",
+    uidRef: "",
+    uidOwner: "d5cb5d99-c46e-3947-bfc5-924b163cfe79",
+    meta: {
+      sku: "УТ000005146",
+      name: "0,7 Царская Оригинальная п/к корх6 (ГЛ) ",
+      year: "2022",
+      volume: "0.7",
+      barcode: "4603514003015",
+      country: "РОССИЯ",
+    },
+    sku: "УТ000005146",
+    status: 1,
+    type: 1,
+    docId: "80f2f683-87c6-451a-a9cd-d5a5e28762db",
+    skuKey: "УТ000005146#1",
+    quant: 111,
+    price: 521,
+    statistics: {
+      price: 0,
+      quant: 0,
+    },
+    images: [],
+    quantStock: 0,
+    linkId: "",
+    stockInfo: null,
+    fieldsList: {
+      columns: [
+        {
+          name: "sku",
+          caption: "sku",
+          index: 0,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "name",
+          caption: "name",
+          index: 1,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "quant",
+          caption: "quant",
+          index: 2,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "price",
+          caption: "price",
+          index: 3,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "quant_stock",
+          caption: "quant_stock",
+          index: 4,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "year",
+          caption: "year",
+          index: 5,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "volume",
+          caption: "volume",
+          index: 6,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "barcode",
+          caption: "barcode",
+          index: 7,
+          alignment: "L",
+          format: "",
+        },
+        {
+          name: "country",
+          caption: "country",
+          index: 8,
+          alignment: "L",
+          format: "",
+        },
+      ],
+    },
+  },
+];
+
 function PriceList() {
   const [data, setData] = useState([]);
   // const { data, error: err, isLoading, refetch } = useGetVendorsQuery();
   const [getDocument] = useGetDocumentMutation();
+  const [dataCol, setDataCol] = React.useState([]);
   useEffect(() => {
     async function exec() {
       const res = await getDocument({
         id: "8f645ced-737e-11eb-82a1-001d7dd64d88",
       }).unwrap();
+      //setData(test);
+      setDataCol(test);
       setData(
         res.map((_el, idx) => {
           return {
@@ -93,58 +195,75 @@ function PriceList() {
     return d.filter((el) => !fields.includes(el));
   };
   //console.log( Object.keys(data[0].meta));
-  const all_fields = data.length
-    ? [
-        "name",
-        "sku",
-        "price",
-        "quant",
-        "quantStock",
-        "barcode",
-        ...ignore(
-          Object.keys(data[0].meta),
-          "name",
-          "sku",
-          "price",
-          "quant",
-          "quantStock",
-          "barcode"
-        ),
-      ]
+  // const all_fields = data.length
+  //   ? [
+  //       "name",
+  //       "sku",
+  //       "price",
+  //       "quant",
+  //       "quantStock",
+  //       "barcode",
+  //       ...ignore(
+  //         Object.keys(data[0].meta),
+  //         "name",
+  //         "sku",
+  //         "price",
+  //         "quant",
+  //         "quantStock",
+  //         "barcode"
+  //       ),
+  //     ]
+  //   : [];
+  // console.log("9999", all_fields);
+  // const columns = all_fields.map((el) => {
+  //   let f = getFormat(el);
+  //   return <Column dataField={el} format={f.mask} alignment={f.alignment} />;
+  // });
+  // console.log(dataCol);
+  //console.log(dataCol[0]);
+  //console.log(dataCol[0].fieldsList);
+  //console.log(dataCol[0].fieldsList.columns);
+  //dataCol[0].fieldsList.columns
+  const columns = dataCol.length
+    ? test.map((el) => {
+        //const el = element.fieldsList.columns;
+        return (
+          <Column
+            key={el.name}
+            dataField={el.name}
+            format={el.format}
+            alignment={el.alignment}
+          />
+        );
+      })
     : [];
-  console.log("9999", all_fields);
-  const columns = all_fields.map((el) => {
-    let f = getFormat(el);
-    return <Column dataField={el} format={f.mask} alignment={f.alignment} />;
-  });
-
-  return (
-    data && (
-      <div style={{ marginTop: "100px" }}>
-        <DataGrid
-          dataSource={data}
-          allowColumnReordering={true}
-          allowColumnResizing={true}
-          height={800}
-          columnResizingMode={"widget"}
-          // columnMinWidth={150}
-          columnAutoWidth={true}
-        >
-          {columns}
-          {/* <Column dataField="name" dataType="string" />
+  //const columns = [];
+  console.log(data, columns);
+  // data.length && columns.length &&
+  <div style={{ marginTop: "100px" }}>
+    <DataGrid
+      dataSource={data}
+      allowColumnReordering={true}
+      allowColumnResizing={true}
+      height={800}
+      columnResizingMode={"widget"}
+      // columnMinWidth={150}
+      columnAutoWidth={true}
+    >
+      <Column dataField="name" dataType="string" />
+      {/* {columns} */}
+      {/* <Column dataField="name" dataType="string" />
         <Column dataField="price" dataType="string" />
         <Column dataField="sku" dataType="string" /> */}
-          <Scrolling columnRenderingMode="virtual" mode="infinite" />
-          <FilterRow visible={true} />
-          <SearchPanel visible={true} />
-          <GroupPanel visible={true} />
+      <Scrolling columnRenderingMode="virtual" mode="infinite" />
+      <FilterRow visible={true} />
+      <SearchPanel visible={true} />
+      <GroupPanel visible={true} />
 
-          {/* <Column dataField="Channel" dataType="string" />
+      {/* <Column dataField="Channel" dataType="string" />
         <Column dataField="Customer" dataType="string" width={150} /> */}
-        </DataGrid>
-      </div>
-    )
-  );
+    </DataGrid>
+  </div>;
 }
 
 export default PriceList;
