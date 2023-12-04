@@ -137,7 +137,20 @@ function PriceList() {
         id: "8f645ced-737e-11eb-82a1-001d7dd64d88",
       }).unwrap();
       //setData(test);
-      setDataCol(test);
+      let dl = [];
+      console.log(res);
+
+      res[0].fieldsList.columns.forEach((element) => {
+        dl[element.index] = {
+          name: element.name,
+          caption: element.caption,
+          alignmanet: element.alignment,
+          format: element.format,
+        };
+      });
+      console.log(dl.filter((el) => el !== undefined));
+      // setDataCol(res.filter(el => el  ));
+      setDataCol(dl.filter((el) => el !== undefined));
       setData(
         res.map((_el, idx) => {
           return {
@@ -225,7 +238,7 @@ function PriceList() {
   //console.log(dataCol[0].fieldsList.columns);
   //dataCol[0].fieldsList.columns
   const columns = dataCol.length
-    ? test.map((el) => {
+    ? dataCol[0].fieldsList.columns.map((el) => {
         //const el = element.fieldsList.columns;
         return (
           <Column
@@ -240,30 +253,32 @@ function PriceList() {
   //const columns = [];
   console.log(data, columns);
   // data.length && columns.length &&
-  <div style={{ marginTop: "100px" }}>
-    <DataGrid
-      dataSource={data}
-      allowColumnReordering={true}
-      allowColumnResizing={true}
-      height={800}
-      columnResizingMode={"widget"}
-      // columnMinWidth={150}
-      columnAutoWidth={true}
-    >
-      <Column dataField="name" dataType="string" />
-      {/* {columns} */}
-      {/* <Column dataField="name" dataType="string" />
+  return (
+    <div style={{ marginTop: "100px" }}>
+      <DataGrid
+        dataSource={data}
+        allowColumnReordering={true}
+        allowColumnResizing={true}
+        height={800}
+        columnResizingMode={"widget"}
+        // columnMinWidth={150}
+        columnAutoWidth={true}
+      >
+        {/* <Column dataField="name" dataType="string" /> */}
+        {columns}
+        {/* <Column dataField="name" dataType="string" />
         <Column dataField="price" dataType="string" />
         <Column dataField="sku" dataType="string" /> */}
-      <Scrolling columnRenderingMode="virtual" mode="infinite" />
-      <FilterRow visible={true} />
-      <SearchPanel visible={true} />
-      <GroupPanel visible={true} />
+        <Scrolling columnRenderingMode="virtual" mode="infinite" />
+        <FilterRow visible={true} />
+        <SearchPanel visible={true} />
+        <GroupPanel visible={true} />
 
-      {/* <Column dataField="Channel" dataType="string" />
+        {/* <Column dataField="Channel" dataType="string" />
         <Column dataField="Customer" dataType="string" width={150} /> */}
-    </DataGrid>
-  </div>;
+      </DataGrid>
+    </div>
+  );
 }
 
 export default PriceList;

@@ -65,8 +65,6 @@ const Orders = () => {
     axios
       .put(url, formData, config)
       .then((data) => {
-        //console.log(response.data);
-        console.log(data);
         getContactsAndOrders();
         if (data.data.code === 0) {
           toast.success(`Успешно отправлено`, {
@@ -106,7 +104,6 @@ const Orders = () => {
             theme: "light",
           });
         }
-        console.log(err);
       })
       .finally(() => {});
   };
@@ -117,7 +114,6 @@ const Orders = () => {
     setCompanyId(company.value);
   };
   React.useEffect(() => {
-    console.log(vendors);
     if (vendors === undefined) return;
     setOptionsVendor(
       vendors.map((vendor) => ({ value: vendor.id, label: vendor.name }))
@@ -134,7 +130,6 @@ const Orders = () => {
     getOrders(vendorId)
       .unwrap()
       .then((payload) => {
-        console.log(payload);
         setOrders(
           payload
             .map((order) => ({
@@ -163,11 +158,6 @@ const Orders = () => {
   };
 
   const ContactCell = (props) => {
-    //console.log(props)
-    // console.log(props);
-
-    //console.log(row);
-
     return (
       <td style={{ overflow: "visible" }}>
         <img
@@ -181,11 +171,6 @@ const Orders = () => {
   };
 
   const CommentCell = (props) => {
-    //console.log(props)
-    // console.log(props);
-
-    //console.log(row);
-
     return (
       <td>
         <p style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
@@ -209,11 +194,6 @@ const Orders = () => {
   };
 
   const EditCell = (props) => {
-    //console.log(props)
-    // console.log(props);
-
-    //console.log(row);
-
     return (
       <td style={{ overflow: "visible" }}>
         <img
@@ -237,7 +217,6 @@ const Orders = () => {
       getShopsReq(localStorage.getItem("companyId"))
         .unwrap()
         .then((data) => {
-          console.error(data);
           setCompanies(
             data.map((row) => ({
               value: row.id,
@@ -313,7 +292,6 @@ const Orders = () => {
         .catch((err) => console.error(err));
   };
   const DeleteCell = (props) => {
-    //console.log(props)
     return (
       <td>
         {!props.dataItem.dateSend && (
@@ -339,7 +317,6 @@ const Orders = () => {
   const rowRender = (trElement, props) => {
     const blue = { backgroundColor: "#d9d9e3" };
     const red = {};
-    // console.log(active, "  ", props.dataItem.id);
     const trProps = {
       style: active === props.dataItem.id ? blue : red,
     };
@@ -383,7 +360,6 @@ const Orders = () => {
       alert("Произошла ошибка");
       return;
     }
-    console.log(checkedRow);
     if (Object.keys(checkedRow).length === 0 || !companyId) {
       toast.error(`Выберите почту и магазин`, {
         position: "top-right",
@@ -397,7 +373,6 @@ const Orders = () => {
       });
       return;
     }
-    console.log(contacts.filter((contact) => checkedRow[contact.id]));
 
     sendOrder({
       orderId,
@@ -408,7 +383,6 @@ const Orders = () => {
       shop: companyId,
     });
   };
-  console.log(orders);
   return (
     <div style={{ marginLeft: "10px", marginTop: "80px" }}>
       {optionsVendor && (

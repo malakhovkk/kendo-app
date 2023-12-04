@@ -13,7 +13,6 @@ let numberOfRows = 10000;
 //   previousNext: true,
 // };
 const CellWithState = (props) => {
-  console.log("CellWithState");
   const field = props.field || "";
   const [inEdit, setInEdit] = React.useState(false);
   const [value, setValue] = React.useState(props.dataItem[field]);
@@ -63,7 +62,6 @@ const CellWithState = (props) => {
   );
 };
 const getData = (skip, take) => {
-  console.log("getData");
   const page = [];
   for (let r = skip + 1; r <= skip + take && r <= numberOfRows; r++) {
     const row = {
@@ -77,7 +75,6 @@ const getData = (skip, take) => {
   return page;
 };
 const columns = (() => {
-  console.log("columns");
   const cols = [<GridColumn key={0} field={"id"} width={150} />];
   for (let c = 1; c <= numberOfColumns; c++) {
     cols.push(
@@ -101,8 +98,6 @@ const New = () => {
   });
   const [sort, setSort] = React.useState([]);
   const pageChange = (event) => {
-    console.log("pageChange");
-    console.log(event.page);
     setPage(event.page);
   };
   const sortChange = (event) => {
