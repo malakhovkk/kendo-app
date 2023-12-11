@@ -298,7 +298,7 @@ function PriceList() {
       showSuccess("Заказ успешно создан!");
       setTimeout(() => {
         window.location.reload();
-      }, 20000);
+      }, 2000);
     } catch (err) {
       showSuccess("Ошибка при создании заказа!");
     }
