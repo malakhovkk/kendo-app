@@ -48,7 +48,7 @@ const remoteDataSource = createStore({
 
 function PriceList() {
   const [data, setData] = useState([]);
-
+  const [orderId, setOrderId] = useState();
   // const { data, error: err, isLoading, refetch } = useGetVendorsQuery();
   const [getDocument] = useGetDocumentMutation();
   const [dataCol, setDataCol] = React.useState([]);
@@ -64,9 +64,11 @@ function PriceList() {
   const [listVendors, setListVendors] = useState([]);
   const { state } = useLocation();
   console.log(state);
+
   useEffect(() => {
     if (state) {
-      orderId.current = state.idOrder;
+      //alert(1);
+      setOrderId(state.idOrder);
       setVendorId(state.idVendor);
     }
   }, []);
@@ -256,13 +258,17 @@ function PriceList() {
   }
   const [selectedItemKeys, setSelectedItemKeys] = useState([]);
   const [selection, setSelection] = useState([]);
+  const [array, setArray] = useState([]);
 
-  const dataSource = new DataSource({
-    store: new ArrayStore({
-      data: data,
-      key: "id",
-    }),
-  });
+  useEffect(() => {
+    if (data) setArray(data);
+  }, [data]);
+
+  // store: new ArrayStore({
+  //   data: data,
+  //   key: "id",
+  // }),
+
   const selectionChanged = (data) => {
     // !!!!!!!!!
     console.log(data);
@@ -271,24 +277,56 @@ function PriceList() {
     });
   };
   const [cart, setCart] = useState([]);
-  const orderId = useRef();
+
+  useEffect(() => {
+    console.log(array);
+
+    //dataSource = [{ orderQuant: 5 }];
+    console.log(array, array.length);
+    // if (array && array.length) alert(array[0].orderQuant);
+    setArray(
+      array.map((el) => {
+        if (el.orderQuant == "0") {
+          console.log(el);
+          return { ...el, orderQuant: "" };
+        }
+        return el;
+      })
+    );
+    console.log(array);
+    JSON.parse(JSON.stringify(array));
+  }, []);
+
   function updateRow(e) {
     console.error(e);
     console.log(cart);
     setCart([
-      ...cart,
+      ...cart.filter((el) => el.PriceRecordId !== e.oldData.id),
       {
         id: "",
         PriceRecordId: e.oldData.id,
-        OrderId: orderId.current,
-        orderQuant: parseInt(e.newData.orderQuant),
+        OrderId: orderId,
+        Quant: parseInt(e.newData.orderQuant),
       },
     ]);
+    console.log(array);
+    if (e.newData.orderQuant == "0")
+      setArray([
+        ...array.filter((el) => el.id !== e.oldData.id),
+        array.map((el) => {
+          if (el.orderQuant == "0" && el.PriceRecordId === e.oldData.id) {
+            console.log(el);
+            return { ...el, orderQuant: "" };
+          }
+          return el;
+        }),
+      ]);
+
     //setCart([ ...cart, {[e.key]: e.newData.orderQuant,} ]);
   }
   console.log(cart);
   async function saveRequest() {
-    if (!orderId.current) {
+    if (!orderId) {
       showError("Необходимо создать заказ!");
       return;
     }
@@ -305,6 +343,7 @@ function PriceList() {
     // }
     try {
       // await saveOrderReq({ body: toSend }).unwrap();
+      console.log(cart);
       await saveOrderReq({ body: cart }).unwrap();
       showSuccess("Заказ успешно создан!");
       // setTimeout(() => {
@@ -319,7 +358,7 @@ function PriceList() {
     try {
       const { id } = await createOrderReq(vendorId).unwrap();
 
-      orderId.current = id;
+      setOrderId(id);
       showSuccess("Заказ успешно создан!");
       console.log(id);
     } catch (e) {
@@ -339,14 +378,15 @@ function PriceList() {
   };
   const sendRequest = (e) => {};
   useEffect(() => {
-    console.log(orderId.current);
-  }, [orderId.current]);
+    console.log(orderId);
+  }, [orderId]);
+
   return (
     <>
       <div style={{ marginTop: "100px", width: "1400px" }}>
         <select
           onChange={selectVendor}
-          value={orderId.current}
+          // value={orderId.current}
           name="pets"
           id="pet-select"
         >
@@ -358,7 +398,7 @@ function PriceList() {
         </select>
 
         <DataGrid
-          dataSource={dataSource}
+          dataSource={array}
           allowColumnReordering={true}
           allowColumnResizing={true}
           height={800}
@@ -367,8 +407,8 @@ function PriceList() {
           columnAutoWidth={true}
           onRowUpdating={updateRow}
         >
-          {console.log(orderId.current)}
-          {!orderId.current ? (
+          {console.log(orderId)}
+          {orderId ? (
             <Editing
               onChangesChange={onChangesChange}
               mode="row"
