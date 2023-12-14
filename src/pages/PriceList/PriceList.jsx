@@ -259,6 +259,7 @@ function PriceList() {
   const [selectedItemKeys, setSelectedItemKeys] = useState([]);
   const [selection, setSelection] = useState([]);
   const [array, setArray] = useState([]);
+  const [cartMap, setCartMap] = useState({});
 
   useEffect(() => {
     if (data) setArray(data);
@@ -297,9 +298,18 @@ function PriceList() {
     JSON.parse(JSON.stringify(array));
   }, []);
 
+  function isNumber(str) {
+    return !isNaN(str);
+  }
+
   function updateRow(e) {
     console.error(e);
     console.log(cart);
+    const id = e.oldData.id;
+    const quant = e.newData.orderQuant;
+    let cm = { ...cartMap };
+    cm[id] = quant;
+    setCartMap(cm);
     setCart([
       ...cart.filter((el) => el.PriceRecordId !== e.oldData.id),
       {
@@ -325,6 +335,14 @@ function PriceList() {
     //setCart([ ...cart, {[e.key]: e.newData.orderQuant,} ]);
   }
   console.log(cart);
+
+  String.prototype.includesId = (array, id) => {
+    array.forEach((el) => {
+      if (el === id) return true;
+    });
+    return false;
+  };
+
   async function saveRequest() {
     if (!orderId) {
       showError("Необходимо создать заказ!");
@@ -344,6 +362,21 @@ function PriceList() {
     try {
       // await saveOrderReq({ body: toSend }).unwrap();
       console.log(cart);
+      for (let key in cartMap) {
+        if (cartMap[key] == "0") {
+          if (key.includesId(array, PriceRecordId)) {
+            //DELETE
+            continue;
+          }
+        }
+        if (key.includesId(array, PriceRecordId)) {
+          //PUT
+        }
+      }
+      setCart({});
+      // PUT
+      // await editOrderReq({})
+
       await saveOrderReq({ body: cart }).unwrap();
       showSuccess("Заказ успешно создан!");
       // setTimeout(() => {
