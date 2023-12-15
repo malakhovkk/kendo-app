@@ -35,7 +35,12 @@ import DropDownBox from "devextreme-react/drop-down-box";
 
 import { List } from "devextreme-react/list";
 import { toast } from "react-toastify";
-
+import { returnFalse } from "@progress/kendo-react-inputs/dist/npm/maskedtextbox/utils";
+import {
+  useGetOrderMutation,
+  useSaveEditOrderMutation,
+  useDeleteRecordOrderMutation,
+} from "../../features/apiSlice";
 const serviceUrl = "http://194.87.239.231:55555/api/";
 
 const remoteDataSource = createStore({
@@ -53,6 +58,9 @@ function PriceList() {
   const [getDocument] = useGetDocumentMutation();
   const [dataCol, setDataCol] = React.useState([]);
   const [saveOrderReq] = useSaveOrderMutation();
+  const [getOrderReq] = useGetOrderMutation();
+  const [editOrderReq] = useSaveEditOrderMutation();
+  const [deleteOrderReq] = useDeleteRecordOrderMutation();
   // const [getV]
   const { data: vendorsList } = useGetVendorsQuery();
   console.error(vendorsList);
@@ -259,7 +267,7 @@ function PriceList() {
   const [selectedItemKeys, setSelectedItemKeys] = useState([]);
   const [selection, setSelection] = useState([]);
   const [array, setArray] = useState([]);
-  const [cartMap, setCartMap] = useState({});
+  const [cartMap, setCartMap] = useState({}); // {<"id"> : {}}
 
   useEffect(() => {
     if (data) setArray(data);
@@ -309,28 +317,28 @@ function PriceList() {
     const quant = e.newData.orderQuant;
     let cm = { ...cartMap };
     cm[id] = quant;
-    setCartMap(cm);
-    setCart([
-      ...cart.filter((el) => el.PriceRecordId !== e.oldData.id),
-      {
-        id: "",
-        PriceRecordId: e.oldData.id,
-        OrderId: orderId,
-        Quant: parseInt(e.newData.orderQuant),
-      },
-    ]);
+    //setCartMap(cm);
+    // setCart([
+    //   ...cart.filter((el) => el.PriceRecordId !== e.oldData.id),
+    //   {
+    //     id: "",
+    //     PriceRecordId: e.oldData.id,
+    //     OrderId: orderId,
+    //     Quant: parseInt(e.newData.orderQuant),
+    //   },
+    // ]);
     console.log(array);
-    if (e.newData.orderQuant == "0")
-      setArray([
-        ...array.filter((el) => el.id !== e.oldData.id),
-        array.map((el) => {
-          if (el.orderQuant == "0" && el.PriceRecordId === e.oldData.id) {
-            console.log(el);
-            return { ...el, orderQuant: "" };
-          }
-          return el;
-        }),
-      ]);
+    // if (e.newData.orderQuant == "0")
+    //   setArray([
+    //     ...array.filter((el) => el.id !== e.oldData.id),
+    //     array.map((el) => {
+    //       if (el.orderQuant == "0" && el.PriceRecordId === e.oldData.id) {
+    //         console.log(el);
+    //         return { ...el, orderQuant: "" };
+    //       }
+    //       return el;
+    //     }),
+    //   ]);
 
     //setCart([ ...cart, {[e.key]: e.newData.orderQuant,} ]);
   }
@@ -338,16 +346,112 @@ function PriceList() {
 
   String.prototype.includesId = (array, id) => {
     array.forEach((el) => {
-      if (el === id) return true;
+      if (el.PriceRecordId === id) return true;
     });
     return false;
   };
+  function splitArr(array) {
+    let arrPOST = [],
+      arrPUT = [],
+      arrDELETE = [];
+    array.forEach((el) => {
+      //let id = cartMap[el.priceRecordId]?.id;
+      let id = "";
+      //consolee;
+      for (let key in cartMap) {
+        if (cartMap[key].priceRecordId === el.priceRecordId) {
+          id = key;
+          break;
+        }
+      }
+      el.id = id;
+      if (el.id !== "" && el.quant == "0") {
+        arrDELETE = [...arrDELETE, { ...el, id }];
+        console.log("AAAAAAAA ", "delete");
+        // let new_cart = cartMap;
+        // delete cartMap[el.priceRecordId];
+        // setCartMap(el.priceRecordId);
+      } else {
+        if (el.id === "") {
+          arrPOST = [...arrPOST, { ...el, id }];
 
+          console.log("AAAAAAAA ", "2");
+        } else {
+          arrPUT = [...arrPUT, { ...el, id }];
+          console.log("AAAAAAAA ", "3");
+        }
+      }
+    });
+
+    return [arrPOST, arrPUT, arrDELETE];
+    //if(    )
+  }
   async function saveRequest() {
     if (!orderId) {
       showError("Необходимо создать заказ!");
       return;
     }
+    console.log(Object.keys(cartMap).length);
+    const [arrPOST, arrPUT, arrDELETE] = splitArr(
+      array
+        .filter((el) => el?.orderQuant)
+        .map((el) => {
+          return {
+            id: "",
+            orderId,
+            priceRecordId: el.id,
+            quant: el.orderQuant,
+          };
+        })
+    );
+    try {
+      if (arrPOST.length) await saveOrderReq({ body: arrPOST }).unwrap();
+    } catch (e) {
+      return;
+    }
+
+    try {
+      if (arrPUT.length) await editOrderReq({ body: arrPUT }).unwrap();
+    } catch (e) {
+      return;
+    }
+
+    try {
+      if (arrDELETE.length) await deleteOrderReq({ body: arrDELETE }).unwrap();
+    } catch (e) {
+      return;
+    }
+    let new_cart = {};
+    (await getOrderReq(orderId).unwrap()).forEach((el) => {
+      new_cart[el.id] = el;
+    });
+    console.log(new_cart);
+    setCartMap(new_cart);
+    showSuccess("Успешно!");
+
+    // if (!Object.keys(cartMap).length) {
+    //   let arrayToSend = array
+    //     .filter((el) => el?.orderQuant)
+    //     .map((el) => ({
+    //       id: "",
+    //       priceRecordId: el.id,
+    //       orderId,
+    //       quant: el.orderQuant,
+    //     }));
+    //   try {
+    //     await saveOrderReq({ body: arrayToSend }).unwrap();
+    //     showSuccess("Успешно добавлен!");
+    //   } catch (e) {
+    //     showError("Произошла ошибка");
+    //   }
+    //   return;
+    // }
+
+    //return;
+    // if (!Object.keys(cartMap).length) {
+    //   await saveOrderReq({ body: cart }).unwrap();
+    // }
+
     const toSend = [];
     // for (var key in cart) {
     //   if (cart.hasOwnProperty(key)) {
@@ -359,33 +463,36 @@ function PriceList() {
     //     });
     //   }
     // }
-    try {
-      // await saveOrderReq({ body: toSend }).unwrap();
-      console.log(cart);
-      for (let key in cartMap) {
-        if (cartMap[key] == "0") {
-          if (key.includesId(array, PriceRecordId)) {
-            //DELETE
-            continue;
-          }
-        }
-        if (key.includesId(array, PriceRecordId)) {
-          //PUT
-        }
-      }
-      setCart({});
-      // PUT
-      // await editOrderReq({})
 
-      await saveOrderReq({ body: cart }).unwrap();
-      showSuccess("Заказ успешно создан!");
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 2000);
-    } catch (err) {
-      showError("Ошибка при создании заказа!");
-    }
+    // try {
+    //   // await saveOrderReq({ body: toSend }).unwrap();
+    //   //console.log(cart);
+    //   for (let key in cartMap) {
+    //     if (cartMap[key] == "0") {
+    //       if (key.includesId(array, PriceRecordId)) {
+    //         //DELETE
+    //         continue;
+    //       }
+    //       setArray(array.filter((el) => el.PriceRecordId !== key));
+    //     }
+    //     if (key.includesId(array, PriceRecordId)) {
+    //       //PUT
+    //     }
+    //   }
+    //   setCart({});
+    //   // PUT
+    //   // await editOrderReq({})
+
+    //   await saveOrderReq({ body: cart }).unwrap();
+    //   showSuccess("Заказ успешно создан!");
+    //   // setTimeout(() => {
+    //   //   window.location.reload();
+    //   // }, 2000);
+    // } catch (err) {
+    //   showError("Ошибка при создании заказа!");
+    // }
   }
+
   const [createOrderReq] = useCreateOrderMutation();
   async function createOrder() {
     try {
