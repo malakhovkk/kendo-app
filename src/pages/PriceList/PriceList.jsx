@@ -41,6 +41,7 @@ import {
   useSaveEditOrderMutation,
   useDeleteRecordOrderMutation,
 } from "../../features/apiSlice";
+import { today } from "@progress/kendo-react-dateinputs";
 const serviceUrl = "http://194.87.239.231:55555/api/";
 
 const remoteDataSource = createStore({
@@ -350,24 +351,35 @@ function PriceList() {
     });
     return false;
   };
-  function splitArr(array) {
+  function splitArr(arrayModified) {
     let arrPOST = [],
       arrPUT = [],
       arrDELETE = [];
-    array.forEach((el) => {
+    const toDelete = [];
+    arrayModified.forEach((el) => {
       //let id = cartMap[el.priceRecordId]?.id;
       let id = "";
+      let q;
+      let pid = "";
       //consolee;
       for (let key in cartMap) {
         if (cartMap[key].priceRecordId === el.priceRecordId) {
           id = key;
+          pid = el.priceRecordId;
+          q = cartMap[key].quant;
           break;
         }
       }
+      if(el.quant == "0") toDelete.push(pid);
+      console.error(q);
       el.id = id;
       if (el.id !== "" && el.quant == "0") {
         arrDELETE = [...arrDELETE, { ...el, id }];
         console.log("AAAAAAAA ", "delete");
+        if(el.quant == "0")
+        {
+          delete cartMap[id];
+        }
         // let new_cart = cartMap;
         // delete cartMap[el.priceRecordId];
         // setCartMap(el.priceRecordId);
@@ -376,13 +388,15 @@ function PriceList() {
           arrPOST = [...arrPOST, { ...el, id }];
 
           console.log("AAAAAAAA ", "2");
-        } else {
+        } else if(q != el.quant) {
           arrPUT = [...arrPUT, { ...el, id }];
           console.log("AAAAAAAA ", "3");
         }
       }
+      
     });
-
+    console.log(array, toDelete, array.filter(el => !toDelete.includes(el.priceRecordId)));
+    setArray(array.filter(el => !toDelete.includes(el.id)))
     return [arrPOST, arrPUT, arrDELETE];
     //if(    )
   }
@@ -422,9 +436,16 @@ function PriceList() {
       return;
     }
     let new_cart = {};
-    (await getOrderReq(orderId).unwrap()).forEach((el) => {
-      new_cart[el.id] = el;
-    });
+    try 
+    {
+      (await getOrderReq(orderId).unwrap()).forEach((el) => {
+        new_cart[el.id] = el;
+      });
+    }
+    catch(err)
+    {
+      console.log(err);
+    }
     console.log(new_cart);
     setCartMap(new_cart);
     showSuccess("Успешно!");
