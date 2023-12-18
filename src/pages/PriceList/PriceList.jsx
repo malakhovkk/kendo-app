@@ -3,6 +3,7 @@ import { useSaveOrderMutation } from "../../features/apiSlice";
 import "devextreme/dist/css/dx.light.css";
 import "devextreme/dist/css/dx.common.css";
 import { useLocation } from "react-router-dom";
+import { RowDblClickEvent } from "devextreme/ui/data_grid";
 import {
   DataGrid,
   GroupPanel,
@@ -139,9 +140,25 @@ function PriceList() {
       //   return el *2
       // })
       // [2 4 6 ]
+      let res222 = JSON.parse(JSON.stringify(res));
+      res222[0].statistics.price = 6;
+      res222[1].statistics.quant = -3;
+
       setData(
-        res.map((_el, idx) => {
+        res222.map((_el, idx) => {
           return {
+            "1C": _el.linkId ? "+" : "-",
+            priceDelta:
+              //  _el.price_delta,
+              _el.statistics.price === 0
+                ? ""
+                : (_el.statistics.price > 0 ? "+" : "-") + _el.statistics.price,
+            quantDelta:
+              //  _el.quant_delta,
+              _el.statistics.quant === 0
+                ? ""
+                : (_el.statistics.quant > 0 ? "+" : "-") + _el.statistics.quant,
+            linkId: _el.linkId,
             priceDelta: _el.statistics.price,
             quantDelta: _el.statistics.quant,
             name: _el.name,
@@ -163,6 +180,7 @@ function PriceList() {
           // res.push(el);
         })
       );
+      console.warn(res222);
     }
     async function getListVendors() {
       // const listVendors = await getVendorsQueryReq().unwrap();
@@ -199,7 +217,14 @@ function PriceList() {
   const ignore = (d, fields) => {
     return d.filter((el) => !fields.includes(el));
   };
-  const columnsFixed = ["sku", "name", "quant", "quant_stock"];
+  const columnsFixed = [
+    "sku",
+    "name",
+    "quant",
+    "quant_stock",
+    "priceDelta",
+    "quantDelta",
+  ];
   console.log(dataCol);
   let isNext = false;
   let columns1 = [];
@@ -256,7 +281,17 @@ function PriceList() {
           />
         );
     });
-
+  columns1 = [
+    <Column
+      key={"1C"}
+      fixed={true}
+      dataField={"1C"}
+      allowEditing={false}
+      caption={"1C"}
+    />,
+    ...columns1,
+  ];
+  console.log(columns1);
   const onChangesChange = (changes) => {
     // setChanges(dispatch, changes);
     console.warn(changes);
@@ -318,30 +353,6 @@ function PriceList() {
     const quant = e.newData.orderQuant;
     let cm = { ...cartMap };
     cm[id] = quant;
-    //setCartMap(cm);
-    // setCart([
-    //   ...cart.filter((el) => el.PriceRecordId !== e.oldData.id),
-    //   {
-    //     id: "",
-    //     PriceRecordId: e.oldData.id,
-    //     OrderId: orderId,
-    //     Quant: parseInt(e.newData.orderQuant),
-    //   },
-    // ]);
-    console.log(array);
-    // if (e.newData.orderQuant == "0")
-    //   setArray([
-    //     ...array.filter((el) => el.id !== e.oldData.id),
-    //     array.map((el) => {
-    //       if (el.orderQuant == "0" && el.PriceRecordId === e.oldData.id) {
-    //         console.log(el);
-    //         return { ...el, orderQuant: "" };
-    //       }
-    //       return el;
-    //     }),
-    //   ]);
-
-    //setCart([ ...cart, {[e.key]: e.newData.orderQuant,} ]);
   }
   console.log(cart);
 
@@ -350,6 +361,14 @@ function PriceList() {
       if (el.PriceRecordId === id) return true;
     });
     return false;
+  };
+  const onCellDblClick = function (e) {
+    if (e.data) {
+      //alert('onCellDblClick');
+      // selected = e.data;
+      // popup.show();
+    }
+    alert(1);
   };
   function splitArr(arrayModified) {
     let arrPOST = [],
@@ -370,14 +389,12 @@ function PriceList() {
           break;
         }
       }
-      if(el.quant == "0") toDelete.push(pid);
+      if (el.quant == "0") toDelete.push(pid);
       console.error(q);
       el.id = id;
       if (el.id !== "" && el.quant == "0") {
         arrDELETE = [...arrDELETE, { ...el, id }];
-        console.log("AAAAAAAA ", "delete");
-        if(el.quant == "0")
-        {
+        if (el.quant == "0") {
           delete cartMap[id];
         }
         // let new_cart = cartMap;
@@ -386,17 +403,12 @@ function PriceList() {
       } else {
         if (el.id === "") {
           arrPOST = [...arrPOST, { ...el, id }];
-
-          console.log("AAAAAAAA ", "2");
-        } else if(q != el.quant) {
+        } else if (q != el.quant) {
           arrPUT = [...arrPUT, { ...el, id }];
-          console.log("AAAAAAAA ", "3");
         }
       }
-      
     });
-    console.log(array, toDelete, array.filter(el => !toDelete.includes(el.priceRecordId)));
-    setArray(array.filter(el => !toDelete.includes(el.id)))
+    setArray(array.filter((el) => !toDelete.includes(el.id)));
     return [arrPOST, arrPUT, arrDELETE];
     //if(    )
   }
@@ -436,89 +448,22 @@ function PriceList() {
       return;
     }
     let new_cart = {};
-    try 
-    {
+    try {
       (await getOrderReq(orderId).unwrap()).forEach((el) => {
         new_cart[el.id] = el;
       });
-    }
-    catch(err)
-    {
+    } catch (err) {
       console.log(err);
     }
     console.log(new_cart);
     setCartMap(new_cart);
     showSuccess("Успешно!");
-
-    // if (!Object.keys(cartMap).length) {
-    //   let arrayToSend = array
-    //     .filter((el) => el?.orderQuant)
-    //     .map((el) => ({
-    //       id: "",
-    //       priceRecordId: el.id,
-    //       orderId,
-    //       quant: el.orderQuant,
-    //     }));
-    //   try {
-    //     await saveOrderReq({ body: arrayToSend }).unwrap();
-    //     showSuccess("Успешно добавлен!");
-    //   } catch (e) {
-    //     showError("Произошла ошибка");
-    //   }
-    //   return;
-    // }
-
-    //return;
-    // if (!Object.keys(cartMap).length) {
-    //   await saveOrderReq({ body: cart }).unwrap();
-    // }
-
-    const toSend = [];
-    // for (var key in cart) {
-    //   if (cart.hasOwnProperty(key)) {
-    //     toSend.push({
-    //       id: "",
-    //       PriceRecordId: key,
-    //       OrderId: orderId.current,
-    //       Quant: cart[key],
-    //     });
-    //   }
-    // }
-
-    // try {
-    //   // await saveOrderReq({ body: toSend }).unwrap();
-    //   //console.log(cart);
-    //   for (let key in cartMap) {
-    //     if (cartMap[key] == "0") {
-    //       if (key.includesId(array, PriceRecordId)) {
-    //         //DELETE
-    //         continue;
-    //       }
-    //       setArray(array.filter((el) => el.PriceRecordId !== key));
-    //     }
-    //     if (key.includesId(array, PriceRecordId)) {
-    //       //PUT
-    //     }
-    //   }
-    //   setCart({});
-    //   // PUT
-    //   // await editOrderReq({})
-
-    //   await saveOrderReq({ body: cart }).unwrap();
-    //   showSuccess("Заказ успешно создан!");
-    //   // setTimeout(() => {
-    //   //   window.location.reload();
-    //   // }, 2000);
-    // } catch (err) {
-    //   showError("Ошибка при создании заказа!");
-    // }
   }
 
   const [createOrderReq] = useCreateOrderMutation();
   async function createOrder() {
     try {
       const { id } = await createOrderReq(vendorId).unwrap();
-
       setOrderId(id);
       showSuccess("Заказ успешно создан!");
       console.log(id);
@@ -526,12 +471,6 @@ function PriceList() {
       showError("Ошибка!");
     }
   }
-
-  const [isGridBoxOpened, setIsGridBoxOpened] = useState("");
-
-  const [val, setVal] = useState("1_1");
-
-  const fruits = ["Apples", "Oranges", "Lemons", "Pears", "Pineapples"];
 
   const selectVendor = (e) => {
     console.log(e.target.value);
@@ -541,6 +480,10 @@ function PriceList() {
   useEffect(() => {
     console.log(orderId);
   }, [orderId]);
+
+  const dblClick = (e) => {
+    console.log(e);
+  };
 
   return (
     <>
