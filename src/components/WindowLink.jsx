@@ -13,6 +13,7 @@ import {
 } from "../features/apiSlice";
 import CheckInput from "./CheckInput";
 import { link } from "@progress/kendo-editor-common";
+import { Popup } from "devextreme-react/popup";
 
 const CheckCell = (props) => {
   return (
@@ -121,7 +122,6 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
   }, [currentLinksArr]);
   const toDelete = React.useRef(null);
   async function itemChange(event) {
-    //console.log(event);
     let value = event.value;
     const name = event.field;
     if (value) {
@@ -134,15 +134,12 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
         linksArr.map((row) => {
           if (row.uid === event.dataItem.uid) {
             console.warn(row.uid);
-            //console.log({ ...row, linkId });
             return { ...row, linkId };
           }
           return row;
         })
       );
 
-      // var1.current = event;
-      //console.log(linkId);
       setCurrentLinksArr((currentLinksArr) => [
         ...currentLinksArr,
         event.dataItem.uid,
@@ -175,32 +172,6 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
     }
   };
   const cancel = async () => {
-    // console.log(currentLinksArr, initialLinksArr);
-    // let toDelete = currentLinksArr.filter(
-    //   (el) => !initialLinksArr.includes(el)
-    // );
-    // let toAdd = initialLinksArr.filter((el) => !currentLinksArr.includes(el));
-    // console.log(initialLinksArr, currentLinksArr);
-    // console.error(
-    //   initialLinksArr.filter((el) => !currentLinksArr.includes(el))
-    // );
-    // if (toDelete.length || toAdd.length) {
-    //   try {
-    //     if (toDelete.length) await removeMultipleReq(toDelete).unwrap();
-    //     console.log(toAdd);
-    //     if (toAdd.length) {
-    //       await addMultipleReq(toAdd).unwrap();
-    //     } else {
-    //     }
-    //     let ans = await getLinksQueryReq({
-    //       priceRecordId,
-    //       searchWord: searchWord ? searchWord : "getAll",
-    //     }).unwrap();
-
-    //     exec();
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
     try {
       if (linksArr && linksArr.length) {
         await removeMultipleReq(
@@ -225,46 +196,76 @@ const WindowLink = ({ closeDialog, priceRecordId, title }) => {
       console.log(err);
     }
   };
+
+  const renderContent = () => {
+    return (
+      <>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Penatibus
+          et magnis dis parturient. Eget dolor morbi non arcu risus. Tristique
+          magna sit amet purus gravida quis blandit. Auctor urna nunc id cursus
+          metus aliquam eleifend mi in. Tellus orci ac auctor augue mauris augue
+          neque gravida. Nullam vehicula ipsum a arcu. Nullam ac tortor vitae
+          purus faucibus ornare suspendisse sed nisi. Cursus in hac habitasse
+          platea dictumst. Egestas dui id ornare arcu. Dictumst vestibulum
+          rhoncus est pellentesque elit ullamcorper dignissim.
+        </p>
+        <p>
+          Mauris rhoncus aenean vel elit scelerisque mauris pellentesque
+          pulvinar. Neque volutpat ac tincidunt vitae semper quis lectus. Sed
+          sed risus pretium quam vulputate dignissim suspendisse in. Urna nec
+          tincidunt praesent semper feugiat nibh sed pulvinar. Ultricies lacus
+          sed turpis tincidunt id aliquet risus feugiat. Amet cursus sit amet
+          dictum sit amet justo donec enim. Vestibulum rhoncus est pellentesque
+          elit ullamcorper. Id aliquet risus feugiat in ante metus dictum at.
+        </p>
+      </>
+    );
+  };
+
   return (
-    <Window
-      title={title}
-      onClose={closeDialog}
-      initialHeight={850}
-      initialWidth={800}
-    >
-      <div style={{ marginBottom: "20px", width: "400px" }}>
-        <div>
-          Поиск:
-          <Input
-            onChange={(e) => setOldSearchWord(e.target.value)}
-            style={{ width: "335px", marginLeft: "20px" }}
-          />
-        </div>
-        <div style={{ marginTop: "10px", textAlign: "right" }}>
-          <Button onClick={cancel}>Отменить изменения</Button>
-          <Button onClick={closeDialog} style={{ marginLeft: "10px" }}>
-            Завершить
-          </Button>
-        </div>
-      </div>
-
-      <Grid
-        data={linksArr}
-        style={{ minHeight: "500px", height: "85%", minWidth: "500px" }}
-        onItemChange={itemChange}
-        dataItemKey={"tempId"}
+    <>
+      <Window
+        title={title}
+        onClose={closeDialog}
+        initialHeight={850}
+        initialWidth={800}
       >
-        <GridColumn
-          cell={CheckCell}
-          field="selected"
-          title="Выбрать"
-          width="100px"
-        />
+        <div style={{ marginBottom: "20px", width: "400px" }}>
+          <div>
+            Поиск:
+            <Input
+              onChange={(e) => setOldSearchWord(e.target.value)}
+              style={{ width: "335px", marginLeft: "20px" }}
+            />
+          </div>
+          <div style={{ marginTop: "10px", textAlign: "right" }}>
+            <Button onClick={cancel}>Отменить изменения</Button>
+            <Button onClick={closeDialog} style={{ marginLeft: "10px" }}>
+              Завершить
+            </Button>
+          </div>
+        </div>
 
-        <GridColumn field="name" width="350px" title="Имя" />
-        <GridColumn field="code" width="250px" title="Код" />
-      </Grid>
-    </Window>
+        <Grid
+          data={linksArr}
+          style={{ minHeight: "500px", height: "85%", minWidth: "500px" }}
+          onItemChange={itemChange}
+          dataItemKey={"tempId"}
+        >
+          <GridColumn
+            cell={CheckCell}
+            field="selected"
+            title="Выбрать"
+            width="100px"
+          />
+
+          <GridColumn field="name" width="350px" title="Имя" />
+          <GridColumn field="code" width="250px" title="Код" />
+        </Grid>
+      </Window>
+    </>
   );
 };
 export default WindowLink;

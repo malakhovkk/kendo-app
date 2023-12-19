@@ -4,6 +4,7 @@ import "devextreme/dist/css/dx.light.css";
 import "devextreme/dist/css/dx.common.css";
 import { useLocation } from "react-router-dom";
 import { RowDblClickEvent } from "devextreme/ui/data_grid";
+import { Popup } from "devextreme-react";
 import {
   DataGrid,
   GroupPanel,
@@ -43,6 +44,7 @@ import {
   useDeleteRecordOrderMutation,
 } from "../../features/apiSlice";
 import { today } from "@progress/kendo-react-dateinputs";
+import WindowLink from "../../components/WindowLink";
 const serviceUrl = "http://194.87.239.231:55555/api/";
 
 const remoteDataSource = createStore({
@@ -248,26 +250,41 @@ function PriceList() {
       }
       console.log(alignment);
       if (el.name === "quant_stock") {
-        columns1 = [
-          ...columns1,
-          <Column
-            key={el.name}
-            dataField={el.name}
-            format={el.format}
-            alignment={alignment}
-            allowEditing={false}
-            caption={el.caption}
-            fixed={columnsFixed.includes(el.name)}
-          />,
-          <Column
-            key={"orderQuant"}
-            dataField={"orderQuant"}
-            format={"right"}
-            allowEditing={true}
-            caption="Кол-во в заказе"
-            fixed={true}
-          />,
-        ];
+        if (orderId)
+          columns1 = [
+            ...columns1,
+            <Column
+              key={"orderQuant"}
+              dataField={"orderQuant"}
+              format={"right"}
+              allowEditing={true}
+              caption="Кол-во в заказе"
+              fixed={true}
+            />,
+            <Column
+              key={el.name}
+              dataField={el.name}
+              format={el.format}
+              alignment={alignment}
+              allowEditing={false}
+              caption={el.caption}
+              fixed={columnsFixed.includes(el.name)}
+            />,
+          ];
+        else
+          columns1 = [
+            ...columns1,
+
+            <Column
+              key={el.name}
+              dataField={el.name}
+              format={el.format}
+              alignment={alignment}
+              allowEditing={false}
+              caption={el.caption}
+              fixed={columnsFixed.includes(el.name)}
+            />,
+          ];
       } else
         columns1.push(
           <Column
@@ -481,12 +498,23 @@ function PriceList() {
     console.log(orderId);
   }, [orderId]);
 
-  const dblClick = (e) => {
+  const [linkPriceRecordId, setLinkPriceRecordId] = useState("");
+  const [linkName, setLinkName] = useState("");
+
+  const snglClick = (e) => {
     console.log(e);
+    setLinkPriceRecordId(e.data.id);
+    setLinkName(e.data.name);
+  };
+  const isPopUp = () => {
+    setLinkPriceRecordId("");
+    setLinkName("");
   };
 
+  const [showPopUp, setShowPopUp] = useState(true);
   return (
     <>
+      <Popup visible={true} contentRender={renderContent} />
       <div style={{ marginTop: "100px", width: "1400px" }}>
         <select
           onChange={selectVendor}
@@ -500,16 +528,23 @@ function PriceList() {
               <option value={vendor.id}>{vendor.name}</option>
             ))}
         </select>
-
+        {linkPriceRecordId ? (
+          <WindowLink
+            closeDialog={isPopUp}
+            priceRecordId={linkPriceRecordId}
+            title={linkName}
+          />
+        ) : null}
         <DataGrid
           dataSource={array}
           allowColumnReordering={true}
           allowColumnResizing={true}
           height={800}
           columnResizingMode={"widget"}
-          // columnMinWidth={150}
           columnAutoWidth={true}
           onRowUpdating={updateRow}
+          //onCellDblClick={dblClick}
+          onCellClick={snglClick}
         >
           {console.log(orderId)}
           {orderId ? (
@@ -527,9 +562,13 @@ function PriceList() {
           <GroupPanel visible={true} />
         </DataGrid>
       </div>
-      <Button text="Создать заказ" onClick={createOrder} />
-      <Button text="Сохранить" onClick={saveRequest} />
-      <Button text="Отправить" onClick={sendRequest} />
+      {!orderId ? <Button text="Создать заказ" onClick={createOrder} /> : null}
+      {orderId ? (
+        <>
+          <Button text="Сохранить" onClick={saveRequest} />
+          <Button text="Отправить" onClick={sendRequest} />
+        </>
+      ) : null}
     </>
   );
 }
