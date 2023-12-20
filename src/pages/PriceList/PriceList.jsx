@@ -528,7 +528,7 @@ function PriceList() {
       setPopUpInfo({});
       return;
     }
-    setPopUpInfo({ name: "12", address: "Садовоспаская улица 17/2" });
+    setPopUpInfo({ name: "12", address: "Садовая улица 17/2" });
     setLinkPriceRecordId();
     setLinkName();
   };
@@ -546,7 +546,24 @@ function PriceList() {
 
     return <>{res}</>;
   };
-
+  console.log(cart);
+  const [showCart, setShowCart] = useState([]);
+  useEffect(() => {
+    let sh = [];
+    if (!cartMap) return;
+    array.forEach((arrayEl) => {
+      let [foundEl] = data.filter((el) => arrayEl.orderQuant);
+      if (foundEl) {
+        console.log(foundEl);
+        sh.push({
+          name: foundEl.name,
+          quant: foundEl.orderQuant,
+        });
+      }
+    });
+    setShowCart(sh);
+  }, [array]);
+  console.warn(showCart);
   return (
     <>
       {Object.keys(popUpInfo).length !== 0 ? (
@@ -556,6 +573,8 @@ function PriceList() {
           hideOnOutsideClick={true}
           closeOnClick={() => setPopUpInfo(false)}
           contentRender={renderContent}
+          width={500}
+          height={400}
         />
       ) : null}
       {/* <Popup visible={true} contentRender={renderContent} /> */}
@@ -587,8 +606,6 @@ function PriceList() {
           columnResizingMode={"widget"}
           columnAutoWidth={true}
           onRowUpdating={updateRow}
-          //onCellDblClick={dblClick}
-          //onCellClick={snglClick}
           onCellClick={dblClick}
         >
           {console.log(orderId)}
@@ -614,6 +631,10 @@ function PriceList() {
           <Button text="Отправить" onClick={sendRequest} />
         </>
       ) : null}
+      <br />
+      <br />
+      <div>Корзина:</div>
+      <DataGrid dataSource={showCart}></DataGrid>
     </>
   );
 }
