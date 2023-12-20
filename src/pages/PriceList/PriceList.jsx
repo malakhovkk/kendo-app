@@ -4,7 +4,7 @@ import "devextreme/dist/css/dx.light.css";
 import "devextreme/dist/css/dx.common.css";
 import { useLocation } from "react-router-dom";
 import { RowDblClickEvent } from "devextreme/ui/data_grid";
-import { Popup } from "devextreme-react";
+// import { Popup } from "devextreme-react";
 import {
   DataGrid,
   GroupPanel,
@@ -16,6 +16,9 @@ import {
   Editing,
   Selection,
 } from "devextreme-react/data-grid";
+
+import { Popup } from "devextreme-react/popup";
+
 import { Button } from "devextreme-react/button";
 // import {
 //   SelectionState,
@@ -45,6 +48,7 @@ import {
 } from "../../features/apiSlice";
 import { today } from "@progress/kendo-react-dateinputs";
 import WindowLink from "../../components/WindowLink";
+import { dblClick } from "@testing-library/user-event/dist/click";
 const serviceUrl = "http://194.87.239.231:55555/api/";
 
 const remoteDataSource = createStore({
@@ -506,14 +510,54 @@ function PriceList() {
     setLinkPriceRecordId(e.data.id);
     setLinkName(e.data.name);
   };
+
   const isPopUp = () => {
     setLinkPriceRecordId("");
     setLinkName("");
   };
 
+  const [popUpInfo, setPopUpInfo] = useState({});
+
   const [showPopUp, setShowPopUp] = useState(true);
+
+  const dblClick = (e) => {
+    console.log(e);
+    if (e.columnIndex === 0) {
+      setLinkPriceRecordId(e.data.id);
+      setLinkName(e.data.name);
+      setPopUpInfo({});
+      return;
+    }
+    setPopUpInfo({ name: "12", address: "Садовоспаская улица 17/2" });
+    setLinkPriceRecordId();
+    setLinkName();
+  };
+
+  const renderContent = () => {
+    let res = [];
+    for (let key in popUpInfo) {
+      res.push(
+        <div>
+          {" "}
+          {key}: {popUpInfo[key]}
+        </div>
+      );
+    }
+
+    return <>{res}</>;
+  };
+
   return (
     <>
+      {Object.keys(popUpInfo).length !== 0 ? (
+        <Popup
+          visible={true}
+          onHiding={() => setPopUpInfo(false)}
+          hideOnOutsideClick={true}
+          closeOnClick={() => setPopUpInfo(false)}
+          contentRender={renderContent}
+        />
+      ) : null}
       {/* <Popup visible={true} contentRender={renderContent} /> */}
       <div style={{ marginTop: "100px", width: "1400px" }}>
         <select
@@ -544,7 +588,8 @@ function PriceList() {
           columnAutoWidth={true}
           onRowUpdating={updateRow}
           //onCellDblClick={dblClick}
-          onCellClick={snglClick}
+          //onCellClick={snglClick}
+          onCellClick={dblClick}
         >
           {console.log(orderId)}
           {orderId ? (
