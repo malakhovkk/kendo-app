@@ -514,7 +514,7 @@ function PriceList() {
   const [showPopUp, setShowPopUp] = useState(true);
   return (
     <>
-      <Popup visible={true} contentRender={renderContent} />
+      {/* <Popup visible={true} contentRender={renderContent} /> */}
       <div style={{ marginTop: "100px", width: "1400px" }}>
         <select
           onChange={selectVendor}
