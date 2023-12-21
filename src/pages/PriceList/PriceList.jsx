@@ -366,15 +366,31 @@ function PriceList() {
   function isNumber(str) {
     return !isNaN(str);
   }
-
+  const updateRef = useRef(false);
   function updateRow(e) {
+    let sh = [];
+    console.log(array);
+    console.log(sh);
     console.error(e);
     console.log(cart);
     const id = e.oldData.id;
     const quant = e.newData.orderQuant;
+    const name = e.oldData.name;
+
+    console.log({ quant, name });
     let cm = { ...cartMap };
     cm[id] = quant;
+    setShowCart([...showCart, { name, quant }]);
+    // updateRef.current = true;
   }
+
+  useEffect(() => {
+    let sh = [];
+    setInterval(() => {
+      //alert();
+    }, 3000);
+  }, []);
+
   console.log(cart);
 
   String.prototype.includesId = (array, id) => {
@@ -389,7 +405,6 @@ function PriceList() {
       // selected = e.data;
       // popup.show();
     }
-    alert(1);
   };
   function splitArr(arrayModified) {
     let arrPOST = [],
@@ -548,21 +563,12 @@ function PriceList() {
   };
   console.log(cart);
   const [showCart, setShowCart] = useState([]);
-  useEffect(() => {
-    let sh = [];
-    if (!cartMap) return;
-    array.forEach((arrayEl) => {
-      let [foundEl] = data.filter((el) => arrayEl.orderQuant);
-      if (foundEl) {
-        console.log(foundEl);
-        sh.push({
-          name: foundEl.name,
-          quant: foundEl.orderQuant,
-        });
-      }
-    });
-    setShowCart(sh);
-  }, [array]);
+  // useEffect(() => {
+  //   let sh = [];
+  //   alert(1);
+  //   if (!array) return;
+
+  // }, [array]);
   console.warn(showCart);
   return (
     <>
