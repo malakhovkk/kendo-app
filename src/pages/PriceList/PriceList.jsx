@@ -380,7 +380,12 @@ function PriceList() {
     console.log({ quant, name });
     let cm = { ...cartMap };
     cm[id] = quant;
-    setShowCart([...showCart, { name, quant }]);
+    if (showCart.filter((el) => el.id !== id)) {
+    }
+    setShowCart([
+      ...showCart.filter((el) => el.id !== id),
+      { id, name, quant },
+    ]);
     // updateRef.current = true;
   }
 
@@ -437,10 +442,13 @@ function PriceList() {
         // delete cartMap[el.priceRecordId];
         // setCartMap(el.priceRecordId);
       } else {
-        if (el.id === "") {
+        if (el.id === "" && el.quant != "0") {
           arrPOST = [...arrPOST, { ...el, id }];
-        } else if (q != el.quant) {
+        } else if (q != el.quant && el.quant != "0") {
           arrPUT = [...arrPUT, { ...el, id }];
+        } else {
+          delete cartMap[id];
+          setArray(array.filter((el) => el.id !== id));
         }
       }
     });
@@ -640,7 +648,23 @@ function PriceList() {
       <br />
       <br />
       <div>Корзина:</div>
-      <DataGrid dataSource={showCart}></DataGrid>
+      <DataGrid dataSource={showCart}>
+        <Column
+          key={"name"}
+          dataField={"name"}
+          format={"right"}
+          allowEditing={true}
+          caption="Название"
+          fixed={true}
+        />
+        <Column
+          key={"quant"}
+          dataField={"quant"}
+          allowEditing={true}
+          caption="Кол-во в заказе"
+          fixed={true}
+        />
+      </DataGrid>
     </>
   );
 }
