@@ -380,10 +380,10 @@ function PriceList() {
     console.log({ quant, name });
     let cm = { ...cartMap };
     cm[id] = quant;
-    if (showCart.filter((el) => el.id !== id)) {
-    }
+    if (quant == 0) return;
+
     setShowCart([
-      ...showCart.filter((el) => el.id !== id),
+      ...showCart.filter((el) => el.id !== id && quant != 0),
       { id, name, quant },
     ]);
     // updateRef.current = true;
@@ -496,6 +496,7 @@ function PriceList() {
       (await getOrderReq(orderId).unwrap()).forEach((el) => {
         new_cart[el.id] = el;
       });
+      setArray(array.filter((el) => el.orderQuant != "0"));
     } catch (err) {
       console.log(err);
     }
@@ -545,15 +546,17 @@ function PriceList() {
 
   const dblClick = (e) => {
     console.log(e);
-    if (e.columnIndex === 0) {
+    if (e.column.dataField === "1C") {
       setLinkPriceRecordId(e.data.id);
       setLinkName(e.data.name);
       setPopUpInfo({});
       return;
     }
-    setPopUpInfo({ name: "12", address: "Садовая улица 17/2" });
-    setLinkPriceRecordId();
-    setLinkName();
+    if (e.column.dataField === "name") {
+      setPopUpInfo({ name: "12", address: "Садовая улица 17/2" });
+      setLinkPriceRecordId();
+      setLinkName();
+    }
   };
 
   const renderContent = () => {
@@ -621,6 +624,8 @@ function PriceList() {
           columnAutoWidth={true}
           onRowUpdating={updateRow}
           onCellClick={dblClick}
+          hoverStateEnabled={true}
+          selection={{ mode: "single" }}
         >
           {console.log(orderId)}
           {orderId ? (
@@ -647,7 +652,7 @@ function PriceList() {
       ) : null}
       <br />
       <br />
-      <div>Корзина:</div>
+      <div>Состав заказа:</div>
       <DataGrid dataSource={showCart}>
         <Column
           key={"name"}
