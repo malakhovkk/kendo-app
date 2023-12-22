@@ -380,12 +380,14 @@ function PriceList() {
     console.log({ quant, name });
     let cm = { ...cartMap };
     cm[id] = quant;
-    if (quant == 0) return;
-
-    setShowCart([
-      ...showCart.filter((el) => el.id !== id && quant != 0),
-      { id, name, quant },
-    ]);
+    //if (quant == 0) return;
+    let resCart = [...showCart.filter((el) => el.id !== id)];
+    if (quant != "0") {
+      console.log(quant);
+      alert(quant !== 0);
+      resCart.push({ id, name, quant });
+    }
+    setShowCart(resCart);
     // updateRef.current = true;
   }
 
@@ -506,10 +508,26 @@ function PriceList() {
   }
 
   const [createOrderReq] = useCreateOrderMutation();
+  const [dateInfo, setDateInfo] = useState("");
   async function createOrder() {
     try {
-      const { id } = await createOrderReq(vendorId).unwrap();
+      const { id, number } = await createOrderReq(vendorId).unwrap();
       setOrderId(id);
+      var date = new Date(2014, 11, 31, 12, 30, 0);
+
+      var options = {
+        era: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long",
+        timezone: "UTC",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+      };
+
+      setDateInfo(date.toLocaleString("ru", options));
       showSuccess("Заказ успешно создан!");
       console.log(id);
     } catch (e) {
@@ -581,6 +599,7 @@ function PriceList() {
 
   // }, [array]);
   console.warn(showCart);
+  console.error(dateInfo);
   return (
     <>
       {Object.keys(popUpInfo).length !== 0 ? (
@@ -596,6 +615,7 @@ function PriceList() {
       ) : null}
       {/* <Popup visible={true} contentRender={renderContent} /> */}
       <div style={{ marginTop: "100px", width: "1400px" }}>
+        <div>Дата создания: {dateInfo}</div>
         <select
           onChange={selectVendor}
           // value={orderId.current}
