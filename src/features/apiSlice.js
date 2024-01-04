@@ -512,14 +512,13 @@ export const userApi = createApi({
         method: "GET",
       }),
     }),
-    
-    // orderComment: builder.mutation({
-    //   query: (body) => ({
-    //     url: `ordercomment/`,
-    //     method: "PUT",
-    //     body,
-    //   }),
-    // }),
+    orderComment: builder.mutation({
+      query: (body) => ({
+        url: `ordercomment/`,
+        method: "PUT",
+        body,
+      }),
+    }),
     // getProduct: builder.query({
     //   query: (product) => `products/search?q=${product}`,
     // }),
@@ -586,5 +585,5 @@ export const {
   useDeleteSingleMutation,
   useDeleteMultipleMutation,
   useGetLinksMutation,
-  useAddMultipleMutation
+  useAddMultipleMutation,
 } = userApi;

@@ -49,7 +49,13 @@ import {
 import { today } from "@progress/kendo-react-dateinputs";
 import WindowLink from "../../components/WindowLink";
 import { dblClick } from "@testing-library/user-event/dist/click";
+import { useOrderCommentMutation } from "../../features/apiSlice";
+import axios from "axios";
+import { combineReducers } from "@reduxjs/toolkit";
+import TextArea from "devextreme-react/text-area";
+
 const serviceUrl = "http://194.87.239.231:55555/api/";
+const notesLabel = { "aria-label": "Комментарий" };
 
 const remoteDataSource = createStore({
   key: "ID",
@@ -58,6 +64,20 @@ const remoteDataSource = createStore({
   updateUrl: serviceUrl + "/UpdateAction",
   deleteUrl: serviceUrl + "/DeleteAction",
 });
+
+const CommentInput = ({ onChange }) => {
+  const [comm, setComm] = useState("");
+  return (
+    <textarea
+      name="comment"
+      value={comm}
+      onChange={(e) => {
+        onChange(e);
+        setComm(e.target.value);
+      }}
+    ></textarea>
+  );
+};
 
 function PriceList() {
   const [data, setData] = useState([]);
@@ -375,8 +395,20 @@ function PriceList() {
     console.log(cart);
     const id = e.oldData.id;
     const quant = e.newData.orderQuant;
+    const maxQuant = e.oldData.quant;
     const name = e.oldData.name;
-
+    if (!isNumber(quant)) {
+      alert("Введите число");
+      setArray([...array.filter((el) => el.id !== id)]);
+      return;
+    }
+    console.log(Number(maxQuant) < Number(quant));
+    console.log(maxQuant, quant);
+    if (Number(maxQuant) < Number(quant)) {
+      alert("Введенное число больше максимального");
+      setArray([...array.filter((el) => el.id !== id)]);
+      return;
+    }
     console.log({ quant, name });
     let cm = { ...cartMap };
     cm[id] = quant;
@@ -384,7 +416,6 @@ function PriceList() {
     let resCart = [...showCart.filter((el) => el.id !== id)];
     if (quant != "0") {
       console.log(quant);
-      alert(quant !== 0);
       resCart.push({ id, name, quant });
     }
     setShowCart(resCart);
@@ -511,12 +542,15 @@ function PriceList() {
   const [dateInfo, setDateInfo] = useState("");
   async function createOrder() {
     try {
-      const { id, number } = await createOrderReq(vendorId).unwrap();
+      const { id, dateCreate, number, comment } = await createOrderReq(
+        vendorId
+      ).unwrap();
       setOrderId(id);
-      var date = new Date(2014, 11, 31, 12, 30, 0);
+      console.log(dateCreate);
+      console.log(number);
+      var date = new Date(dateCreate);
 
       var options = {
-        era: "long",
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -527,7 +561,17 @@ function PriceList() {
         second: "numeric",
       };
 
-      setDateInfo(date.toLocaleString("ru", options));
+      setDateInfo(
+        "Заказ № " + number + " от " + date.toLocaleString("ru", options)
+      );
+      setPopUpInfo({
+        number,
+        date: date.toLocaleString("ru", options),
+        comment,
+      });
+      console.log(
+        "Заказ с номером " + number + ", " + date.toLocaleString("ru", options)
+      );
       showSuccess("Заказ успешно создан!");
       console.log(id);
     } catch (e) {
@@ -558,20 +602,25 @@ function PriceList() {
     setLinkName("");
   };
 
-  const [popUpInfo, setPopUpInfo] = useState({});
+  const [popUpInfo, setPopUpInfo] = useState({ comment: "" });
+  const [visiblePopUpInfo, setVisiblePopUpInfo] = useState(false);
 
   const [showPopUp, setShowPopUp] = useState(true);
+
+  const [orderInfo, setOrderInfo] = useState({});
+  const [shopInfo, setShopInfo] = useState({});
 
   const dblClick = (e) => {
     console.log(e);
     if (e.column.dataField === "1C") {
       setLinkPriceRecordId(e.data.id);
       setLinkName(e.data.name);
-      setPopUpInfo({});
+
       return;
     }
     if (e.column.dataField === "name") {
-      setPopUpInfo({ name: "12", address: "Садовая улица 17/2" });
+      setShopInfo({ name: "12", address: "Садовая улица 17/2" });
+      setShopInfoPopUp(true);
       setLinkPriceRecordId();
       setLinkName();
     }
@@ -579,11 +628,12 @@ function PriceList() {
 
   const renderContent = () => {
     let res = [];
-    for (let key in popUpInfo) {
+    let popUpInfo;
+    for (let key in shopInfo) {
       res.push(
         <div>
           {" "}
-          {key}: {popUpInfo[key]}
+          {key}: {shopInfo[key]}
         </div>
       );
     }
@@ -592,17 +642,101 @@ function PriceList() {
   };
   console.log(cart);
   const [showCart, setShowCart] = useState([]);
+  const [extraInfo, setExtraInfo] = useState({});
+  const [showExtraInfo, setShowExtraInfo] = useState(false);
+  const [orderCommentReq] = useOrderCommentMutation();
   // useEffect(() => {
   //   let sh = [];
   //   alert(1);
   //   if (!array) return;
 
   // }, [array]);
-  console.warn(showCart);
-  console.error(dateInfo);
+
+  const clickExtraInfo = () => {
+    setShowExtraInfo(true);
+  };
+
+  const comm = useRef("");
+  const popupinfo = useRef("");
+  const [commArea, setCommArea] = useState("");
+
+  const extraInfoPopUp = () => {
+    //console.log("extraInfo ", extraInfo);
+    return (
+      <div>
+        Номер заказа: {popUpInfo.number}
+        <br />
+        Дата создания: {popUpInfo.date}
+        <br />
+        {/* <TextArea
+            height={90}
+            value={commArea}
+            // readOnly={true}
+            inputAttr={notesLabel}
+            valueChangeEvent={eventValue}
+          /> */}
+        {/* <TextArea className="dx-field-value" inputAttr={notesLabel} height={80} defaultValue="" /> */}
+        <CommentInput onChange={(e) => (popupinfo.current = e.target.value)} />
+        {/* {popUpInfo.comment} */}
+        <br />
+        <Button
+          onClick={(e) => {
+            //alert();
+            const url = "http://194.87.239.231:55555/api/orderComment";
+
+            const formData = new FormData();
+            formData.append("OrderId", orderId);
+            formData.append("Comment", popupinfo.current);
+
+            // formData.append('fileName', file.name);
+            const config = {
+              headers: {
+                "content-type": "multipart/form-data",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                User: `${localStorage.getItem("login")}`,
+              },
+            };
+            try {
+              axios.put(url, formData, config);
+            } catch (e) {
+              console.log(e);
+            }
+          }}
+        >
+          Сохранить комментарий
+        </Button>
+        <br />
+      </div>
+    );
+  };
+
+  const [shopInfoPopUp, setShopInfoPopUp] = useState("");
   return (
     <>
-      {Object.keys(popUpInfo).length !== 0 ? (
+      {visiblePopUpInfo && (
+        <Popup
+          visible={true}
+          onHiding={() => setVisiblePopUpInfo(false)}
+          hideOnOutsideClick={true}
+          closeOnClick={() => setVisiblePopUpInfo(false)}
+          contentRender={extraInfoPopUp}
+          width={500}
+          height={400}
+        />
+      )}
+      {shopInfoPopUp ? (
+        <Popup
+          visible={true}
+          onHiding={() => setShopInfoPopUp(false)}
+          hideOnOutsideClick={true}
+          closeOnClick={() => setShopInfoPopUp(false)}
+          contentRender={renderContent}
+          width={500}
+          height={400}
+        />
+      ) : null}
+
+      {/* {Object.keys(popUpInfo).length !== 0 ? (
         <Popup
           visible={true}
           onHiding={() => setPopUpInfo(false)}
@@ -613,9 +747,31 @@ function PriceList() {
           height={400}
         />
       ) : null}
+      {showPopUp && (
+        <Popup
+          visible={true}
+          onHiding={() => setShowPopUp(false)}
+          hideOnOutsideClick={true}
+          closeOnClick={() => setShowPopUp(false)}
+          contentRender={extraInfoPopUp}
+          width={500}
+          height={400}
+        />
+      )} */}
       {/* <Popup visible={true} contentRender={renderContent} /> */}
       <div style={{ marginTop: "100px", width: "1400px" }}>
-        <div>Дата создания: {dateInfo}</div>
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          {orderId && (
+            <Button
+              style={{ marginRight: "20px" }}
+              onClick={() => setVisiblePopUpInfo(true)}
+            >
+              Информация о заказе
+            </Button>
+          )}
+          <div>{dateInfo}</div>
+        </div>
+        <br />
         <select
           onChange={selectVendor}
           // value={orderId.current}
