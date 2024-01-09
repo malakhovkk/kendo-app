@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate, useLocation, Outlet, Link } from "react-router-dom";
 import { Drawer, DrawerContent } from "@progress/kendo-react-layout";
 import { Button } from "@progress/kendo-react-buttons";
@@ -169,6 +170,48 @@ const DrawerRouterContainer = (props) => {
     }
     // setExpanded(!expanded);
   };
+
+  const [opened, setOpened] = useState(true);
+  const [openedStateMode, setOpenedStateMode] = useState("shrink");
+  const [revealMode, setRevealMode] = useState("slide");
+  const [position, setPosition] = useState("left");
+
+  const toolbarItems = useMemo(
+    () => [
+      {
+        widget: "dxButton",
+        location: "before",
+        options: {
+          icon: "menu",
+          stylingMode: "text",
+          onClick: () => setOpened(!opened),
+        },
+      },
+    ],
+    [opened, setOpened]
+  );
+  const onOpenedStateModeChanged = useCallback(
+    ({ value }) => {
+      setOpenedStateMode(value);
+    },
+    [setOpenedStateMode]
+  );
+  const onRevealModeChanged = useCallback(
+    ({ value }) => {
+      setRevealMode(value);
+    },
+    [setRevealMode]
+  );
+  const onPositionChanged = useCallback(
+    ({ value }) => {
+      setPosition(value);
+    },
+    [setPosition]
+  );
+  const onOutsideClick = useCallback(() => {
+    setOpened(false);
+    return false;
+  }, [setOpened]);
 
   // let selected = setSelectedItem(location.pathname);
   return (
