@@ -63,13 +63,29 @@ function PriceList() {
 
   const [vendorId, setVendorId] = useState("");
   const { state } = useLocation();
-  console.log(state);
+  console.warn(state);
+
+  useEffect(async () => {
+    console.log(state);
+    // alert(state.idVendor);
+    if (!state || !state?.idVendor || !state?.idOrder) return;
+    const res = await getDocument({
+      id: state.idVendor,
+    }).unwrap();
+    const new_cart = {};
+    (await getOrderReq(state.orderId).unwrap()).forEach((el) => {
+      new_cart[el.id] = el;
+    });
+    setCartMap(new_cart);
+    setShowCart(new_cart);
+  }, []);
 
   useEffect(() => {
-    if (state) {
-      setOrderId(state.idOrder);
-      setVendorId(state.idVendor);
-    }
+    if (!state || !state?.idVendor || !state?.idOrder) return;
+    console.log(state);
+    console.log(state, state?.idVendor, state?.idOrder);
+    setOrderId(state.idOrder);
+    setVendorId(state.idVendor);
   }, []);
 
   const showSuccess = (msg) => {
@@ -369,6 +385,7 @@ function PriceList() {
           };
         })
     );
+    console.log(arrPOST);
     try {
       if (arrPOST.length) await saveOrderReq({ body: arrPOST }).unwrap();
     } catch (e) {
