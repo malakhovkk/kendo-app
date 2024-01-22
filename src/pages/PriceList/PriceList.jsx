@@ -3,8 +3,9 @@ import { useSaveOrderMutation } from "../../features/apiSlice";
 import "devextreme/dist/css/dx.light.css";
 import "devextreme/dist/css/dx.common.css";
 import { useLocation } from "react-router-dom";
+import  {priceListApi} from "../../rtk/PriceList/priceListApi.js";
 
-import {
+import { 
   DataGrid,
   GroupPanel,
   FilterRow,
@@ -50,6 +51,7 @@ const CommentInput = ({ onChange }) => {
 };
 
 function PriceList() {
+  priceListApi.fetchData();
   const [data, setData] = useState([]);
   const [orderId, setOrderId] = useState();
   const [getDocument] = useGetDocumentMutation();
@@ -74,10 +76,11 @@ function PriceList() {
     }).unwrap();
     const new_cart = {};
     (await getOrderReq(state.orderId).unwrap()).forEach((el) => {
-      new_cart[el.id] = el;
+      //new_cart[el.id] = el;
+      console.error(el);
     });
-    setCartMap(new_cart);
-    setShowCart(new_cart);
+    //setCartMap(new_cart);
+    //setShowCart(new_cart);
   }, []);
 
   useEffect(() => {
@@ -138,12 +141,12 @@ function PriceList() {
 
       setDataCol(dl.filter((el) => el !== undefined));
 
-      let res222 = JSON.parse(JSON.stringify(res));
-      res222[0].statistics.price = 6;
-      res222[1].statistics.quant = -3;
+      // let res222 = JSON.parse(JSON.stringify(res));
+      // res222[0].statistics.price = 6;
+      // res222[1].statistics.quant = -3;
 
       setData(
-        res222.map((_el) => {
+        JSON.parse(JSON.stringify(res)).map((_el) => {
           return {
             "1C": _el.linkId ? "+" : "-",
             priceDelta:
@@ -169,7 +172,7 @@ function PriceList() {
           };
         })
       );
-      console.warn(res222);
+     // console.warn(res222);
     }
     exec();
   }, [vendorId]);
