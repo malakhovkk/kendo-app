@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const priceListApi = {
-    fetchData: () => {
-        return axios.get(`http://${process.env.REACT_APP_IP}/api/`);
+    fetchData: (id) => {
+        return axios.get(`http://${process.env.REACT_APP_IP}/api/Document/${id}`);
     }
 }

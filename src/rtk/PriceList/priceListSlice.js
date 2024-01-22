@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { priceListApi } from './priceListApi'
 
 
-const fetchUserById = createAsyncThunk(
-    'users/fetchByIdStatus',
-    async (userId, thunkAPI) => {
-      const response = await userAPI.fetchById(userId)
+const fetchTable = createAsyncThunk(
+    'priceList/fetchTable',
+    async (id, thunkAPI) => {
+      const response = await priceListApi.fetchById(id)
       return response.data
     }
   )
@@ -12,21 +13,21 @@ const fetchUserById = createAsyncThunk(
 
 const initialState = { value: 0 }
 
-const counterSlice = createSlice({
-  name: 'counter',
+const priceListSlice = createSlice({
+  name: 'priceList',
   initialState,
   reducers: {
-    increment(state) {
-      state.value++
-    },
-    decrement(state) {
-      state.value--
-    },
-    incrementByAmount(state, action) {
-      state.value += action.payload
-    },
+
   },
+  extraReducers: (builder) => {
+    // Add reducers for additional action types here, and handle loading state as needed
+    builder.addCase(fetchTable.fulfilled, (state, action) => {
+      // Add user to the state array
+      state.entities.push(action.payload)
+    })
+  },
+  
 })
 
-export const { increment, decrement, incrementByAmount } = counterSlice.actions
+// export const { increment, decrement, incrementByAmount } = counterSlice.actions
 export default counterSlice.reducer
