@@ -42,38 +42,40 @@ const PriceList = () => {
   console.log(">>>>>>", state);
   const dispatch = useDispatch();
 
-  const { table,  columns} = useSelector((state) => state.priceList);
+  const { table, columns } = useSelector((state) => state.priceList);
   useEffect(() => {
     dispatch(fetchTable(id));
   }, []);
-
+  console.log(table);
   return (
-    <DataGrid
-      dataSource={table}
-      allowColumnReordering={true}
-      allowColumnResizing={true}
-      height={800}
-      columnResizingMode={"widget"}
-      columnAutoWidth={true}
-      // onRowUpdating={updateRow}
-      // onCellClick={dblClick}
-      hoverStateEnabled={true}
-      selection={{ mode: "single" }}
-    >
-      {/* {orderId ? (
+    table && (
+      <DataGrid
+        dataSource={table}
+        allowColumnReordering={true}
+        allowColumnResizing={true}
+        height={800}
+        columnResizingMode={"widget"}
+        columnAutoWidth={true}
+        // onRowUpdating={updateRow}
+        // onCellClick={dblClick}
+        hoverStateEnabled={true}
+        selection={{ mode: "single" }}
+      >
+        {/* {orderId ? (
         <Editing
           onChangesChange={onChangesChange}
           mode="row"
           allowUpdating={true}
         />
       ) : null} */}
-      {columns}
+        {columns}
 
-      <Scrolling columnRenderingMode="virtual" mode="infinite" />
-      <FilterRow visible={true} />
-      <SearchPanel visible={true} />
-      <GroupPanel visible={true} />
-    </DataGrid>
+        <Scrolling columnRenderingMode="virtual" mode="infinite" />
+        <FilterRow visible={true} />
+        <SearchPanel visible={true} />
+        <GroupPanel visible={true} />
+      </DataGrid>
+    )
   );
 };
 

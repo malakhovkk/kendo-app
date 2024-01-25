@@ -39,16 +39,19 @@ export const fetchTable = createAsyncThunk(
     // console.log("data", data);
     // let id = data.id;
     try {
-      let res = await fetch(`http://194.87.239.231:55555/Document/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          User: `${localStorage.getItem("login")}`,
-        },
-      });
+      let resReq = await fetch(
+        `http://194.87.239.231:55555/api/Document/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            User: `${localStorage.getItem("login")}`,
+          },
+        }
+      );
       let dl = [];
-
+      let res = await resReq.json();
       res[0].fieldsList.columns.forEach((element) => {
         dl[element.index] = {
           name: element.name,
@@ -83,15 +86,103 @@ export const fetchTable = createAsyncThunk(
           status: "new",
         };
       });
+      let columns = [];
+      res[0].fieldsList.columns.forEach((element) => {
+        dl[element.index] = {
+          name: element.name,
+          caption: element.caption,
+          alignment: element.alignment,
+          format: element.format,
+        };
+      });
+      console.log(res);
+      console.error(columns);
+      let dataCol = columns;
+      columns = [];
+      if (dataCol.length)
+        dataCol.forEach((el) => {
+          let alignment;
+          switch (el.alignment) {
+            case "C":
+              alignment = "center";
+              break;
+            case "L":
+              alignment = "left";
+              break;
+            case "R":
+              alignment = "right";
+              break;
+            default:
+              alignment = "left";
+              break;
+          }
+          console.log(alignment);
+          if (el.name === "quant_stock") {
+            if (orderId)
+              columns = [
+                ...columns,
+                <Column
+                  key={"orderQuant"}
+                  dataField={"orderQuant"}
+                  format={"right"}
+                  allowEditing={true}
+                  caption="Кол-во в заказе"
+                  fixed={true}
+                />,
+                // <Column
+                //   key={el.name}
+                //   dataField={el.name}
+                //   format={el.format}
+                //   alignment={alignment}
+                //   allowEditing={false}
+                //   caption={el.caption}
+                //   fixed={columnsFixed.includes(el.name)}
+                // />,
+              ];
+            else
+              columns = [
+                ...columns,
 
-      return { table: res, columns: data };
-    } catch (err) {
-      return rejectWithValue(err);
+                // <Column
+                //   key={el.name}
+                //   dataField={el.name}
+                //   format={el.format}
+                //   alignment={alignment}
+                //   allowEditing={false}
+                //   caption={el.caption}
+                //   fixed={columnsFixed.includes(el.name)}
+                // />,
+              ];
+          } else
+            columns.push(
+              <Column
+                key={el.name}
+                dataField={el.name}
+                format={el.format}
+                alignment={alignment}
+                allowEditing={false}
+                caption={el.caption}
+                fixed={columnsFixed.includes(el.name)}
+              />
+            );
+        });
+      columns = [
+        <Column
+          key={"1C"}
+          fixed={true}
+          dataField={"1C"}
+          allowEditing={false}
+          caption={"1C"}
+        />,
+        ...columns,
+      ];
+
+      return { table: res, columns };
+    } catch (e) {
+      console.log(e);
     }
   }
 );
-
-
 
 export const priceListSlice = createSlice({
   name: "priceList",
@@ -114,6 +205,7 @@ export const priceListSlice = createSlice({
     },
     [fetchTable.rejected]: (state, action) => {
       state.errorTable = action.message;
+      console.error("<<<<", action.message);
     },
     [fetchTable.fulfilled]: (state, action) => {
       state.loadingTable = false;
