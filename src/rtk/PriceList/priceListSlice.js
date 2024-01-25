@@ -33,14 +33,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 //create action
-export const createUser = createAsyncThunk(
+export const fetchTable = createAsyncThunk(
   "fetchTable",
-  async (data, { rejectWithValue }) => {
-    console.log("data", data);
-    let id = data.id;
+  async (id, { rejectWithValue }) => {
+    // console.log("data", data);
+    // let id = data.id;
     try {
-      let res = await fetch(`https://194.87.239.231:55555/Document/${id}`, {
-        method: "POST",
+      let res = await fetch(`http://194.87.239.231:55555/Document/${id}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -57,9 +57,8 @@ export const createUser = createAsyncThunk(
           format: element.format,
         };
       });
-      console.log(dl.filter((el) => el !== undefined));
 
-      data = JSON.parse(JSON.stringify(res)).map((_el) => {
+      let data = JSON.parse(JSON.stringify(res)).map((_el) => {
         return {
           "1C": _el.linkId ? "+" : "-",
           priceDelta:
@@ -92,68 +91,9 @@ export const createUser = createAsyncThunk(
   }
 );
 
-// //read action
-// export const showUser = createAsyncThunk(
-//   "showUser",
-//   async (args, { rejectWithValue }) => {
-//     const response = await fetch(
-//       "https://641dd63d945125fff3d75742.mockapi.io/crud"
-//     );
 
-//     try {
-//       const result = await response.json();
-//       console.log(result);
-//       return result;
-//     } catch (error) {
-//       return rejectWithValue(error);
-//     }
-//   }
-// );
-// //delete action
-// export const deleteUser = createAsyncThunk(
-//   "deleteUser",
-//   async (id, { rejectWithValue }) => {
-//     const response = await fetch(
-//       `https://641dd63d945125fff3d75742.mockapi.io/crud/${id}`,
-//       { method: "DELETE" }
-//     );
 
-//     try {
-//       const result = await response.json();
-//       console.log(result);
-//       return result;
-//     } catch (error) {
-//       return rejectWithValue(error);
-//     }
-//   }
-// );
-
-// //update action
-// export const updateUser = createAsyncThunk(
-//   "updateUser",
-//   async (data, { rejectWithValue }) => {
-//     console.log("updated data", data);
-//     const response = await fetch(
-//       `https://641dd63d945125fff3d75742.mockapi.io/crud/${data.id}`,
-//       {
-//         method: "PUT",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(data),
-//       }
-//     );
-
-//     try {
-//       const result = await response.json();
-//       return result;
-//     } catch (error) {
-//       return rejectWithValue(error);
-//     }
-//   }
-// );
-
-export const userDetail = createSlice({
+export const priceListSlice = createSlice({
   name: "priceList",
   initialState: {
     loadingTable: false,
@@ -168,7 +108,6 @@ export const userDetail = createSlice({
     //   state.searchData = action.payload;
     // },
   },
-
   extraReducers: {
     [fetchTable.pending]: (state) => {
       state.loadingTable = true;
@@ -184,6 +123,6 @@ export const userDetail = createSlice({
   },
 });
 
-export default priceList.reducer;
+export default priceListSlice.reducer;
 
 //export const { searchUser } = userDetail.actions;

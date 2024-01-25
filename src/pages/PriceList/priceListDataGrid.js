@@ -95,7 +95,6 @@ export const priceListDataGrid = () => {
         hoverStateEnabled={true}
         selection={{ mode: "single" }}
       >
-        {console.log(orderId)}
         {orderId ? (
           <Editing
             onChangesChange={onChangesChange}

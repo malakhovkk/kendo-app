@@ -36,12 +36,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import settings from "./features/settings";
 import login from "./features/login";
 import { rtkQueryErrorLogger } from "./middlewareError";
+import { priceListSlice } from "./rtk/PriceList/priceListSlice";
 
 export const store = configureStore({
   reducer: {
     [userApi.reducerPath]: userApi.reducer,
     settings,
     login,
+    priceList: priceListSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(userApi.middleware, rtkQueryErrorLogger),

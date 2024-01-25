@@ -29,10 +29,24 @@ import { toast } from "react-toastify";
 import WindowLink from "../../components/WindowLink";
 
 import axios from "axios";
+
+import { useDispatch } from "react-redux";
+
 import { useSelector } from "react-redux";
+
+import { fetchTable } from "../../rtk/PriceList/priceListSlice.js";
+
 const PriceList = () => {
-  const { table, loading, searchData } = useSelector((state) => state.table);
-  const { columns } = useSelector((state) => state.columns);
+  const id = "8f645ced-737e-11eb-82a1-001d7dd64d88";
+  const state = useSelector((state) => state);
+  console.log(">>>>>>", state);
+  const dispatch = useDispatch();
+
+  const { table,  columns} = useSelector((state) => state.priceList);
+  useEffect(() => {
+    dispatch(fetchTable(id));
+  }, []);
+
   return (
     <DataGrid
       dataSource={table}
